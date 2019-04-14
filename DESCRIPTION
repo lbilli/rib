@@ -1,0 +1,19 @@
+Package: rib
+Title: An R implementation of Interactive Brokers API
+Version: 0.5.0
+Authors@R: person("Luca", "Billi", email = "noreply.section+dev@gmail.com", role = c("aut", "cre"))
+Description: A native R implementation of Interactive Brokers API.
+    It establishes a TCP connection to a server and handles
+    request-response message exchanges.
+    Data is encoded and decoded between user and wire formats. Data strucures
+    mirror what is found in the official APIs, which is available for other
+    languages.
+Depends:
+    R (>= 3.4.0)
+Import:
+    R6 (>= 2.4.0)
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+URL: https://github.com/lbilli/rib/
+BugReports: https://github.com/lbilli/rib/issues/

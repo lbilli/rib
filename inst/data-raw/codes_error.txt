@@ -1,0 +1,6 @@
+name                code    message
+ALREADY_CONNECTED    501    "Already connected."
+UNKNOWN_ID           505    "Fatal Error: Unknown message id."
+UNSUPPORTED_VERSION  506    "Unsupported version."
+BAD_LENGTH           507    "Bad message length."
+BAD_MESSAGE          508    "Bad message."
