@@ -3,8 +3,8 @@
 **An R implementation of Interactive Brokers API**
 
 Originally inspired by [`IBrokers`](https://CRAN.R-project.org/package=IBrokers),
-`rib` is a native [R](https://www.r-project.org/) client
-implementing [Interactive Brokers](https://www.interactivebrokers.com/) API
+`rib` is a native [R](https://www.r-project.org/) client that
+implements [Interactive Brokers](https://www.interactivebrokers.com/) API
 to communicate with their TWS or IBGateway.
 
 It aims to be feature complete, though it does not support legacy versions:
@@ -32,9 +32,9 @@ The user interacts mainly with two classes, implemented here as
   client processes the responses. Customized versions are derived from this class.
 
 Other data structures, such as `Contract` and `Order`, are implemented as R lists,
-or nested lists, that mirror the respective classes in the official IB API.
+or nested lists, and mirror the respective classes in the official IB API.
 
-A complete minimal working example follows.
+A complete minimal working example is shown.
 For this code to work, an instance of the IB TWS or IBGateway needs to be running
 on the local machine, listening on port `4002`.
 **Note:** _demo_ or _paper_ account recommended!! :smirk:
@@ -100,7 +100,7 @@ Two possible approaches, with or without a loop, are described:
 
 ##### Straight Request-Response pattern. No loop.
 This is the simplest case. Not suitable for data subscriptions or whenever a
-stream of messages are expected. It follows the pattern:
+stream of messages is expected. It follows the pattern:
 - connect
 - send requests
 - process responses
@@ -183,26 +183,28 @@ This implements the IB `EClient` class functionality. Among its methods:
   Return the number of responses processed. **Needs to be called regularly**.
 - `flush()`: flush unprocessed responses, without dispatching callbacks.
   Mostly for debugging or testing.
-- all other methods send specific requests to the server.
-  Refer to the official IB `EClient` documentation for details and method signatures.
+- all other methods that send specific requests to the server.
+  Refer to the official IB `EClient` class documentation for details and method signatures.
 
 ##### [`IBWrap`](R/IBWrap/R)
-Like the official IB `EWrapper`, this holds the callbacks that are dispatched
-when processing the responses. `IBWrap` itself is a base class containing
+Like the official IB `EWrapper` class, this holds the callbacks that are dispatched
+when responses are processed. `IBWrap` itself is a base class containing
 only dummy methods.
-Users need to derive from it and customize the desired methods.
+Users need to derive from it and override the desired methods.
+The code [above](#usage) provides a quick view of the procedure.
 
-Refer to the code [above](#usage) or, for a more extensive example,
-to the definition of [`IBWrapSimple`](R/IBWrapSimple.R), which is provided for
+For a more extensive example, refer to the definition of
+[`IBWrapSimple`](R/IBWrapSimple.R), which is provided for
 illustrative purposes and which prints out the content of the responses or store it
 within `IBWrapSimple$context` for later inspection.
 
-For more details regarding callback definitions and signatures,
-refer again to the official IB `EWrapper` documentation.
+For more details about callback definitions and signatures,
+refer again to the official IB `EWrapper` class documentation.
 
-##### Notes
+#### Notes
 Callbacks are generally invoked with arguments and types matching the signatures
-found in the official documentation. However, there are few notable exceptions:
+as described in the official documentation.
+However, there are few notable exceptions:
 - `tickPrice()` has an extra `size` argument,
   which is meaningful only when `TickType = {BID, ASK, LAST}`.
   In these cases, the official IB API fires an extra `tickSize()` event instead.
@@ -215,16 +217,16 @@ found in the official documentation. However, there are few notable exceptions:
 These modifications make it possible to establish the rule:
 _one callback per server response_.
 
-As a corollary, `historicalDataEnd()` and `scannerDataEnd()` become redundant and
+As a corollary, `historicalDataEnd()` and `scannerDataEnd()` are redundant and
 thus are **not** used in this package.
 
-`data.frame` structures are used liberally as arguments in several other callbacks,
+`data.frame` structures are also used as arguments in several other callbacks,
 such as: `softDollarTiers()`, `familyCodes()`,
 `mktDepthExchanges()`, `smartComponents()`, `newsProviders()`, `histogramData()`,
 `marketRule()` and the `historicalTicks*()` family.
 
 ##### Data Structures
-Other classes that mainly hold data are also [defined](R/structs.R) in the package.
+Other classes that mainly hold data are also [defined](R/structs.R).
 They are implemented as simple R (nested) lists with names, types and default values
 matching the IB API counterparts.
 Examples are: `Contract`, `Order`, `ComboLeg`, `ExecutionFilter`, `ScannerSubscription`
@@ -259,7 +261,7 @@ order$totalQuantity <- 100
 order$orderType     <- "LMT"
 order$lmtPrice      <- 50
 ```
-To instantiate a `Condition` type, invoke `fCondition(type)` like this:
+To instantiate a `Condition`, invoke `fCondition(type)` like this:
 ```R
 condition <- fCondition("Price")
 ```
