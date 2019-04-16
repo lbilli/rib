@@ -409,6 +409,9 @@ Decoder <- R6::R6Class("Decoder",
       if(private$serverVersion >= MIN_SERVER_VER_D_PEG_ORDERS)
         order$discretionaryUpToLimitPrice <- imsg$pop()
 
+      if(private$serverVersion >= MIN_SERVER_VER_PRICE_MGMT_ALGO)
+        order$usePriceMgmtAlgo <- imsg$pop()
+
       private$validate("openOrder", orderId=    order$orderId,
                                     contract=   contract,
                                     order=      order,
@@ -1153,6 +1156,194 @@ Decoder <- R6::R6Class("Decoder",
     ORDER_BOUND= function(imsg) {
 
       private$validate("orderBound", imsg$pop(3L), no_names=TRUE)
+    },
+
+    COMPLETED_ORDER= function(imsg) {
+
+      contract   <- Contract
+      order      <- Order
+      orderState <- OrderState
+
+      contract[c(1L:8L, 10L:12L)] <- imsg$pop(11L)
+
+      order[c(4L:9L)] <- imsg$pop(6L)  # "action" through "tif"
+
+      order[c("ocaGroup",
+              "account",
+              "openClose")] <- imsg$pop(3L)
+
+      order$origin <- map_int2enum("Origin", imsg$pop())
+
+      order[c("orderRef",
+              "permId",
+              "outsideRth",
+              "hidden",
+              "discretionaryAmt",
+              "goodAfterTime",
+              "faGroup",
+              "faMethod",
+              "faPercentage",
+              "faProfile")] <- imsg$pop(10L)
+
+      if(private$serverVersion >= MIN_SERVER_VER_MODELS_SUPPORT)
+        order$modelCode <- imsg$pop()
+
+      order[c("goodTillDate",
+              "rule80A",
+              "percentOffset",
+              "settlingFirm",
+              "shortSaleSlot",
+              "designatedLocation",
+              "exemptCode")] <- imsg$pop(7L)
+
+      order[47L:51L] <- imsg$pop(5L)     # "startingPrice" through "stockRangeUpper"
+
+      order[c("displaySize",
+              "sweepToFill",
+              "allOrNone",
+              "minQty",
+              "ocaType",
+              "triggerMethod")] <- imsg$pop(6L)
+
+      order[54L:57L] <- imsg$pop(4L)   # "volatility" through "deltaNeutralAuxPrice"
+
+      if(nzchar(order$deltaNeutralOrderType))
+        order[c(58L, 63L:65L)] <- imsg$pop(4L)  # "deltaNeutralConId" through "deltaNeutralDesignatedLocation"
+
+
+      order[c("continuousUpdate",
+              "referencePriceType",
+              "trailStopPrice",
+              "trailingPercent")] <- imsg$pop(4L)
+
+      contract$comboLegsDescrip <- imsg$pop()
+
+      # ComboLegs
+      comboLegsCount <- Validator$i(imsg$pop())
+
+      if(comboLegsCount > 0L) {
+
+        contract$comboLegs <- lapply(seq_len(comboLegsCount),
+                                     function(i) {
+
+                                        combo <- ComboLeg
+
+                                        combo[1L:8L] <- imsg$pop(8L)
+
+                                        combo
+                                      })
+      }
+
+      # OrderComboLeg
+      orderComboLegsCount <- Validator$i(imsg$pop())
+
+      if(orderComboLegsCount > 0L)
+        order$orderComboLegs <- imsg$pop(orderComboLegsCount)
+
+      # SmartComboRouting
+      smartComboRoutingParamsCount <- Validator$i(imsg$pop())
+
+      if(smartComboRoutingParamsCount > 0L)
+        order$smartComboRoutingParams <- fold_tagvalue(imsg$pop(2L * smartComboRoutingParamsCount))
+
+
+      order[c("scaleInitLevelSize",
+              "scaleSubsLevelSize")] <- imsg$pop(2L)
+
+      order$scalePriceIncrement <- Validator$n(imsg$pop())
+
+      if(!is.na(order$scalePriceIncrement) && order$scalePriceIncrement > 0L)
+        order[73L:79L] <- imsg$pop(7L)
+
+
+      order$hedgeType <- imsg$pop()
+
+      if(nzchar(order$hedgeType))
+        order$hedgeParam <- imsg$pop()
+
+      order[c("clearingAccount",
+              "clearingIntent",
+              "notHeld")] <- imsg$pop(3L)
+
+      # DeltaNeutralContract
+      if(Validator$l(imsg$pop())) {
+
+        contract$deltaNeutralContract <- DeltaNeutralContract
+
+        contract$deltaNeutralContract[1L:3L] <- imsg$pop(3L)
+      }
+
+      # AlgoStrategy
+      order$algoStrategy <- imsg$pop()
+
+      if(nzchar(order$algoStrategy)) {
+
+        algoParamsCount <- Validator$i(imsg$pop())
+
+        if(algoParamsCount > 0L)
+          order$algoParams <- fold_tagvalue(imsg$pop(2L * algoParamsCount))
+      }
+
+      order$solicited <- imsg$pop()
+
+      orderState$status <- imsg$pop()
+
+      order[c("randomizeSize",
+              "randomizePrice")] <- imsg$pop(2L)
+
+      if(private$serverVersion >= MIN_SERVER_VER_PEGGED_TO_BENCHMARK) {
+
+        if(order$orderType == "PEG BENCH")
+          order[c("referenceContractId",
+                  "isPeggedChangeAmountDecrease",
+                  "peggedChangeAmount",
+                  "referenceChangeAmount",
+                  "referenceExchangeId")] <- imsg$pop(5L)
+
+        conditionsSize <- Validator$i(imsg$pop())
+
+        if(conditionsSize > 0L) {
+
+          for(i in seq_len(conditionsSize)) {
+
+            condition <- fCondition(map_int2enum("Condition",
+                                                 Validator$i(imsg$pop())))
+
+            condition[-1L] <- imsg$pop(length(condition) - 1L)
+
+            order$conditions[[i]] <- condition
+          }
+
+          order[c("conditionsIgnoreRth",
+                  "conditionsCancelOrder")] <- imsg$pop(2L)
+        }
+      }
+
+      order[c("trailStopPrice",
+              "lmtPriceOffset")] <- imsg$pop(2L)
+
+      if(private$serverVersion >= MIN_SERVER_VER_CASH_QTY)
+        order$cashQty <- imsg$pop()
+
+      if(private$serverVersion >= MIN_SERVER_VER_AUTO_PRICE_FOR_HEDGE)
+        order$dontUseAutoPriceForHedge <- imsg$pop()
+
+      if(private$serverVersion >= MIN_SERVER_VER_ORDER_CONTAINER)
+        order$isOmsContainer <- imsg$pop()
+
+      order[122L:129L] <- imsg$pop(8L)     # "autoCancelDate" through "parentPermId"
+
+      orderState[c("completedTime",
+                   "completedStatus")] <- imsg$pop(2L)
+
+      private$validate("completedOrder", contract=   contract,
+                                         order=      order,
+                                         orderState= orderState)
+    },
+
+    COMPLETED_ORDERS_END= function(imsg) {
+
+      private$validate("completedOrdersEnd")
     }
   )
 )

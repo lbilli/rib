@@ -7,7 +7,6 @@ IBWrap <- R6::R6Class("IBWrap",
   public= list(
 
     # Callbacks
-
     tickPrice= function(tickerId, field, price, size, attrib) warning("Default implementation."),
 
     tickSize= function(tickerId, field, size) warning("Default implementation."),
@@ -164,6 +163,10 @@ IBWrap <- R6::R6Class("IBWrap",
 
     tickByTickMidPoint= function(reqId, time, midPoint) warning("Default implementation."),
 
-    orderBound= function(orderId, apiClientId, apiOrderId) warning("Default implementation.")
+    orderBound= function(orderId, apiClientId, apiOrderId) warning("Default implementation."),
+
+    completedOrder= function(contract, order, orderState) warning("Default implementation."),
+
+    completedOrdersEnd= function() warning("Default implementation.")
   )
 )

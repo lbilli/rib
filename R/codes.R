@@ -164,4 +164,6 @@ map_inbound <- c(  "1" = "TICK_PRICE",
                   "97" = "HISTORICAL_TICKS_BID_ASK",
                   "98" = "HISTORICAL_TICKS_LAST",
                   "99" = "TICK_BY_TICK",
-                 "100" = "ORDER_BOUND")
+                 "100" = "ORDER_BOUND",
+                 "101" = "COMPLETED_ORDER",
+                 "102" = "COMPLETED_ORDERS_END")

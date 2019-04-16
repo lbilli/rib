@@ -78,3 +78,5 @@ tickByTickAllLast       i,i,c,n,i,TickAttribLast,c,c reqId,tickType,time,price,s
 tickByTickBidAsk        i,c,n,n,i,i,TickAttribBidAsk reqId,time,bidPrice,askPrice,bidSize,askSize,attribs
 tickByTickMidPoint      i,c,n                        reqId,time,midPoint
 orderBound              i,i,i                        orderId,apiClientId,apiOrderId
+completedOrder          Contract,Order,OrderState    contract,order,orderState
+completedOrdersEnd      NA                           NA

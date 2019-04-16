@@ -14,7 +14,6 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     initialize= function() self$context <- new.env(),
 
     # Override methods
-
     tickPrice=          function(tickerId, field, price, size, attrib) {
                           cat("Price:", tickerId, field, price, size, unlist(attrib), "\n")
                         },
@@ -35,14 +34,15 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                         },
 
     orderStatus=        function(orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice) {
-                          cat("OrderId:", orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice, "\n")
+                          cat("OrderStatus:", orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice, "\n")
                         },
 
     openOrder=          function(orderId, contract, order, orderstate) {
                           self$context$order <- list(id=orderId, contract=contract, order=order, orderstate=orderstate)
+                          cat("OpenOrder:", orderId, "\n")
                         },
 
-    openOrderEnd=       function() cat("openOrderEnd.\n"),
+    openOrderEnd=       function() cat("OpenOrderEnd.\n"),
 
     connectionClosed=   function() cat("ConnectionClosed.\n"),
 
@@ -225,7 +225,16 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                           cat("tickByTickBidAsk:", reqId, time, bidPrice, askPrice, bidSize, askSize, unlist(attribs), "\n"),
 
     tickByTickMidPoint= function(reqId, time, midPoint)
-                          cat("tickByTickMidPoint:", reqId, time, midPoint, "\n")
+                          cat("tickByTickMidPoint:", reqId, time, midPoint, "\n"),
 
+    orderBound=         function(orderId, apiClientId, apiOrderId)
+                          cat("orderBound:", orderId, apiClientId, apiOrderId, "\n"),
+
+    completedOrder=     function(contract, order, orderState) {
+                          self$context$completed <- list(contract=contract, order=order, orderstate=orderState)
+                          cat("completedOrder.\n")
+                        },
+
+    completedOrdersEnd= function() cat("completedOrdersEnd.\n")
   )
 )

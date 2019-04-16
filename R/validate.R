@@ -7,7 +7,7 @@ generate_validator <- function()
 
   ev$i <- function(x) {
                         if(is.character(x))
-                          x[x == "2147483647"] <- NA_character_
+                          x[x == "2147483647" | x == "9223372036854775807"] <- NA_character_
 
                         as.integer(x)
                       }

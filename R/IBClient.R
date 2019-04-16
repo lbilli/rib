@@ -144,7 +144,7 @@ IBClient <- R6::R6Class("IBClient",
       # Consistency checks
       # TODO: remove this
       stopifnot(raw_msg[length(raw_msg)] == as.raw(0L),  # Last byte is 0
-                n > 1L)                                  # At least 2 fields (TODO: too strict?)
+                n > 0L)                                  # At least 1 field
 
       res <- readBin(raw_msg, character(), n=n)
 
@@ -576,6 +576,9 @@ cat("Server Version and Timestamp:", res, "\n")
       if(self$serVersion >= MIN_SERVER_VER_D_PEG_ORDERS)
         payload <- c(payload, order["discretionaryUpToLimitPrice"])
 
+      if(self$serVersion >= MIN_SERVER_VER_PRICE_MGMT_ALGO)
+        payload <- c(payload, order["usePriceMgmtAlgo"])
+
       # TODO: remove this?
       # Check that NA's are only in allowed fields
       idx <- which(is.na(payload))
@@ -591,6 +594,7 @@ cat("Server Version and Timestamp:", res, "\n")
                                  "scalePriceIncrement", "scalePriceAdjustValue",
                                  "scalePriceAdjustInterval", "scaleProfitOffset",
                                  "scaleInitPosition", "scaleInitFillQty", "cashQty",
+                                 "usePriceMgmtAlgo",
 
                                  # The following ones are not set to "" in the API,
                                  # but left as .Machine$double.xmax
@@ -1069,6 +1073,17 @@ cat("Server Version and Timestamp:", res, "\n")
       private$encodeMsg(msg)
     },
 
-    cancelTickByTickData= function(reqId) private$req_simple("CANCEL_TICK_BY_TICK_DATA", reqId)
+    cancelTickByTickData= function(reqId) private$req_simple("CANCEL_TICK_BY_TICK_DATA", reqId),
+
+    reqCompletedOrders= function(apiOnly) {
+
+      msg <- private$initMsg("REQ_COMPLETED_ORDERS")
+
+      # Add payload
+      msg <- c(msg, private$sanitize(list(apiOnly)))
+
+      # Encode and send
+      private$encodeMsg(msg)
+    }
   )
 )

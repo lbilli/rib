@@ -186,7 +186,7 @@ This implements the IB `EClient` class functionality. Among its methods:
 - all other methods that send specific requests to the server.
   Refer to the official IB `EClient` class documentation for details and method signatures.
 
-##### [`IBWrap`](R/IBWrap/R)
+##### [`IBWrap`](R/IBWrap.R)
 Like the official IB `EWrapper` class, this holds the callbacks that are dispatched
 when responses are processed. `IBWrap` itself is a base class containing
 only dummy methods.
