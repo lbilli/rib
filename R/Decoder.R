@@ -39,8 +39,7 @@ Decoder <- R6::R6Class("Decoder",
                 private$error(code="UNKNOWN_ID", msg=msgId)
 
               else
-                # Dispatch the appropriate handler
-                #get(msgName, envir=private, mode="function", inherits=FALSE)(msg)
+                # Call the appropriate handler
                 private[[msgName]](imsg)
 
       # Check that all the message has been processed
@@ -78,7 +77,7 @@ Decoder <- R6::R6Class("Decoder",
       if(length(args) > 0L)
         args <- Validator[[fname]](args, no_names=no_names)
 
-#      do.call(private$wrap[[fname]], Validator[[fname]](args, no_names=no_names))
+      # Return callback name and argument list
       list(fname= fname, fargs= args)
     },
 

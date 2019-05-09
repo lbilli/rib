@@ -44,11 +44,6 @@ IBClient <- R6::R6Class("IBClient",
     #
     # msg: character vector
     #
-    # Values are encoded into a \0 separated string
-    # with a HEADER_LEN-byte header containing the length of the msg (excluding the header)
-    #
-    # Optional: API_SIGN can be prefixed to the message
-    #
     encodeMsg= function(msg, api_sign=FALSE) {
 
       stopifnot(is.character(msg),
@@ -58,9 +53,14 @@ IBClient <- R6::R6Class("IBClient",
 
       len <- length(raw_msg)
 
-      # Check that only ASCII chars are used
-      # TODO: remove this?
-      stopifnot(sum(nchar(msg, type="chars")) + length(msg) == len)
+      if(api_sign) {
+        # Chop last '\0'
+        raw_msg <- raw_msg[-len]
+        len <- len - 1L
+      }
+
+      # Only ASCII chars are allowed
+      stopifnot(raw_msg < 0x80)
 
       if(len > MAX_MSG_LEN) {
 
@@ -80,33 +80,7 @@ IBClient <- R6::R6Class("IBClient",
     },
 
     #
-    # Select on the connection socket
-    #
-    # timeout: in seconds; NULL for infinite
-    #
-    # Return TRUE if something is waiting to be read
-    #
-    wait= function(timeout) {
-
-      # Wait for data to read
-      stopifnot(self$isOpen)
-      res <- socketSelect(list(private$socket), write=FALSE, timeout=timeout)
-
-      # TODO: check execution time to catch dangling socket
-
-      # TRUE if data available, FALSE if timed out
-      res
-    },
-
-    countFields= function(r) {
-
-      stopifnot(is.raw(r))
-
-      sum(r==as.raw(0L))
-    },
-
-    #
-    # Read and parse one message
+    # Read one message. BLOCKING
     #
     # Return the fileds in a character vector
     #
@@ -115,84 +89,21 @@ IBClient <- R6::R6Class("IBClient",
       # Read header and decode message length
       len <- readBin(private$socket, integer(), size=HEADER_LEN, endian="big")
 
-      # Return if nothing read
-      if(length(len)==0L)
-        return(character())
-
       # Header consistency check
       stopifnot(len >  0L,
                 len <= MAX_MSG_LEN)
 
       raw_msg <- readBin(private$socket, raw(), n=len)
 
-      # If message is incomplete, wait (up to 2 seconds) and read the rest
-      while(length(raw_msg) < len) {
-
-        res <- private$wait(timeout=2)
-
-        # Stop on timeout
-        if(!res) {
-          private$error(code="BAD_MESSAGE")
-          stop("Message incomplete")
-        }
-
-        raw_msg <- c(raw_msg, readBin(private$socket, raw(), n= len - length(raw_msg)))
-      }
-
-      n <- private$countFields(raw_msg)
+      # Count the fields
+      n <- sum(raw_msg==as.raw(0L))
 
       # Consistency checks
-      # TODO: remove this
-      stopifnot(raw_msg[length(raw_msg)] == as.raw(0L),  # Last byte is 0
-                n > 0L)                                  # At least 1 field
+      stopifnot(length(raw_msg) == len,      # Entire message is read
+                raw_msg[len] == as.raw(0L),  # Last byte is 0
+                n > 0L)                      # At least 1 field
 
-      res <- readBin(raw_msg, character(), n=n)
-
-      # Consistency check
-      # TODO: remove this
-      stopifnot(sum(nchar(res, type="bytes")) + length(res) == len)
-
-      res
-    },
-
-    #
-    # Wait and read the messages from the server
-    #
-    # timeout:  seconds, NULL = infinite
-    # dispatch: send the message to the decoder (if FALSE only one message is read and returned)
-    #
-    # Return number of messages processed (dispatch=TRUE) or one message content
-    #
-    waitAndRead= function(timeout, dispatch) {
-
-      res <- private$wait(timeout=timeout)
-
-      # Timeout
-      if(!res)
-        return(if(dispatch) 0L
-               else         character())
-
-      # Read all available messages and dispatch the callbacks
-      if(dispatch) {
-
-        count <- 0L
-
-        while(length(msg <- private$readOneMsg()) > 0L) {
-
-          count <- count + 1L
-
-          # Decode inbound message
-          res <- private$decoder$decode(msg)
-
-          # Dispatch
-          do.call(private$wrap[[res$fname]], res$fargs)
-        }
-
-        count
-      }
-      # Read one message and return it
-      else
-        private$readOneMsg()
+      readBin(raw_msg, character(), n=n)
     },
 
     # Dispatch wrap$error()
@@ -251,23 +162,18 @@ IBClient <- R6::R6Class("IBClient",
         stop("Already Connected.")
       }
 
-      # Start connection to server
-      private$socket <- socketConnection(host=host, port=port, open="r+b", blocking=FALSE)
+      # Open connection to server
+      private$socket <- socketConnection(host=host, port=port, open="r+b", blocking=TRUE)
 
       # Prefix " " to connectOptions, if not empty
       if(nzchar(connectOptions, keepNA=TRUE))
         connectOptions <- paste0(" ", connectOptions)
 
-      #
-      # Status: CONNECTING
       # Start handshake
-      # Send "API\0" + HEADER + "v100..101[ connectOptions]\0"
-      # (even in the case MIN_CLIENT_VER=MAX_CLIENT_VER, instead of "v100[ connectOptions]")
-      #
       private$encodeMsg(paste0("v", MIN_CLIENT_VER, "..", MAX_CLIENT_VER, connectOptions), api_sign=TRUE)
 
-      # Server response (wait up to 2 seconds)
-      res <- private$waitAndRead(timeout=2, dispatch=FALSE)
+      # Server response
+      res <- private$readOneMsg()
 
       stopifnot(length(res)==2L)
 
@@ -287,7 +193,6 @@ cat("Server Version and Timestamp:", res, "\n")
         stop("Unsupported server version. Disconnected.")
       }
 
-      # Status: CONNECTED
       # startAPI
       self$startApi(clientId, optionalCapabilities)
 
@@ -301,9 +206,6 @@ cat("Server Version and Timestamp:", res, "\n")
 
       # Instantiate Decoder
       private$decoder <- Decoder$new(private$serverVersion)
-
-      # TODO
-      # Dispatch IBWrap callbacks to handle server initial responses: Account and NextId
     },
 
     disconnect= function() {
@@ -324,7 +226,7 @@ cat("Server Version and Timestamp:", res, "\n")
     },
 
     #
-    # Replace callbacks wrapper on the fly
+    # Replace wrapper
     #
     replaceWrap= function(wrap) {
 
@@ -335,28 +237,41 @@ cat("Server Version and Timestamp:", res, "\n")
       private$wrap <- wrap
     },
 
-    checkMsg= function(timeout=2)
-
-      private$waitAndRead(timeout=timeout, dispatch=TRUE),
 
     #
-    # Flush inbound queue
+    # Process server responses
     #
-    # Returns number of messages ignored
+    # Block up to timeout
+    # Discard messages if flush=TRUE
     #
-    flush= function() {
+    checkMsg= function(timeout=0, flush=FALSE) {
+
+      stopifnot(self$isOpen)
 
       count <- 0L
 
-      while(length(private$readOneMsg()) > 0L)
+      while(socketSelect(list(private$socket), write=FALSE, timeout=timeout)){
+
         count <- count + 1L
+
+        msg <- private$readOneMsg()
+
+        if(!flush) {
+
+          # Decode message
+          res <- private$decoder$decode(msg)
+
+          # Dispatch
+          do.call(private$wrap[[res$fname]], res$fargs)
+        }
+      }
 
       count
     },
 
     # ########################################################################
     #
-    # Methods to send messages to the server
+    # Send requests to the server
     #
     # ########################################################################
 

@@ -156,7 +156,7 @@ repeat {
   ic$reqContractDetails(...)
 
   # Wait and process responses
-  ic$checkMsg(2)
+  ic$checkMsg()
 
   if(done)
     break
@@ -178,11 +178,10 @@ This implements the IB `EClient` class functionality. Among its methods:
   it is possible to replace the set of callbacks in a connected client.
 - `connect(host, port, clientId, connectOptions)`: establish a connection.
 - `disconnect()`: close the connection.
-- `checkMsg(timeout)`: wait for responses and dispatch callbacks.
+- `checkMsg(timeout, flush)`: wait for responses and dispatch callbacks.
   If no response is available, it **blocks** up to `timeout` seconds.
+  If `flush=TRUE` callbacks are not dispatched.
   Return the number of responses processed. **Needs to be called regularly**.
-- `flush()`: flush unprocessed responses, without dispatching callbacks.
-  Mostly for debugging or testing.
 - all other methods that send specific requests to the server.
   Refer to the official IB `EClient` class documentation for details and method signatures.
 
