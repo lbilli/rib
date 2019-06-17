@@ -494,6 +494,8 @@ Decoder <- R6::R6Class("Decoder",
       if(private$serverVersion >= MIN_SERVER_VER_REAL_EXPIRATION_DATE)
         cd$realExpirationDate <- imsg$pop()
 
+      if(private$serverVersion >= MIN_SERVER_VER_STOCK_TYPE)
+        cd$stockType <- imsg$pop()
 
       private$validate("contractDetails", reqId=reqId, contractDetails=cd)
     },
