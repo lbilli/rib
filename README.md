@@ -14,7 +14,7 @@ This limit may become even stricter in the future.
 The package design mirrors the official C++/Java
 [IB API](http://interactivebrokers.github.io/tws-api/),
 which is based on an asynchronous request-response communication model
-over a TCP socket.
+over TCP socket.
 
 ### Installation
 To install from GitHub,
@@ -32,7 +32,7 @@ The user interacts mainly with two classes, implemented here as
   client processes the responses. Customized versions are derived from this class.
 
 Other data structures, such as `Contract` and `Order`, are implemented as R lists,
-or nested lists, and mirror the respective classes in the official IB API.
+or nested lists, and mirror the respective classes of the official IB API.
 
 A complete minimal working example is shown.
 For this code to work, an instance of the IB TWS or IBGateway needs to be running
@@ -120,7 +120,7 @@ ic$reqContractDetails(11, contract)
 
 # more requests can go here...
 
-# Parse responses.
+# Parse responses
 # Might need to be called several times to process all messages
 ic$checkMsg(2)
 
@@ -237,7 +237,7 @@ contract          <- Contract
 contract$conId    <- 12345
 contract$currency <- "USD"
 ```
-In the case of `Contract` and `Order`, convenience [functions](R/factory.R)
+In the case of `Contract` and `Order`, helper [functions](R/factory.R)
 are also provided to prefill some common fields:
 ```R
 contract <- IBContract("GOOG")
@@ -260,12 +260,19 @@ order$totalQuantity <- 100
 order$orderType     <- "LMT"
 order$lmtPrice      <- 50
 ```
-To instantiate a `Condition`, invoke `fCondition(type)` like this:
+To instantiate a `Condition`, invoke `fCondition(type)`
+and fill in the appropriate fields:
 ```R
 condition <- fCondition("Price")
+condition$conId    <- 265598L
+condition$exchange <- "SMART"
+condition$is_more  <- TRUE
+condition$value    <- 200
 ```
-`TagValue` types are implemented as R named character vectors:
+`TagValueList` are implemented as R named character vectors.
+Wherever a `TagValueList` is needed, something like this can be used:
 ```R
-# Wherever a TagValue is needed, something like this can be used:
-c(tag1="value1", tag2="value2")
+tagvaluelist <- c(tag1="value1", tag2="value2")
+# or, in case of an empty list:
+emptylist <- character()
 ```

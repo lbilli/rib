@@ -244,7 +244,7 @@ cat("Server Version and Timestamp:", res, "\n")
     # Block up to timeout
     # Discard messages if flush=TRUE
     #
-    checkMsg= function(timeout=0, flush=FALSE) {
+    checkMsg= function(timeout=0.2, flush=FALSE) {
 
       stopifnot(self$isOpen)
 

@@ -9,10 +9,10 @@ from_IBtime <- function(s)
 {
 
   res <- if(nchar(s) == 17L)
-           as.POSIXct(s, format("%Y%m%d-%T"), tz=checkTZ("UTC"))
+           as.POSIXct(s, format("%Y%m%d-%T"), tz=validateTZ("UTC"))
 
          else if(nchar(s) >= 21L)
-           as.POSIXct(s, format("%Y%m%d %T"), tz=checkTZ(substr(s, 19L, nchar(s))))
+           as.POSIXct(s, format("%Y%m%d %T"), tz=validateTZ(substr(s, 19L, nchar(s))))
 
   stopifnot(!is.null(res),
             !is.na(res))
@@ -30,7 +30,7 @@ to_IBtime <- function(p, tz="UTC")
 {
   stopifnot(inherits(p, "POSIXct"))
 
-  format(p, format="%Y%m%d %T %Z", tz=checkTZ(tz))
+  format(p, format="%Y%m%d %T %Z", tz=validateTZ(tz))
 }
 
 #
@@ -39,7 +39,7 @@ to_IBtime <- function(p, tz="UTC")
 #
 # !!! POSIXct functions silently ignore invalid timezones
 #
-checkTZ <- function(tz)
+validateTZ <- function(tz)
 {
   if(tz %in% c("EDT", "EST", "Eastern Standard Time"))
     tz <- "America/New_York"
