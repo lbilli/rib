@@ -35,16 +35,17 @@ Decoder <- R6::R6Class("Decoder",
       msgName <- map_inbound[msgId]
 
       # Unknown msgId
-      res <- if(is.na(msgName))
-                private$error(code="UNKNOWN_ID", msg=msgId)
-
-              else
-                # Call the appropriate handler
-                private[[msgName]](imsg)
+      res <- if(is.na(msgName)) {
+               warning("Unknown message id: ", msgId)
+               NULL
+             }
+             else
+               # Call the appropriate handler
+               private[[msgName]](imsg)
 
       # Check that all the message has been processed
       if(imsg$left() > 0L)
-        warning("Message:", msgName, "not completly processed")
+        warning("Message: ", msgName, " not completely processed")
 
       res
     }
@@ -54,14 +55,6 @@ Decoder <- R6::R6Class("Decoder",
   private= list(
 
     serverVersion= NULL,  # Server Version
-
-    # Process errors
-    error= function(id=NO_VALID_ID, code, msg="") {
-
-      err <- map_error(code)
-
-      private$validate("error", id=id, errorCode=err$code, errorString=paste(err$message, msg))
-    },
 
     #
     # Validate/convert args
@@ -1150,8 +1143,11 @@ Decoder <- R6::R6Class("Decoder",
         private$validate("tickByTickMidPoint", reqId=    reqId,
                                                time=     time,
                                                midPoint= imsg$pop())
-      } else
-        private$error(id=reqId, code="UNKNOWN_ID", msg=paste("Unknown TickType:", tickType))
+      }
+      else {
+        warning("TICK_BY_TICK: Unknown TickType ", tickType)
+        NULL
+      }
     },
 
     ORDER_BOUND= function(imsg) {

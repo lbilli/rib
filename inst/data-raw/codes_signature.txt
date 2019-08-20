@@ -8,7 +8,6 @@ tickEFP                 i,c,n,c,n,i,c,n,n            tickerId,tickType,basisPoin
 orderStatus             i,c,n,n,n,i,i,n,i,c,n        orderId,status,filled,remaining,avgFillPrice,permId,parentId,lastFillPrice,clientId,whyHeld,mktCapPrice
 openOrder               i,Contract,Order,OrderState  orderId,contract,order,orderstate
 openOrderEnd            NA                           NA
-connectionClosed        NA                           NA
 updateAccountValue      c,c,c,c                      key,val,currency,accountName
 updatePortfolio         Contract,n,n,n,n,n,n,c       contract,position,marketPrice,marketValue,averageCost,unrealizedPNL,realizedPNL,accountName
 updateAccountTime       c                            timeStamp
@@ -45,7 +44,6 @@ displayGroupList        i,c                          reqId,groups
 displayGroupUpdated     i,c                          reqId,contractInfo
 verifyAndAuthMessageAPI c,c                          apiData,xyzChallange
 verifyAndAuthCompleted  l,c                          isSuccessful,errorText
-connectAck              NA                           NA
 positionMulti           i,c,c,Contract,n,n           reqId,account,modelCode,contract,position,avgCost
 positionMultiEnd        i                            reqId
 accountUpdateMulti      i,c,c,c,c,c                  reqId,account,modelCode,key,value,currency

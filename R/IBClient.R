@@ -27,19 +27,6 @@ IBClient <- R6::R6Class("IBClient",
     },
 
     #
-    # Lookup message id and version
-    #
-    initMsg= function(name) {
-
-      res <- map_outbound(name)
-
-      if(is.na(res$version))
-        res$id
-      else
-        c(res$id, res$version)
-    },
-
-    #
     # Encode and send a message
     #
     # msg: character vector
@@ -59,15 +46,8 @@ IBClient <- R6::R6Class("IBClient",
         len <- len - 1L
       }
 
-      # Only ASCII chars are allowed
-      stopifnot(raw_msg < 0x80)
-
-      if(len > MAX_MSG_LEN) {
-
-        private$error(code="BAD_LENGTH")
-
-        stop("Message too long.")
-      }
+      stopifnot(raw_msg < 0x80,     # Only ASCII chars are allowed
+                len <= MAX_MSG_LEN)
 
       header <- writeBin(len, raw(), size=HEADER_LEN, endian="big")
 
@@ -106,14 +86,6 @@ IBClient <- R6::R6Class("IBClient",
       readBin(raw_msg, character(), n=n)
     },
 
-    # Dispatch wrap$error()
-    error= function(id=NO_VALID_ID, code, msg="") {
-
-      err <- map_error(code)
-
-      private$wrap$error(id, Validator$i(err$code), paste(err$message, msg))
-    },
-
     # Convert bool -> integer and check for NA
     # Return character vector
     sanitize= function(v) {
@@ -129,8 +101,8 @@ IBClient <- R6::R6Class("IBClient",
     },
 
     # Convenience wrapper for simple payload requests
-    req_simple= function(msgname, x=NULL)
-                  private$encodeMsg(c(private$initMsg(msgname), x))
+    req_simple= function(msgid, ...)
+                  private$encodeMsg(c(msgid, ...))
   ),
 
   active= list(
@@ -155,12 +127,7 @@ IBClient <- R6::R6Class("IBClient",
 
     connect= function(host="localhost", port=4002L, clientId=1L, connectOptions="", optionalCapabilities="") {
 
-      if(!is.null(private$socket)) {
-
-        private$error(code="ALREADY_CONNECTED")
-
-        stop("Already Connected.")
-      }
+      stopifnot(is.null(private$socket))
 
       # Open connection to server
       private$socket <- socketConnection(host=host, port=port, open="r+b", blocking=TRUE)
@@ -177,20 +144,17 @@ IBClient <- R6::R6Class("IBClient",
 
       stopifnot(length(res)==2L)
 
-cat("Server Version and Timestamp:", res, "\n")
+      cat("Server Version and Timestamp:", res, "\n")
       private$serverVersion   <- as.integer(res[1L])
       private$serverTimestamp <- from_IBtime(res[2L])
-      private$serverTZ        <- attr(private$serTimestamp, "tzone")
+      private$serverTZ        <- attr(private$serverTimestamp, "tzone")
 
-      # TODO: Remove this, probably useless
       # Check server version
-      if(private$serverVersion < MIN_CLIENT_VER || private$serverVersion > MAX_CLIENT_VER) {
+      if(private$serverVersion < MIN_CLIENT_VER ||
+         private$serverVersion > MAX_CLIENT_VER) {
 
         self$disconnect()
-
-        private$error(code="UNSUPPORTED_VERSION", msg=private$serverVersion)
-
-        stop("Unsupported server version. Disconnected.")
+        stop("Unsupported server version: ", res[1L])
       }
 
       # startAPI
@@ -199,10 +163,7 @@ cat("Server Version and Timestamp:", res, "\n")
       private$Id <- clientId
 
       # TODO
-      # Verify that connection was successful: i.e. no other clients with same Id are connected
-
-      # Dispatch connectAck()
-      private$wrap$connectAck()
+      # Verify that connection was successful
 
       # Instantiate Decoder
       private$decoder <- Decoder$new(private$serverVersion)
@@ -211,8 +172,6 @@ cat("Server Version and Timestamp:", res, "\n")
     disconnect= function() {
 
       if(!is.null(private$socket)) {
-
-        private$wrap$connectionClosed()
 
         close(private$socket)
 
@@ -262,7 +221,8 @@ cat("Server Version and Timestamp:", res, "\n")
           res <- private$decoder$decode(msg)
 
           # Dispatch
-          do.call(private$wrap[[res$fname]], res$fargs)
+          if(!is.null(res))
+            do.call(private$wrap[[res$fname]], res$fargs)
         }
       }
 
@@ -277,7 +237,7 @@ cat("Server Version and Timestamp:", res, "\n")
 
     reqMktData= function(tickerId, contract, genericTicks="", snapshot=TRUE, regulatorySnaphsot=FALSE, mktDataOptions=character()) {
 
-      msg <- private$initMsg("REQ_MKT_DATA")
+      msg <- c("1", "11") ### REQ_MKT_DATA
 
       # Add payload (as list)
       payload <- contract[1L:12L]
@@ -311,14 +271,14 @@ cat("Server Version and Timestamp:", res, "\n")
       private$encodeMsg(msg)
     },
 
-    cancelMktData= function(tickerId) private$req_simple("CANCEL_MKT_DATA", tickerId),
+    cancelMktData= function(tickerId) private$req_simple("2", "2", tickerId), ### CANCEL_MKT_DATA
 
     placeOrder= function(id, contract, order) {
 
-      msg <- private$initMsg("PLACE_ORDER")
-
-      if(self$serVersion >= MIN_SERVER_VER_ORDER_CONTAINER)
-        msg <- msg[1L]
+      msg <- if(self$serVersion < MIN_SERVER_VER_ORDER_CONTAINER)
+               c("3", "45")   ### PLACE_ORDER
+             else
+               "3"
 
       # Add payload
       payload <- contract[c(1L:12L, 14L, 15L)]
@@ -525,13 +485,13 @@ cat("Server Version and Timestamp:", res, "\n")
       private$encodeMsg(msg)
     },
 
-    cancelOrder= function(id) private$req_simple("CANCEL_ORDER", id),
+    cancelOrder= function(id) private$req_simple("4", "1", id), ### CANCEL_ORDER
 
-    reqOpenOrders= function() private$req_simple("REQ_OPEN_ORDERS"),
+    reqOpenOrders= function() private$req_simple("5", "1"), ### REQ_OPEN_ORDERS
 
     reqAccountUpdates= function(subscribe, acctCode) {
 
-      msg <- private$initMsg("REQ_ACCT_DATA")
+      msg <- c("6", "2") ### REQ_ACCT_DATA
 
       # Add payload
       msg <- c(msg, private$sanitize(list(subscribe, acctCode)))
@@ -542,10 +502,9 @@ cat("Server Version and Timestamp:", res, "\n")
 
     reqExecutions= function(reqId, filter) {
 
-      msg <- private$initMsg("REQ_EXECUTIONS")
-
-      # Add payload
-      msg <- c(msg, reqId, private$sanitize(filter))
+      msg <- c("7", "3", ### REQ_EXECUTIONS
+               reqId,
+               private$sanitize(filter))
 
       # Encode and send
       private$encodeMsg(msg)
@@ -553,14 +512,13 @@ cat("Server Version and Timestamp:", res, "\n")
 
     reqIds= function()
       # Hardcode numIds = 1. It's deprecated and unused.
-      private$req_simple("REQ_IDS", 1L),
+      private$req_simple("8", "1", "1"), ### REQ_IDS
 
     reqContractDetails= function(reqId, contract) {
 
-      msg <- private$initMsg("REQ_CONTRACT_DATA")
-
-      # Add payload
-      msg <- c(msg, reqId, private$sanitize(contract[1L:15L]))
+      msg <- c("9", "8", ### REQ_CONTRACT_DATA
+               reqId,
+               private$sanitize(contract[1L:15L]))
 
       # Encode and send
       private$encodeMsg(msg)
@@ -568,7 +526,7 @@ cat("Server Version and Timestamp:", res, "\n")
 
     reqMktDepth= function(tickerId, contract, numRows, isSmartDepth, mktDepthOptions=character()) {
 
-      msg <- private$initMsg("REQ_MKT_DEPTH")
+      msg <- c("10", "5") ### REQ_MKT_DEPTH
 
       # Add payload
       payload <- c(contract[if(self$serVersion >= MIN_SERVER_VER_MKT_DEPTH_PRIM_EXCHANGE) 1L:12L
@@ -586,9 +544,7 @@ cat("Server Version and Timestamp:", res, "\n")
 
     cancelMktDepth= function(tickerId, isSmartDepth) {
 
-      msg <- private$initMsg("CANCEL_MKT_DEPTH")
-
-      msg <- c(msg,
+      msg <- c("11", "1",  ### CANCEL_MKT_DEPTH
                tickerId,
                if(self$serVersion >= MIN_SERVER_VER_SMART_DEPTH)
                  private$sanitize(list(isSmartDepth)))
@@ -598,45 +554,40 @@ cat("Server Version and Timestamp:", res, "\n")
 
     reqNewsBulletins= function(allMsgs) {
 
-      msg <- private$initMsg("REQ_NEWS_BULLETINS")
-
-      # Add payload
-      msg <- c(msg, private$sanitize(list(allMsgs)))
+      msg <- c("12", "1", ### REQ_NEWS_BULLETINS
+               private$sanitize(list(allMsgs)))
 
       # Encode and send
       private$encodeMsg(msg)
     },
 
-    cancelNewsBulletins= function() private$req_simple("CANCEL_NEWS_BULLETINS"),
+    cancelNewsBulletins= function() private$req_simple("13", "1"), ### CANCEL_NEWS_BULLETINS
 
-    setServerLogLevel= function(logLevel) private$req_simple("SET_SERVER_LOGLEVEL", logLevel),
+    setServerLogLevel= function(logLevel) private$req_simple("14", "1", logLevel), ### SET_SERVER_LOGLEVEL
 
     reqAutoOpenOrders= function(bAutoBind) {
 
-      msg <- private$initMsg("REQ_AUTO_OPEN_ORDERS")
-
-      # Add payload
-      msg <- c(msg, private$sanitize(list(bAutoBind)))
+      msg <- c("15", "1", ### REQ_AUTO_OPEN_ORDERS
+             private$sanitize(list(bAutoBind)))
 
       # Encode and send
       private$encodeMsg(msg)
     },
 
-    reqAllOpenOrders= function() private$req_simple("REQ_ALL_OPEN_ORDERS"),
+    reqAllOpenOrders= function() private$req_simple("16", "1"), ### REQ_ALL_OPEN_ORDERS
 
-    reqManagedAccts= function() private$req_simple("REQ_MANAGED_ACCTS"),
+    reqManagedAccts= function() private$req_simple("17", "1"), ### REQ_MANAGED_ACCTS
 
-    requestFA= function(pFaDataType) private$req_simple("REQ_FA", map_enum2int("faDataType", pFaDataType)),
+    requestFA= function(pFaDataType) private$req_simple("18", "1", map_enum2int("faDataType", pFaDataType)), ### REQ_FA
 
-    replaceFA= function(pFaDataType, cxml) private$req_simple("REPLACE_FA", c(map_enum2int("faDataType", pFaDataType), cxml)),
+    replaceFA= function(pFaDataType, cxml) private$req_simple("19", "1", map_enum2int("faDataType", pFaDataType), cxml), ### REPLACE_FA
 
     reqHistoricalData= function(tickerId, contract, endDateTime, durationStr, barSizeSetting, whatToShow, useRTH, formatDate, keepUpToDate, chartOptions=character()) {
 
-      msg <- private$initMsg("REQ_HISTORICAL_DATA")
-
-      # Remove VERSION
-      if(self$serVersion >= MIN_SERVER_VER_SYNT_REALTIME_BARS)
-        msg <- msg[1L]
+      msg <- if(self$serVersion < MIN_SERVER_VER_SYNT_REALTIME_BARS)
+               c("20", "6") ### REQ_HISTORICAL_DATA
+             else
+               "20"
 
       # Add payload
       payload <- contract[1L:13L]
@@ -666,7 +617,7 @@ cat("Server Version and Timestamp:", res, "\n")
 
     exerciseOptions= function(tickerId, contract, exerciseAction, exerciseQuantity, account, override) {
 
-      msg <- private$initMsg("EXERCISE_OPTIONS")
+      msg <- c("21", "2") ### EXERCISE_OPTIONS
 
       # Add payload
       payload <- contract[c(1L:8L, 10L:12L)]
@@ -681,10 +632,10 @@ cat("Server Version and Timestamp:", res, "\n")
 
     reqScannerSubscription= function(tickerId, subscription, scannerSubscriptionOptions=character(), scannerSubscriptionFilterOptions=character()) {
 
-      msg <- private$initMsg("REQ_SCANNER_SUBSCRIPTION")
-
-      if(self$serVersion >= MIN_SERVER_VER_SCANNER_GENERIC_OPTS)
-        msg <- msg[1L]
+      msg <- if(self$serVersion < MIN_SERVER_VER_SCANNER_GENERIC_OPTS)
+               c("22", "4") ### REQ_SCANNER_SUBSCRIPTION
+             else
+               "22"
 
       # Add payload
       payload <- c(subscription[1L:21L],
@@ -708,17 +659,17 @@ cat("Server Version and Timestamp:", res, "\n")
       private$encodeMsg(msg)
     },
 
-    cancelScannerSubscription= function(tickerId) private$req_simple("CANCEL_SCANNER_SUBSCRIPTION", tickerId),
+    cancelScannerSubscription= function(tickerId) private$req_simple("23", "1", tickerId), ### CANCEL_SCANNER_SUBSCRIPTION
 
-    reqScannerParameters= function() private$req_simple("REQ_SCANNER_PARAMETERS"),
+    reqScannerParameters= function() private$req_simple("24", "1"), ### REQ_SCANNER_PARAMETERS
 
-    cancelHistoricalData= function(tickerId) private$req_simple("CANCEL_HISTORICAL_DATA", tickerId),
+    cancelHistoricalData= function(tickerId) private$req_simple("25", "1", tickerId), ### CANCEL_HISTORICAL_DATA
 
-    reqCurrentTime= function() private$req_simple("REQ_CURRENT_TIME"),
+    reqCurrentTime= function() private$req_simple("49", "1"), ### REQ_CURRENT_TIME
 
     reqRealTimeBars= function(tickerId, contract, barSize, whatToShow, useRTH, realTimeBarsOptions=character()) {
 
-      msg <- private$initMsg("REQ_REAL_TIME_BARS")
+      msg <- c("50", "3") ### REQ_REAL_TIME_BARS
 
       payload <- c(contract[1L:12L],
                    barSize,
@@ -734,14 +685,11 @@ cat("Server Version and Timestamp:", res, "\n")
       private$encodeMsg(msg)
     },
 
-    cancelRealTimeBars= function(tickerId) private$req_simple("CANCEL_REAL_TIME_BARS", tickerId),
+    cancelRealTimeBars= function(tickerId) private$req_simple("51", "1", tickerId), ### CANCEL_REAL_TIME_BARS
 
     reqFundamentalData= function(reqId, contract, reportType, fundamentalDataOptions=character()) {
 
-      msg <- private$initMsg("REQ_FUNDAMENTAL_DATA")
-
-      # Add payload
-      msg <- c(msg,
+      msg <- c("52", "2", ### REQ_FUNDAMENTAL_DATA
                reqId,
                private$sanitize(contract[c(1L:3L, 8L:11L)]),
                reportType,
@@ -751,11 +699,11 @@ cat("Server Version and Timestamp:", res, "\n")
       private$encodeMsg(msg)
     },
 
-    cancelFundamentalData= function(reqId) private$req_simple("CANCEL_FUNDAMENTAL_DATA", reqId),
+    cancelFundamentalData= function(reqId) private$req_simple("53", "1", reqId), ### CANCEL_FUNDAMENTAL_DATA
 
     calculateImpliedVolatility= function(reqId, contract, optionPrice, underPrice, miscOptions=character()) {
 
-      msg <- private$initMsg("REQ_CALC_IMPLIED_VOLAT")
+      msg <- c("54", "2") ### REQ_CALC_IMPLIED_VOLAT
 
       # Add payload
       payload <- c(contract[1L:12L],
@@ -771,7 +719,7 @@ cat("Server Version and Timestamp:", res, "\n")
 
     calculateOptionPrice= function(reqId, contract, volatility, underPrice, miscOptions=character()) {
 
-      msg <- private$initMsg("REQ_CALC_OPTION_PRICE")
+      msg <- c("55", "2") ### REQ_CALC_OPTION_PRICE
 
       # Add payload
       payload <- c(contract[1L:12L],
@@ -785,115 +733,108 @@ cat("Server Version and Timestamp:", res, "\n")
       private$encodeMsg(msg)
     },
 
-    cancelCalculateImpliedVolatility= function(reqId) private$req_simple("CANCEL_CALC_IMPLIED_VOLAT", reqId),
+    cancelCalculateImpliedVolatility= function(reqId) private$req_simple("56", "1", reqId), ### CANCEL_CALC_IMPLIED_VOLAT
 
-    cancelCalculateOptionPrice= function(reqId) private$req_simple("CANCEL_CALC_OPTION_PRICE", reqId),
+    cancelCalculateOptionPrice= function(reqId) private$req_simple("57", "1", reqId), ### CANCEL_CALC_OPTION_PRICE
 
-    reqGlobalCancel= function() private$req_simple("REQ_GLOBAL_CANCEL"),
+    reqGlobalCancel= function() private$req_simple("58", "1"), ### REQ_GLOBAL_CANCEL
 
-    reqMarketDataType= function(marketDataType) private$req_simple("REQ_MARKET_DATA_TYPE", marketDataType),
+    reqMarketDataType= function(marketDataType) private$req_simple("59", "1", marketDataType), ### REQ_MARKET_DATA_TYPE
 
-    reqPositions= function() private$req_simple("REQ_POSITIONS"),
+    reqPositions= function() private$req_simple("61", "1"), ### REQ_POSITIONS
 
-    reqAccountSummary= function(reqId, groupName, tags) private$req_simple("REQ_ACCOUNT_SUMMARY", c(reqId, groupName, tags)),
+    reqAccountSummary= function(reqId, groupName, tags) private$req_simple("62", "1", reqId, groupName, tags), ### REQ_ACCOUNT_SUMMARY
 
-    cancelAccountSummary= function(reqId) private$req_simple("CANCEL_ACCOUNT_SUMMARY", reqId),
+    cancelAccountSummary= function(reqId) private$req_simple("63", "1", reqId), ### CANCEL_ACCOUNT_SUMMARY
 
-    cancelPositions= function() private$req_simple("CANCEL_POSITIONS"),
+    cancelPositions= function() private$req_simple("64", "1"), ### CANCEL_POSITIONS
 
     verifyRequest= function(apiName, apiVersion) {
 
-      msg <- private$initMsg("VERIFY_REQUEST")
-
-      #
       # WARN: Assume extraAuth = TRUE
-      #
 
-      # Add payload
-      msg <- c(msg, apiName, apiVersion)
+      msg <- c("65", "1", ### VERIFY_REQUEST
+               apiName,
+               apiVersion)
 
       # Encode and send
       private$encodeMsg(msg)
     },
 
-    verifyMessage= function(apiData) private$req_simple("VERIFY_MESSAGE", apiData),
+    verifyMessage= function(apiData) private$req_simple("66", "1", apiData), ### VERIFY_MESSAGE
 
-    queryDisplayGroups= function(reqId) private$req_simple("QUERY_DISPLAY_GROUPS", reqId),
+    queryDisplayGroups= function(reqId) private$req_simple("67", "1", reqId), ### QUERY_DISPLAY_GROUPS
 
-    subscribeToGroupEvents= function(reqId, groupId) private$req_simple("SUBSCRIBE_TO_GROUP_EVENTS", c(reqId, groupId)),
+    subscribeToGroupEvents= function(reqId, groupId) private$req_simple("68", "1", reqId, groupId), ### SUBSCRIBE_TO_GROUP_EVENTS
 
-    updateDisplayGroup= function(reqId, contractInfo) private$req_simple("UPDATE_DISPLAY_GROUP", c(reqId, contractInfo)),
+    updateDisplayGroup= function(reqId, contractInfo) private$req_simple("69", "1", reqId, contractInfo), ### UPDATE_DISPLAY_GROUP
 
-    unsubscribeFromGroupEvents= function(reqId) private$req_simple("UNSUBSCRIBE_FROM_GROUP_EVENTS", reqId),
+    unsubscribeFromGroupEvents= function(reqId) private$req_simple("70", "1", reqId), ### UNSUBSCRIBE_FROM_GROUP_EVENTS
 
-    startApi= function(clientId, optionalCapabilities) private$req_simple("START_API", c(clientId, optionalCapabilities)),
+    startApi= function(clientId, optionalCapabilities) private$req_simple("71", "2", clientId, optionalCapabilities), ### START_API
 
     verifyAndAuthRequest= function(apiName, apiVersion, opaqueIsvKey) {
 
-      msg <- private$initMsg("VERIFY_AND_AUTH_REQUEST")
-
-      #
       # WARN: Assume extraAuth = TRUE
-      #
 
-      # Add payload
-      msg <- c(msg, apiName, apiVersion, opaqueIsvKey)
+      msg <- c("72", "1", ### VERIFY_AND_AUTH_REQUEST
+               apiName,
+               apiVersion,
+               opaqueIsvKey)
 
       # Encode and send
       private$encodeMsg(msg)
     },
 
-    verifyAndAuthMessage= function(apiData, xyzResponse) private$req_simple("VERIFY_AND_AUTH_MESSAGE", c(apiData, xyzResponse)),
+    verifyAndAuthMessage= function(apiData, xyzResponse) private$req_simple("73", "1", apiData, xyzResponse), ### VERIFY_AND_AUTH_MESSAGE
 
-    reqPositionsMulti= function(reqId, account, modelCode) private$req_simple("REQ_POSITIONS_MULTI", c(reqId, account, modelCode)),
+    reqPositionsMulti= function(reqId, account, modelCode) private$req_simple("74", "1", reqId, account, modelCode), ### REQ_POSITIONS_MULTI
 
-    cancelPositionsMulti= function(reqId) private$req_simple("CANCEL_POSITIONS_MULTI", reqId),
+    cancelPositionsMulti= function(reqId) private$req_simple("75", "1", reqId), ### CANCEL_POSITIONS_MULTI
 
     reqAccountUpdatesMulti= function(reqId, account, modelCode, ledgerAndNLV) {
 
-      msg <- private$initMsg("REQ_ACCOUNT_UPDATES_MULTI")
-
-      # Add payload
-      msg <- c(msg, reqId, account, modelCode, private$sanitize(list(ledgerAndNLV)))
+      msg <- c("76", "1", ### REQ_ACCOUNT_UPDATES_MULTI
+               reqId,
+               account,
+               modelCode,
+               private$sanitize(list(ledgerAndNLV)))
 
       # Encode and send
       private$encodeMsg(msg)
     },
 
-    cancelAccountUpdatesMulti= function(reqId) private$req_simple("CANCEL_ACCOUNT_UPDATES_MULTI", reqId),
+    cancelAccountUpdatesMulti= function(reqId) private$req_simple("77", "1", reqId), ### CANCEL_ACCOUNT_UPDATES_MULTI
 
     reqSecDefOptParams= function(reqId, underlyingSymbol, futFopExchange, underlyingSecType, underlyingConId) {
 
-      msg <- private$initMsg("REQ_SEC_DEF_OPT_PARAMS")
-
-      #
-      # WARN: since server version 104 the VERSION field is not used anymore
-      # and msg = id instead of msg = c(id, version)
-      #
-
-      # Add payload
-      msg <- c(msg, reqId, underlyingSymbol, futFopExchange, underlyingSecType, underlyingConId)
+      msg <- c("78", ### REQ_SEC_DEF_OPT_PARAMS
+               reqId,
+               underlyingSymbol,
+               futFopExchange,
+               underlyingSecType,
+               underlyingConId)
 
       # Encode and send
       private$encodeMsg(msg)
     },
 
-    reqSoftDollarTiers= function(reqId) private$req_simple("REQ_SOFT_DOLLAR_TIERS", reqId),
+    reqSoftDollarTiers= function(reqId) private$req_simple("79", reqId), ### REQ_SOFT_DOLLAR_TIERS
 
-    reqFamilyCodes= function() private$req_simple("REQ_FAMILY_CODES"),
+    reqFamilyCodes= function() private$req_simple("80"), ### REQ_FAMILY_CODES
 
-    reqMatchingSymbols= function(reqId, pattern) private$req_simple("REQ_MATCHING_SYMBOLS", c(reqId, pattern)),
+    reqMatchingSymbols= function(reqId, pattern) private$req_simple("81", reqId, pattern), ### REQ_MATCHING_SYMBOLS
 
-    reqMktDepthExchanges= function() private$req_simple("REQ_MKT_DEPTH_EXCHANGES"),
+    reqMktDepthExchanges= function() private$req_simple("82"), ### REQ_MKT_DEPTH_EXCHANGES
 
-    reqSmartComponents= function(reqId, bboExchange) private$req_simple("REQ_SMART_COMPONENTS", c(reqId, bboExchange)),
+    reqSmartComponents= function(reqId, bboExchange) private$req_simple("83", reqId, bboExchange), ### REQ_SMART_COMPONENTS
 
     reqNewsArticle= function(requestId, providerCode, articleId, newsArticleOptions=character()) {
 
-      msg <- private$initMsg("REQ_NEWS_ARTICLE")
-
-      # Add payload
-      msg <- c(msg, requestId, providerCode, articleId)
+      msg <- c("84", ### REQ_NEWS_ARTICLE
+               requestId,
+               providerCode,
+               articleId)
 
       if(self$serVersion >= MIN_SERVER_VER_NEWS_QUERY_ORIGINS)
         msg <- c(msg, pack_tagvalue(newsArticleOptions, mode="string"))
@@ -902,14 +843,17 @@ cat("Server Version and Timestamp:", res, "\n")
       private$encodeMsg(msg)
     },
 
-    reqNewsProviders= function() private$req_simple("REQ_NEWS_PROVIDERS"),
+    reqNewsProviders= function() private$req_simple("85"), ### REQ_NEWS_PROVIDERS
 
     reqHistoricalNews= function(requestId, conId, providerCodes, startDateTime, endDateTime, totalResults, historicalNewsOptions=character()) {
 
-      msg <- private$initMsg("REQ_HISTORICAL_NEWS")
-
-      # Add payload
-      msg <- c(msg, requestId, conId, providerCodes, startDateTime, endDateTime, totalResults)
+      msg <- c("86", ### REQ_HISTORICAL_NEWS
+               requestId,
+               conId,
+               providerCodes,
+               startDateTime,
+               endDateTime,
+               totalResults)
 
       if(self$serVersion >= MIN_SERVER_VER_NEWS_QUERY_ORIGINS)
         msg <- c(msg, pack_tagvalue(historicalNewsOptions, mode="string"))
@@ -920,10 +864,11 @@ cat("Server Version and Timestamp:", res, "\n")
 
     reqHeadTimestamp= function(tickerId, contract, whatToShow, useRTH, formatDate) {
 
-      msg <- private$initMsg("REQ_HEAD_TIMESTAMP")
-
-      # Add payload
-      msg <- c(msg, tickerId, private$sanitize(c(contract[1L:13L], useRTH)), whatToShow, formatDate)
+      msg <- c("87", ### REQ_HEAD_TIMESTAMP
+               tickerId,
+               private$sanitize(c(contract[1L:13L], useRTH)),
+               whatToShow,
+               formatDate)
 
       # Encode and send
       private$encodeMsg(msg)
@@ -931,33 +876,33 @@ cat("Server Version and Timestamp:", res, "\n")
 
     reqHistogramData= function(reqId, contract, useRTH, timePeriod) {
 
-      msg <- private$initMsg("REQ_HISTOGRAM_DATA")
-
-      # Add payload
-      msg <- c(msg, reqId, private$sanitize(c(contract[1L:13L], useRTH)), timePeriod)
+      msg <- c("88", ### REQ_HISTOGRAM_DATA
+               reqId,
+               private$sanitize(c(contract[1L:13L], useRTH)),
+               timePeriod)
 
       # Encode and send
       private$encodeMsg(msg)
     },
 
-    cancelHistogramData= function(reqId) private$req_simple("CANCEL_HISTOGRAM_DATA", reqId),
+    cancelHistogramData= function(reqId) private$req_simple("89", reqId), ### CANCEL_HISTOGRAM_DATA
 
 
-    cancelHeadTimestamp= function(tickerId) private$req_simple("CANCEL_HEAD_TIMESTAMP", tickerId),
+    cancelHeadTimestamp= function(tickerId) private$req_simple("90", tickerId), ### CANCEL_HEAD_TIMESTAMP
 
-    reqMarketRule= function(marketRuleId) private$req_simple("REQ_MARKET_RULE", marketRuleId),
+    reqMarketRule= function(marketRuleId) private$req_simple("91", marketRuleId), ### REQ_MARKET_RULE
 
-    reqPnL= function(reqId, account, modelCode) private$req_simple("REQ_PNL", c(reqId, account, modelCode)),
+    reqPnL= function(reqId, account, modelCode) private$req_simple("92", reqId, account, modelCode), ### REQ_PNL
 
-    cancelPnL= function(reqId) private$req_simple("CANCEL_PNL", reqId),
+    cancelPnL= function(reqId) private$req_simple("93", reqId), ### CANCEL_PNL
 
-    reqPnLSingle= function(reqId, account, modelCode, conId) private$req_simple("REQ_PNL_SINGLE", c(reqId, account, modelCode, conId)),
+    reqPnLSingle= function(reqId, account, modelCode, conId) private$req_simple("94", reqId, account, modelCode, conId), ### REQ_PNL_SINGLE
 
-    cancelPnLSingle= function(reqId) private$req_simple("CANCEL_PNL_SINGLE", reqId),
+    cancelPnLSingle= function(reqId) private$req_simple("95", reqId), ### CANCEL_PNL_SINGLE
 
     reqHistoricalTicks= function(reqId, contract, startDateTime, endDateTime, numberOfTicks, whatToShow, useRth, ignoreSize, miscOptions=character()) {
 
-      msg <- private$initMsg("REQ_HISTORICAL_TICKS")
+      msg <- "96" ### REQ_HISTORICAL_TICKS
 
       # Add payload
       payload <- c(contract[1L:13L],
@@ -976,10 +921,10 @@ cat("Server Version and Timestamp:", res, "\n")
 
     reqTickByTickData= function(reqId, contract, tickType, numberOfTicks, ignoreSize) {
 
-      msg <- private$initMsg("REQ_TICK_BY_TICK_DATA")
-
-      # Add payload
-      msg <- c(msg, reqId, private$sanitize(contract[1L:12L]), tickType)
+      msg <- c("97", ### REQ_TICK_BY_TICK_DATA
+               reqId,
+               private$sanitize(contract[1L:12L]),
+               tickType)
 
       if(self$serVersion >= MIN_SERVER_VER_TICK_BY_TICK_IGNORE_SIZE)
         msg <- c(msg, numberOfTicks, private$sanitize(list(ignoreSize)))
@@ -988,14 +933,12 @@ cat("Server Version and Timestamp:", res, "\n")
       private$encodeMsg(msg)
     },
 
-    cancelTickByTickData= function(reqId) private$req_simple("CANCEL_TICK_BY_TICK_DATA", reqId),
+    cancelTickByTickData= function(reqId) private$req_simple("98", reqId), ### CANCEL_TICK_BY_TICK_DATA
 
     reqCompletedOrders= function(apiOnly) {
 
-      msg <- private$initMsg("REQ_COMPLETED_ORDERS")
-
-      # Add payload
-      msg <- c(msg, private$sanitize(list(apiOnly)))
+      msg <- c("99", ### REQ_COMPLETED_ORDERS
+               private$sanitize(list(apiOnly)))
 
       # Encode and send
       private$encodeMsg(msg)

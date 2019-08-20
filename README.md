@@ -51,10 +51,6 @@ IBWrapCustom <- R6::R6Class("IBWrapCustom",
 
   public= list(
     # Customized methods
-    connectAck=       function() {},
-
-    connectionClosed= function() cat("Connection Closed.\n"),
-
     error=            function(id, errorCode, errorString) cat(id, errorCode, errorString, "\n"),
 
     nextValidId=      function(orderId) cat("Next OrderId:", orderId, "\n"),

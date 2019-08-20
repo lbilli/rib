@@ -50,6 +50,18 @@ validateTZ <- function(tz)
   else if(tz %in% c("BST", "British Summer Time", "Greenwich Mean Time"))
     tz <- "Europe/London"
 
+  else if(tz == "JST")
+    tz <- "Asia/Tokyo"
+
+  else if(tz == "HKT")
+    tz <- "Asia/Hong_Kong"
+
+  else if(tz == "SGT")
+    tz <- "Asia/Singapore"
+
+  else if(tz == "China Standard Time")
+    tz <- "Asia/Shanghai"
+
   # Make sure it's recognized by R functions
   stopifnot(tz %in% OlsonNames())
 

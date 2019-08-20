@@ -25,7 +25,7 @@ IBWrap <- R6::R6Class("IBWrap",
 
     openOrderEnd= function() warning("Default implementation."),
 
-    connectionClosed= function() warning("Default implementation."),
+#    connectionClosed= function() warning("Default implementation."),
 
     updateAccountValue= function(key, val, currency, accountName) warning("Default implementation."),
 
@@ -99,7 +99,7 @@ IBWrap <- R6::R6Class("IBWrap",
 
     verifyAndAuthCompleted= function(isSuccessful, errorText) warning("Default implementation."),
 
-    connectAck= function() warning("Default implementation."),
+#    connectAck= function() warning("Default implementation."),
 
     positionMulti= function(reqId, account, modelCode, contract, position, avgCost) warning("Default implementation."),
 

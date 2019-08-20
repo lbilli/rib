@@ -44,8 +44,6 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
 
     openOrderEnd=       function() cat("OpenOrderEnd.\n"),
 
-    connectionClosed=   function() cat("ConnectionClosed.\n"),
-
     updateAccountValue= function(key, val, currency, accountName)
                           cat("AccountValue:", key, val, currency, accountName, "\n"),
 
@@ -147,8 +145,6 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     displayGroupUpdated= function(reqId, contractInfo)
                           cat("DisplayGroupUpdated:", reqId, contractInfo, "\n"),
 
-    connectAck=         function() {},
-
     positionMulti=      function(reqId, account, modelCode, contract, position, avgCost)
                           cat("PositionMulti:", reqId, account, modelCode, contract$symbol, position, avgCost, "\n"),
 
@@ -217,6 +213,21 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
 
     pnlSingle=          function(reqId, pos, dailyPnL, unrealizedPnL, realizedPnL, value)
                           cat("pnlSingle:", reqId, pos, dailyPnL, unrealizedPnL, realizedPnL, value, "\n"),
+
+    historicalTicks=    function(reqId, ticks, done) {
+                          self$context$histoticalTicks <- ticks
+                          cat("historicalTicks:", reqId, done, "\n")
+                        },
+
+    historicalTicksBidAsk= function(reqId, ticks, done) {
+                             self$context$histoticalTicksBidAsk <- ticks
+                             cat("historicalTicksBidAsk:", reqId, done, "\n")
+                           },
+
+    historicalTicksLast= function(reqId, ticks, done) {
+                           self$context$histoticalTicksLast <- ticks
+                           cat("historicalTicksLast:", reqId, done, "\n")
+                           },
 
     tickByTickAllLast=  function(reqId, tickType, time, price, size, attribs, exchange, specialConditions)
                           cat("tickByTickAllLast:", reqId, tickType, time, price, size, unlist(attribs), exchange, specialConditions, "\n"),
