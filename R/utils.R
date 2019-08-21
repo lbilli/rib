@@ -41,10 +41,16 @@ to_IBtime <- function(p, tz="UTC")
 #
 validateTZ <- function(tz)
 {
-  if(tz %in% c("EDT", "EST", "Eastern Standard Time"))
+  if(tz %in% c("EST", "EDT", "Eastern Standard Time"))
     tz <- "America/New_York"
 
-  else if(tz %in% c("CEST", "CET"))
+  else if(tz %in% c("CST", "CDT"))
+    tz <- "America/Chicago"
+
+  else if(tz %in% c("PST", "PDT"))
+    tz <- "America/Los_Angeles"
+
+  else if(tz %in% c("CET", "CEST"))
     tz <- "Europe/Paris"
 
   else if(tz %in% c("BST", "British Summer Time", "Greenwich Mean Time"))
