@@ -50,7 +50,7 @@ validateTZ <- function(tz)
   else if(tz %in% c("PST", "PDT"))
     tz <- "America/Los_Angeles"
 
-  else if(tz %in% c("CET", "CEST"))
+  else if(tz %in% c("CET", "CEST", "Central European Time"))
     tz <- "Europe/Paris"
 
   else if(tz %in% c("BST", "British Summer Time", "Greenwich Mean Time"))
