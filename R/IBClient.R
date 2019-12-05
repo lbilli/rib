@@ -38,15 +38,14 @@ IBClient <- R6::R6Class("IBClient",
 
       raw_msg <- writeBin(msg, raw())
 
-      len <- length(raw_msg)
-
       if(api_sign) {
         # Chop last '\0'
-        raw_msg <- raw_msg[-len]
-        len <- len - 1L
+        raw_msg <- head(raw_msg, -1L)
       }
 
-      stopifnot(raw_msg < 0x80,     # Only ASCII chars are allowed
+      len <- length(raw_msg)
+
+      stopifnot(raw_msg < as.raw(0x80L),   # Only ASCII chars are allowed
                 len <= MAX_MSG_LEN)
 
       header <- writeBin(len, raw(), size=HEADER_LEN, endian="big")
@@ -62,7 +61,7 @@ IBClient <- R6::R6Class("IBClient",
     #
     # Read one message. BLOCKING
     #
-    # Return the fileds in a character vector
+    # Return the fields in a character vector
     #
     readOneMsg= function() {
 
@@ -76,11 +75,11 @@ IBClient <- R6::R6Class("IBClient",
       raw_msg <- readBin(private$socket, raw(), n=len)
 
       # Count the fields
-      n <- sum(raw_msg==as.raw(0L))
+      n <- sum(raw_msg == as.raw(0L))
 
       # Consistency checks
       stopifnot(length(raw_msg) == len,      # Entire message is read
-                raw_msg[len] == as.raw(0L),  # Last byte is 0
+                raw_msg[len] == as.raw(0L),  # Last byte is 0x00
                 n > 0L)                      # At least 1 field
 
       readBin(raw_msg, character(), n=n)

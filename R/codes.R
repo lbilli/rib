@@ -87,7 +87,8 @@ map_ticktype <- c( "0" = "BID_SIZE",
                   "86" = "FUTURES_OPEN_INTEREST",
                   "87" = "AVG_OPT_VOLUME",
                   "88" = "DELAYED_LAST_TIMESTAMP",
-                  "89" = "SHORTABLE_SHARES")
+                  "89" = "SHORTABLE_SHARES",
+                  "90" = "DELAYED_HALTED")
 
 
 map_inbound <- c(  "1" = "TICK_PRICE",

@@ -2,14 +2,17 @@
 # Helper functions to generate IB structs
 #
 
-IBContract <- function(symbol, secType="STK", exchange="SMART", currency="USD")
+IBContract <- function(symbol="", secType="STK", exchange="SMART",
+                       currency="USD", conId=0L, localSymbol="")
 {
   res <- Contract
 
-  res$symbol   <- symbol
-  res$secType  <- secType
-  res$exchange <- exchange
-  res$currency <- currency
+  res$conId       <- conId
+  res$symbol      <- symbol
+  res$secType     <- secType
+  res$exchange    <- exchange
+  res$currency    <- currency
+  res$localSymbol <- localSymbol
 
   res
 }
