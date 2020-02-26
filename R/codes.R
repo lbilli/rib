@@ -88,7 +88,16 @@ map_ticktype <- c( "0" = "BID_SIZE",
                   "87" = "AVG_OPT_VOLUME",
                   "88" = "DELAYED_LAST_TIMESTAMP",
                   "89" = "SHORTABLE_SHARES",
-                  "90" = "DELAYED_HALTED")
+                  "90" = "DELAYED_HALTED",
+                  "91" = "REUTERS_2_MUTUAL_FUNDS",
+                  "92" = "ETF_NAV_CLOSE",
+                  "93" = "ETF_NAV_PRIOR_CLOSE",
+                  "94" = "ETF_NAV_BID",
+                  "95" = "ETF_NAV_ASK",
+                  "96" = "ETF_NAV_LAST",
+                  "97" = "ETF_FROZEN_NAV_LAST",
+                  "98" = "ETF_NAV_HIGH",
+                  "99" = "ETF_NAV_LOW")
 
 
 map_inbound <- c(  "1" = "TICK_PRICE",
