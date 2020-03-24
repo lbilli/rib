@@ -25,10 +25,7 @@ Decoder <- R6::R6Class("Decoder",
       # The second field is unused version, for msgId < 75 and != 3, 5, 11, 17
       imsgId <- Validator$i(msgId)
       if(imsgId  < 75L && ! imsgId %in% c(3L, 5L, 11L, 17L) ||
-         imsgId ==  3L && private$serverVersion < MIN_SERVER_VER_MARKET_CAP_PRICE   ||
-         imsgId ==  5L && private$serverVersion < MIN_SERVER_VER_ORDER_CONTAINER    ||
-         imsgId == 11L && private$serverVersion < MIN_SERVER_VER_LAST_LIQUIDITY     ||
-         imsgId == 17L && private$serverVersion < MIN_SERVER_VER_SYNT_REALTIME_BARS)
+         imsgId ==  5L && private$serverVersion < MIN_SERVER_VER_ORDER_CONTAINER)
         imsg$pop()
 
       # Convert ID -> Name
@@ -178,12 +175,7 @@ Decoder <- R6::R6Class("Decoder",
 
     ORDER_STATUS= function(imsg) {
 
-      m <- if(private$serverVersion >= MIN_SERVER_VER_MARKET_CAP_PRICE)
-             imsg$pop(11L)
-          else
-             c(imsg$pop(10L), NA_character_)
-
-      private$validate("orderStatus", m, no_names=TRUE)
+      private$validate("orderStatus", imsg$pop(11L), no_names=TRUE)
     },
 
     ERR_MSG= function(imsg) {
@@ -222,19 +214,15 @@ Decoder <- R6::R6Class("Decoder",
       order[c("faGroup",
               "faMethod",
               "faPercentage",
-              "faProfile")] <- imsg$pop(4L)
-
-      if(private$serverVersion >= MIN_SERVER_VER_MODELS_SUPPORT)
-        order$modelCode <- imsg$pop()
-
-
-      order[c("goodTillDate",
+              "faProfile",
+              "modelCode",
+              "goodTillDate",
               "rule80A",
               "percentOffset",
               "settlingFirm",
               "shortSaleSlot",
               "designatedLocation",
-              "exemptCode")] <- imsg$pop(7L)
+              "exemptCode")] <- imsg$pop(12L)
 
       order$auctionStrategy <- map_int2enum("AuctionStrategy", imsg$pop())
 
@@ -339,61 +327,49 @@ Decoder <- R6::R6Class("Decoder",
 
       orderState <- OrderState
 
-      if(private$serverVersion >= MIN_SERVER_VER_WHAT_IF_EXT_FIELDS)
-        orderState[1L:15L] <- imsg$pop(15L)
-
-      else
-        orderState[c(1L, 8L:15L)] <- imsg$pop(9L)
+      orderState[1L:15L] <- imsg$pop(15L)
 
       order[c("randomizeSize",
               "randomizePrice")] <- imsg$pop(2L)
 
-      if(private$serverVersion >= MIN_SERVER_VER_PEGGED_TO_BENCHMARK) {
+      if(order$orderType == "PEG BENCH")
+        order[c("referenceContractId",
+                "isPeggedChangeAmountDecrease",
+                "peggedChangeAmount",
+                "referenceChangeAmount",
+                "referenceExchangeId")] <- imsg$pop(5L)
 
-        if(order$orderType == "PEG BENCH")
-          order[c("referenceContractId",
-                  "isPeggedChangeAmountDecrease",
-                  "peggedChangeAmount",
-                  "referenceChangeAmount",
-                  "referenceExchangeId")] <- imsg$pop(5L)
+      conditionsSize <- Validator$i(imsg$pop())
 
-        conditionsSize <- Validator$i(imsg$pop())
+      if(conditionsSize > 0L) {
 
-        if(conditionsSize > 0L) {
+        for(i in seq_len(conditionsSize)) {
 
-          for(i in seq_len(conditionsSize)) {
+          condition <- fCondition(map_int2enum("Condition",
+                                                Validator$i(imsg$pop())))
 
-            condition <- fCondition(map_int2enum("Condition",
-                                                 Validator$i(imsg$pop())))
+          condition[-1L] <- imsg$pop(length(condition) - 1L)
 
-            condition[-1L] <- imsg$pop(length(condition) - 1L)
-
-            order$conditions[[i]] <- condition
-          }
-
-          order[c("conditionsIgnoreRth",
-                  "conditionsCancelOrder")] <- imsg$pop(2L)
+          order$conditions[[i]] <- condition
         }
 
-        order[c("adjustedOrderType",
-                "triggerPrice",
-                "trailStopPrice",
-                "lmtPriceOffset",
-                "adjustedStopPrice",
-                "adjustedStopLimitPrice",
-                "adjustedTrailingAmount",
-                "adjustableTrailingUnit")] <- imsg$pop(8L)
+        order[c("conditionsIgnoreRth",
+                "conditionsCancelOrder")] <- imsg$pop(2L)
       }
 
-      if(private$serverVersion >= MIN_SERVER_VER_SOFT_DOLLAR_TIER)
-        order$softDollarTier[1L:3L] <- imsg$pop(3L)
+      order[c("adjustedOrderType",
+              "triggerPrice",
+              "trailStopPrice",
+              "lmtPriceOffset",
+              "adjustedStopPrice",
+              "adjustedStopLimitPrice",
+              "adjustedTrailingAmount",
+              "adjustableTrailingUnit")] <- imsg$pop(8L)
 
+      order$softDollarTier[1L:3L] <- imsg$pop(3L)
 
-      if(private$serverVersion >= MIN_SERVER_VER_CASH_QTY)
-        order$cashQty <- imsg$pop()
-
-      if(private$serverVersion >= MIN_SERVER_VER_AUTO_PRICE_FOR_HEDGE)
-        order$dontUseAutoPriceForHedge <- imsg$pop()
+      order[c("cashQty",
+              "dontUseAutoPriceForHedge")] <- imsg$pop(2L)
 
       if(private$serverVersion >= MIN_SERVER_VER_ORDER_CONTAINER)
         order$isOmsContainer <- imsg$pop()
@@ -459,10 +435,7 @@ Decoder <- R6::R6Class("Decoder",
       cd$contract$tradingClass            <- imsg$pop()
       cd$contract$conId                   <- imsg$pop()
       cd$minTick                          <- imsg$pop()
-
-      if(private$serverVersion >= MIN_SERVER_VER_MD_SIZE_MULTIPLIER)
-        cd$mdSizeMultiplier <- imsg$pop()
-
+      cd$mdSizeMultiplier                 <- imsg$pop()
       cd$contract$multiplier              <- imsg$pop()
       cd[4L:8L]                           <- imsg$pop(5L)
       cd$contract$primaryExchange         <- imsg$pop()
@@ -473,19 +446,11 @@ Decoder <- R6::R6Class("Decoder",
       if(secIdListcount > 0L)
         cd$secIdList <- fold_tagvalue(imsg$pop(2L * secIdListcount))
 
-      if(private$serverVersion >= MIN_SERVER_VER_AGG_GROUP)
-        cd$aggGroup <- imsg$pop()
-
-      if(private$serverVersion >= MIN_SERVER_VER_UNDERLYING_INFO) {
-        cd$underSymbol  <- imsg$pop()
-        cd$underSecType <- imsg$pop()
-      }
-
-      if(private$serverVersion >= MIN_SERVER_VER_MARKET_RULES)
-        cd$marketRuleIds <- imsg$pop()
-
-      if(private$serverVersion >= MIN_SERVER_VER_REAL_EXPIRATION_DATE)
-        cd$realExpirationDate <- imsg$pop()
+      cd[c("aggGroup",
+           "underSymbol",
+           "underSecType",
+           "marketRuleIds",
+           "realExpirationDate")] <- imsg$pop(5L)
 
       if(private$serverVersion >= MIN_SERVER_VER_STOCK_TYPE)
         cd$stockType <- imsg$pop()
@@ -511,7 +476,7 @@ Decoder <- R6::R6Class("Decoder",
            "convertible",
            "callable",
            "putable",
-           "descAppend")]       <- imsg$pop(11L)
+           "descAppend")] <- imsg$pop(11L)
 
       cd$contract[c("exchange",
                     "currency")] <- imsg$pop(2L)
@@ -519,14 +484,11 @@ Decoder <- R6::R6Class("Decoder",
       cd$marketName <- imsg$pop()
 
       cd$contract[c("tradingClass",
-                    "conId")]    <- imsg$pop(2L)
+                    "conId")] <- imsg$pop(2L)
 
-      cd$minTick <- imsg$pop()
-
-      if(private$serverVersion >= MIN_SERVER_VER_MD_SIZE_MULTIPLIER)
-        cd$mdSizeMultiplier <- imsg$pop()
-
-      cd[c("orderTypes",
+      cd[c("minTick",
+           "mdSizeMultiplier",
+           "orderTypes",
            "validExchanges",
            "nextOptionDate",
            "nextOptionType",
@@ -534,19 +496,15 @@ Decoder <- R6::R6Class("Decoder",
            "notes",
            "longName",
            "evRule",
-           "evMultiplier")]     <- imsg$pop(9L)
+           "evMultiplier")] <- imsg$pop(11L)
 
       secIdListCount <- Validator$i(imsg$pop())
 
       if(secIdListcount > 0L)
         cd$secIdList <- fold_tagvalue(imsg$pop(2L * secIdListcount))
 
-      if(private$serverVersion >= MIN_SERVER_VER_AGG_GROUP)
-        cd$aggGroup <- imsg$pop()
-
-      if(private$serverVersion >= MIN_SERVER_VER_MARKET_RULES)
-        cd$marketRuleIds <- imsg$pop()
-
+      cd[c("aggGroup",
+           "marketRuleIds")] <- imsg$pop(2L)
 
       private$validate("bondContractDetails", reqId=reqId, contractDetails=cd)
     },
@@ -562,13 +520,7 @@ Decoder <- R6::R6Class("Decoder",
 
       contract[c(1L:8L, 10L:12L)] <- imsg$pop(11L)
 
-      execution[c(1L:9L, 11L:16L)] <- imsg$pop(15L)
-
-      if(private$serverVersion >= MIN_SERVER_VER_MODELS_SUPPORT)
-        execution$modelCode <- imsg$pop()
-
-      if(private$serverVersion >= MIN_SERVER_VER_LAST_LIQUIDITY)
-        execution$lastLiquidity <- imsg$pop()
+      execution[c(1L:9L, 11L:18L)] <- imsg$pop(17L)
 
       private$validate("execDetails", reqId=reqId, contract=contract, execution=execution)
     },
@@ -615,11 +567,7 @@ Decoder <- R6::R6Class("Decoder",
       # Number of rows
       n <- Validator$i(imsg$pop())
 
-      bar <- if(private$serverVersion < MIN_SERVER_VER_SYNT_REALTIME_BARS)
-                matrix(imsg$pop(n * 9L), ncol=9L, byrow=TRUE)[ , -8L]
-
-              else
-                matrix(imsg$pop(n * 8L), ncol=8L, byrow=TRUE)
+      bar <- matrix(imsg$pop(n * 8L), ncol=8L, byrow=TRUE)
 
       dimnames(bar) <- list(character(), c("time", "open", "high", "low", "close", "volume", "wap", "count"))
 
@@ -922,20 +870,7 @@ Decoder <- R6::R6Class("Decoder",
 
       n <- Validator$i(imsg$pop())
 
-      if(private$serverVersion >= MIN_SERVER_VER_SERVICE_DATA_TYPE)
-        dms <- private$to_matrix(imsg, n, "DepthMktDataDescription")
-
-      else {
-
-        dms <- matrix(imsg$pop(n * 3L),
-                      ncol=     3L,
-                      byrow=    TRUE,
-                      dimnames= list(character(), c("exchange", "secType", "serviceDataType")))
-
-        dms[ , 3L]  <- ifelse(Validator$l(dms[ , 3L]), "Deep2", "Deep")
-
-        dms <- cbind(dms, listingExch="", aggGroup=NA_character_)[ , c(1L, 2L, 4L, 3L, 5L)]
-      }
+      dms <- private$to_matrix(imsg, n, "DepthMktDataDescription")
 
       private$validate("mktDepthExchanges", depthMktDataDescriptions=dms)
     },
@@ -1034,30 +969,12 @@ Decoder <- R6::R6Class("Decoder",
 
     PNL= function(imsg) {
 
-      m <- c(imsg$pop(2L), NA_character_, NA_character_)
-
-      if(private$serverVersion >= MIN_SERVER_VER_UNREALIZED_PNL)
-        m[3L] <- imsg$pop()
-
-      if(private$serverVersion >= MIN_SERVER_VER_REALIZED_PNL)
-        m[4L] <- imsg$pop()
-
-      private$validate("pnl", m, no_names=TRUE)
+      private$validate("pnl", imsg$pop(4L), no_names=TRUE)
     },
 
     PNL_SINGLE= function(imsg) {
 
-      m <- c(imsg$pop(3L), NA_character_, NA_character_, NA_character_)
-
-      if(private$serverVersion >= MIN_SERVER_VER_UNREALIZED_PNL)
-        m[4L] <- imsg$pop()
-
-      if(private$serverVersion >= MIN_SERVER_VER_REALIZED_PNL)
-        m[5L] <- imsg$pop()
-
-      m[6L] <- imsg$pop()
-
-      private$validate("pnlSingle", m, no_names=TRUE)
+      private$validate("pnlSingle", imsg$pop(6L), no_names=TRUE)
     },
 
     HISTORICAL_TICKS= function(imsg) {
@@ -1180,18 +1097,15 @@ Decoder <- R6::R6Class("Decoder",
               "faGroup",
               "faMethod",
               "faPercentage",
-              "faProfile")] <- imsg$pop(10L)
-
-      if(private$serverVersion >= MIN_SERVER_VER_MODELS_SUPPORT)
-        order$modelCode <- imsg$pop()
-
-      order[c("goodTillDate",
+              "faProfile",
+              "modelCode",
+              "goodTillDate",
               "rule80A",
               "percentOffset",
               "settlingFirm",
               "shortSaleSlot",
               "designatedLocation",
-              "exemptCode")] <- imsg$pop(7L)
+              "exemptCode")] <- imsg$pop(18L)
 
       order[47L:51L] <- imsg$pop(5L)     # "startingPrice" through "stockRangeUpper"
 
@@ -1288,42 +1202,35 @@ Decoder <- R6::R6Class("Decoder",
       order[c("randomizeSize",
               "randomizePrice")] <- imsg$pop(2L)
 
-      if(private$serverVersion >= MIN_SERVER_VER_PEGGED_TO_BENCHMARK) {
+      if(order$orderType == "PEG BENCH")
+        order[c("referenceContractId",
+                "isPeggedChangeAmountDecrease",
+                "peggedChangeAmount",
+                "referenceChangeAmount",
+                "referenceExchangeId")] <- imsg$pop(5L)
 
-        if(order$orderType == "PEG BENCH")
-          order[c("referenceContractId",
-                  "isPeggedChangeAmountDecrease",
-                  "peggedChangeAmount",
-                  "referenceChangeAmount",
-                  "referenceExchangeId")] <- imsg$pop(5L)
+      conditionsSize <- Validator$i(imsg$pop())
 
-        conditionsSize <- Validator$i(imsg$pop())
+      if(conditionsSize > 0L) {
 
-        if(conditionsSize > 0L) {
+        for(i in seq_len(conditionsSize)) {
 
-          for(i in seq_len(conditionsSize)) {
+          condition <- fCondition(map_int2enum("Condition",
+                                                Validator$i(imsg$pop())))
 
-            condition <- fCondition(map_int2enum("Condition",
-                                                 Validator$i(imsg$pop())))
+          condition[-1L] <- imsg$pop(length(condition) - 1L)
 
-            condition[-1L] <- imsg$pop(length(condition) - 1L)
-
-            order$conditions[[i]] <- condition
-          }
-
-          order[c("conditionsIgnoreRth",
-                  "conditionsCancelOrder")] <- imsg$pop(2L)
+          order$conditions[[i]] <- condition
         }
+
+        order[c("conditionsIgnoreRth",
+                "conditionsCancelOrder")] <- imsg$pop(2L)
       }
 
       order[c("trailStopPrice",
-              "lmtPriceOffset")] <- imsg$pop(2L)
-
-      if(private$serverVersion >= MIN_SERVER_VER_CASH_QTY)
-        order$cashQty <- imsg$pop()
-
-      if(private$serverVersion >= MIN_SERVER_VER_AUTO_PRICE_FOR_HEDGE)
-        order$dontUseAutoPriceForHedge <- imsg$pop()
+              "lmtPriceOffset",
+              "cashQty",
+              "dontUseAutoPriceForHedge")] <- imsg$pop(4L)
 
       if(private$serverVersion >= MIN_SERVER_VER_ORDER_CONTAINER)
         order$isOmsContainer <- imsg$pop()

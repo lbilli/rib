@@ -256,13 +256,12 @@ IBClient <- R6::R6Class("IBClient",
                               else
                                 FALSE
 
-
-      payload <- c(payload, deltaNeutralContract, genericTicks, snapshot)
-
-      if(self$serVersion >= MIN_SERVER_VER_REQ_SMART_COMPONENTS)
-        payload <- c(payload, regulatorySnaphsot)
-
-      payload <- c(payload, pack_tagvalue(mktDataOptions, mode="string"))
+      payload <- c(payload,
+                   deltaNeutralContract,
+                   genericTicks,
+                   snapshot,
+                   regulatorySnaphsot,
+                   pack_tagvalue(mktDataOptions, mode="string"))
 
       msg <- c(msg, tickerId, private$sanitize(payload))
 
@@ -321,7 +320,7 @@ IBClient <- R6::R6Class("IBClient",
                                     "faMethod",
                                     "faPercentage",
                                     "faProfile",
-                if(self$serVersion >= MIN_SERVER_VER_MODELS_SUPPORT) "modelCode",
+                                    "modelCode",
                                     "shortSaleSlot",
                                     "designatedLocation",
                                     "exemptCode",
@@ -395,54 +394,43 @@ IBClient <- R6::R6Class("IBClient",
                                     "randomizeSize",
                                     "randomizePrice")])
 
-      if(self$serVersion >= MIN_SERVER_VER_PEGGED_TO_BENCHMARK) {
+      if(order$orderType == "PEG BENCH")
+        payload <- c(payload, order[c("referenceContractId",
+                                      "isPeggedChangeAmountDecrease",
+                                      "peggedChangeAmount",
+                                      "referenceChangeAmount",
+                                      "referenceExchangeId")])
 
-        if(order$orderType == "PEG BENCH")
-          payload <- c(payload, order[c("referenceContractId",
-                                        "isPeggedChangeAmountDecrease",
-                                        "peggedChangeAmount",
-                                        "referenceChangeAmount",
-                                        "referenceExchangeId")])
+      payload <- c(payload, length(order$conditions))
 
-        payload <- c(payload, length(order$conditions))
+      # Conditions
+      if(length(order$conditions) > 0L) {
 
-        # Conditions
-        if(length(order$conditions) > 0L) {
-
-          for(cond in order$conditions)
-            payload <- c(payload, map_enum2int("Condition", cond$type), cond[-1L])
+        for(cond in order$conditions)
+          payload <- c(payload, map_enum2int("Condition", cond$type), cond[-1L])
 
 
-            payload <- c(payload, order[c("conditionsIgnoreRth",
-                                          "conditionsCancelOrder")])
-        }
-
-        payload <- c(payload, order[c("adjustedOrderType",
-                                      "triggerPrice",
-                                      "lmtPriceOffset",
-                                      "adjustedStopPrice",
-                                      "adjustedStopLimitPrice",
-                                      "adjustedTrailingAmount",
-                                      "adjustableTrailingUnit")])
+          payload <- c(payload, order[c("conditionsIgnoreRth",
+                                        "conditionsCancelOrder")])
       }
 
-      if(self$serVersion >= MIN_SERVER_VER_EXT_OPERATOR)
-        payload <- c(payload, order$extOperator)
+      payload <- c(payload, order[c("adjustedOrderType",
+                                    "triggerPrice",
+                                    "lmtPriceOffset",
+                                    "adjustedStopPrice",
+                                    "adjustedStopLimitPrice",
+                                    "adjustedTrailingAmount",
+                                    "adjustableTrailingUnit",
+                                    "extOperator")])
 
-      if(self$serVersion >= MIN_SERVER_VER_SOFT_DOLLAR_TIER)
-        payload <- c(payload, order$softDollarTier[c("name", "val")])
+      payload <- c(payload, order$softDollarTier[c("name", "val")])
 
-      if(self$serVersion >= MIN_SERVER_VER_CASH_QTY)
-        payload <- c(payload, order["cashQty"])      # To keep the name
-
-      if(self$serVersion >= MIN_SERVER_VER_DECISION_MAKER)
-        payload <- c(payload, order[c("mifid2DecisionMaker", "mifid2DecisionAlgo")])
-
-      if(self$serVersion >= MIN_SERVER_VER_MIFID_EXECUTION)
-        payload <- c(payload, order[c("mifid2ExecutionTrader", "mifid2ExecutionAlgo")])
-
-      if(self$serVersion >= MIN_SERVER_VER_AUTO_PRICE_FOR_HEDGE)
-        payload <- c(payload, order["dontUseAutoPriceForHedge"])
+      payload <- c(payload, order[c("cashQty",
+                                    "mifid2DecisionMaker",
+                                    "mifid2DecisionAlgo",
+                                    "mifid2ExecutionTrader",
+                                    "mifid2ExecutionAlgo",
+                                    "dontUseAutoPriceForHedge")])
 
       if(self$serVersion >= MIN_SERVER_VER_ORDER_CONTAINER)
         payload <- c(payload, order["isOmsContainer"])
@@ -583,10 +571,7 @@ IBClient <- R6::R6Class("IBClient",
 
     reqHistoricalData= function(tickerId, contract, endDateTime, durationStr, barSizeSetting, whatToShow, useRTH, formatDate, keepUpToDate, chartOptions=character()) {
 
-      msg <- if(self$serVersion < MIN_SERVER_VER_SYNT_REALTIME_BARS)
-               c("20", "6") ### REQ_HISTORICAL_DATA
-             else
-               "20"
+      msg <- "20" ### REQ_HISTORICAL_DATA
 
       # Add payload
       payload <- contract[1L:13L]
@@ -602,11 +587,9 @@ IBClient <- R6::R6Class("IBClient",
           payload <- c(payload, combo[1L:4L])
       }
 
-      if(self$serVersion >= MIN_SERVER_VER_SYNT_REALTIME_BARS)
-        payload <- c(payload, keepUpToDate)
-
-
-      payload <- c(payload, pack_tagvalue(chartOptions, mode="string"))
+      payload <- c(payload,
+                   keepUpToDate,
+                   pack_tagvalue(chartOptions, mode="string"))
 
       msg <- c(msg, tickerId, private$sanitize(payload))
 
@@ -833,10 +816,8 @@ IBClient <- R6::R6Class("IBClient",
       msg <- c("84", ### REQ_NEWS_ARTICLE
                requestId,
                providerCode,
-               articleId)
-
-      if(self$serVersion >= MIN_SERVER_VER_NEWS_QUERY_ORIGINS)
-        msg <- c(msg, pack_tagvalue(newsArticleOptions, mode="string"))
+               articleId,
+               pack_tagvalue(newsArticleOptions, mode="string"))
 
       # Encode and send
       private$encodeMsg(msg)
@@ -852,10 +833,8 @@ IBClient <- R6::R6Class("IBClient",
                providerCodes,
                startDateTime,
                endDateTime,
-               totalResults)
-
-      if(self$serVersion >= MIN_SERVER_VER_NEWS_QUERY_ORIGINS)
-        msg <- c(msg, pack_tagvalue(historicalNewsOptions, mode="string"))
+               totalResults,
+               pack_tagvalue(historicalNewsOptions, mode="string"))
 
       # Encode and send
       private$encodeMsg(msg)
@@ -885,7 +864,6 @@ IBClient <- R6::R6Class("IBClient",
     },
 
     cancelHistogramData= function(reqId) private$req_simple("89", reqId), ### CANCEL_HISTOGRAM_DATA
-
 
     cancelHeadTimestamp= function(tickerId) private$req_simple("90", tickerId), ### CANCEL_HEAD_TIMESTAMP
 
@@ -923,10 +901,9 @@ IBClient <- R6::R6Class("IBClient",
       msg <- c("97", ### REQ_TICK_BY_TICK_DATA
                reqId,
                private$sanitize(contract[1L:12L]),
-               tickType)
-
-      if(self$serVersion >= MIN_SERVER_VER_TICK_BY_TICK_IGNORE_SIZE)
-        msg <- c(msg, numberOfTicks, private$sanitize(list(ignoreSize)))
+               tickType,
+               numberOfTicks,
+               private$sanitize(list(ignoreSize)))
 
       # Encode and send
       private$encodeMsg(msg)
