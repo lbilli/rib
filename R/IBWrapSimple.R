@@ -14,35 +14,31 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     initialize= function() self$context <- new.env(),
 
     # Override methods
-    tickPrice=          function(tickerId, field, price, size, attrib) {
-                          cat("Price:", tickerId, field, price, size, unlist(attrib), "\n")
-                        },
+    tickPrice=          function(tickerId, field, price, size, attrib)
+                          cat("Price:", tickerId, field, price, size, unlist(attrib), "\n"),
 
-    tickSize=           function(tickerId, field, size) {
-                          cat("Size:", tickerId, field, size, "\n")
-                        },
+    tickSize=           function(tickerId, field, size)
+                          cat("Size:", tickerId, field, size, "\n"),
 
     tickOptionComputation= function(tickerId, tickType, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice)
                           self$context$option <- list(tickerId, tickType, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice),
 
-    tickGeneric=        function(tickerId, tickType, value) {
-                          cat("Generic:", tickerId, tickType, value, "\n")
-                        },
+    tickGeneric=        function(tickerId, tickType, value)
+                          cat("Generic:", tickerId, tickType, value, "\n"),
 
-    tickString=         function(tickerId, tickType, value) {
-                          cat("String:", tickerId, tickType, value, "\n")
-                        },
+    tickString=         function(tickerId, tickType, value)
+                          cat("String:", tickerId, tickType, value, "\n"),
 
-    orderStatus=        function(orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice) {
-                          cat("OrderStatus:", orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice, "\n")
-                        },
+    orderStatus=        function(orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice)
+                          cat("OrderStatus:", orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice, "\n"),
 
     openOrder=          function(orderId, contract, order, orderstate) {
                           self$context$order <- list(id=orderId, contract=contract, order=order, orderstate=orderstate)
                           cat("OpenOrder:", orderId, "\n")
                         },
 
-    openOrderEnd=       function() cat("OpenOrderEnd.\n"),
+    openOrderEnd=       function()
+                          cat("OpenOrderEnd.\n"),
 
     updateAccountValue= function(key, val, currency, accountName)
                           cat("AccountValue:", key, val, currency, accountName, "\n"),
@@ -50,17 +46,23 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     updatePortfolio=    function(contract, position, marketPrice, marketValue, averageCost, unrealizedPNL, realizedPNL, accountName)
                           cat("updatePortfolio:", contract$symbol, position, marketPrice, marketValue, averageCost, unrealizedPNL, realizedPNL, accountName, "\n"),
 
-    updateAccountTime=  function(timeStamp) cat("AccountTime:", timeStamp, "\n"),
+    updateAccountTime=  function(timeStamp)
+                          cat("AccountTime:", timeStamp, "\n"),
 
-    accountDownloadEnd= function(accountName) cat("AccountDownloadEnd:", accountName, "\n"),
+    accountDownloadEnd= function(accountName)
+                          cat("AccountDownloadEnd:", accountName, "\n"),
 
-    nextValidId=        function(orderId) self$context$nextId <- orderId,
+    nextValidId=        function(orderId)
+                          self$context$nextId <- orderId,
 
-    contractDetails=    function(reqId, contractDetails) self$context$contract <- contractDetails,
+    contractDetails=    function(reqId, contractDetails)
+                          self$context$contract <- contractDetails,
 
-    bondContractDetails=function(reqId, contractDetails) self$context$bond <- contractDetails,
+    bondContractDetails=function(reqId, contractDetails)
+                          self$context$bond <- contractDetails,
 
-    contractDetailsEnd= function(reqId) cat("ContractDetailsEnd:", reqId, "\n"),
+    contractDetailsEnd= function(reqId)
+                          cat("ContractDetailsEnd:", reqId, "\n"),
 
     execDetails=        function(reqId, contract, execution) {
                           self$context$ex_contract <- contract
@@ -68,9 +70,11 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                           cat("ExecDetails:", reqId, contract$symbol, execution$side, execution$shares, execution$price, "\n")
                         },
 
-    execDetailsEnd=     function(reqId) cat("ExecDetailsEnd:", reqId, "\n"),
+    execDetailsEnd=     function(reqId)
+                          cat("ExecDetailsEnd:", reqId, "\n"),
 
-    error=              function(id, errorCode, errorString) cat("Error:", id, errorCode, errorString, "\n"),
+    error=              function(id, errorCode, errorString)
+                          cat("Error:", id, errorCode, errorString, "\n"),
 
     updateMktDepth=     function(id, position, operation, side, price, size)
                           cat("MktDepth:", id, position, operation, side, price, size, "\n"),
@@ -84,7 +88,8 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                                                newsMessage, "\n")
                         },
 
-    managedAccounts=    function(accountsList) self$context$accounts <- accountsList,
+    managedAccounts=    function(accountsList)
+                          self$context$accounts <- accountsList,
 
     receiveFA=          function(pFaDataType, cxml) {
                           self$context$fa <- cxml
@@ -115,14 +120,16 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     realtimeBar=        function(reqId, time, open, high, low, close, volume, wap, count)
                           cat(reqId, time, open, high, low, close, volume, wap, count, "\n"),
 
-    currentTime=        function(time) cat("CurrentTime:", time, "\n"),
+    currentTime=        function(time)
+                          cat("CurrentTime:", time, "\n"),
 
     fundamentalData=    function(reqId, data) {
                           self$context$fundamentalData <- data
                           cat("FundamentalData:", reqId, "\n")
                         },
 
-    tickSnapshotEnd=    function(reqId) cat("tickSnapshotEnd:", reqId, "\n"),
+    tickSnapshotEnd=    function(reqId)
+                          cat("tickSnapshotEnd:", reqId, "\n"),
 
     marketDataType=     function(reqId, marketDataType)
                           cat("marketDataType:", reqId, map_int2enum("MarketData", marketDataType), "\n"),
@@ -133,12 +140,14 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     position=           function(account, contract, position, avgCost)
                           cat("Position:", account, contract$symbol, position, avgCost, "\n"),
 
-    positionEnd=        function() cat("PositionEnd.\n"),
+    positionEnd=        function()
+                          cat("PositionEnd.\n"),
 
     accountSummary=     function(reqId, account, tag, value, currency)
                           cat("Account:", reqId, account, tag, value, currency, "\n"),
 
-    accountSummaryEnd=  function(reqId) cat("AccountEnd:", reqId, "\n"),
+    accountSummaryEnd=  function(reqId)
+                          cat("AccountEnd:", reqId, "\n"),
 
     displayGroupList=   function(reqId, groups)
                           cat("DisplayGroupList:", reqId, groups, "\n"),
@@ -149,12 +158,14 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     positionMulti=      function(reqId, account, modelCode, contract, position, avgCost)
                           cat("PositionMulti:", reqId, account, modelCode, contract$symbol, position, avgCost, "\n"),
 
-    positionMultiEnd=   function(reqId) cat("PositionMultiEnd:", reqId, "\n"),
+    positionMultiEnd=   function(reqId)
+                          cat("PositionMultiEnd:", reqId, "\n"),
 
     accountUpdateMulti= function(reqId, account, modelCode, key, value, currency)
                           cat("AccountUpdateMulti:", reqId, account, modelCode, key, value, currency, "\n"),
 
-    accountUpdateMultiEnd= function(reqId) cat("AccountUpdateMultiEnd:", reqId, "\n"),
+    accountUpdateMultiEnd= function(reqId)
+                             cat("AccountUpdateMultiEnd:", reqId, "\n"),
 
     securityDefinitionOptionalParameter= function(reqId, exchange, underlyingConId, tradingClass, multiplier, expirations, strikes)
                                            cat("SecDefOptParams:", reqId, exchange, underlyingConId, tradingClass, multiplier, length(expirations), length(strikes), "\n"),
@@ -213,9 +224,8 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                           cat("histogramData:", reqId, nrow(data), "\n")
                         },
 
-    historicalDataUpdate= function(reqId, bar) {
-                            cat("historicalDataUpdate:", reqId, unlist(bar), "\n")
-                          },
+    historicalDataUpdate= function(reqId, bar)
+                            cat("historicalDataUpdate:", reqId, unlist(bar), "\n"),
 
     marketRule=         function(marketRuleId, priceIncrements) {
                           cat("marketRule:", marketRuleId, nrow(priceIncrements), "\n")
@@ -241,7 +251,7 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     historicalTicksLast= function(reqId, ticks, done) {
                            self$context$historicalTicksLast <- ticks
                            cat("historicalTicksLast:", reqId, done, "\n")
-                           },
+                         },
 
     tickByTickAllLast=  function(reqId, tickType, time, price, size, attribs, exchange, specialConditions)
                           cat("tickByTickAllLast:", reqId, tickType, time, price, size, unlist(attribs), exchange, specialConditions, "\n"),
@@ -260,6 +270,7 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                           cat("completedOrder.\n")
                         },
 
-    completedOrdersEnd= function() cat("completedOrdersEnd.\n")
+    completedOrdersEnd= function()
+                          cat("completedOrdersEnd.\n")
   )
 )

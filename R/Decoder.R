@@ -9,7 +9,6 @@ Decoder <- R6::R6Class("Decoder",
     initialize= function(serverVersion) {
 
       private$serverVersion <- serverVersion
-
     },
 
     decode= function(msg) {

@@ -7,7 +7,7 @@ Originally inspired by [`IBrokers`](https://CRAN.R-project.org/package=IBrokers)
 implements [Interactive Brokers](https://www.interactivebrokers.com/) API
 to communicate with their TWS or IBGateway.
 
-It aims to be feature complete, however it does not intend to support legacy versions.
+It aims to be feature complete, however it does not support legacy versions.
 Currently, only API versions ~`v100`~ `v142+` are supported.
 
 The package design mirrors the official C++/Java
@@ -24,7 +24,7 @@ remotes::install_github("lbilli/rib")
 ```
 
 ### Usage
-The user interacts mainly with two classes, implemented here as
+The user interacts mainly with two classes, implemented as
 [`R6`](https://CRAN.R-project.org/package=R6) objects:
 - `IBClient`: responsible to establish the connection and send requests to the server.
 - `IBWrap`: base class holding the callbacks that are executed when the
@@ -49,7 +49,7 @@ IBWrapCustom <- R6::R6Class("IBWrapCustom",
   inherit= IBWrap,
 
   public= list(
-    # Customized methods
+    # Customized methods go here
     error=            function(id, errorCode, errorString) cat(id, errorCode, errorString, "\n"),
 
     nextValidId=      function(orderId) cat("Next OrderId:", orderId, "\n"),
@@ -94,7 +94,7 @@ and processing the server responses.
 Two possible approaches, with or without a loop, are described:
 
 ##### Straight Request-Response pattern. No loop.
-This is the simplest case. Not suitable for data subscriptions or whenever a
+This is the simplest case. It's not suitable for data subscriptions or whenever a
 stream of messages is expected. It follows the pattern:
 - connect
 - send requests
@@ -172,13 +172,14 @@ This implements the IB `EClient` class functionality. Among its methods:
 - `replaceWrap(wrap)`: replace the `wrap`. As the client runs in a single thread,
   it is possible to replace the set of callbacks in a connected client.
 - `connect(host, port, clientId, connectOptions)`: establish a connection.
-- `disconnect()`: close the connection.
+- `disconnect()`: terminate the connection.
 - `checkMsg(timeout, flush)`: wait for responses and dispatch callbacks.
   If no response is available, it **blocks** up to `timeout` seconds.
   If `flush=TRUE` callbacks are not dispatched.
   Return the number of responses processed. **Needs to be called regularly**.
-- all other methods that send specific requests to the server.
-  Refer to the official IB `EClient` class documentation for details and method signatures.
+- methods that send specific requests to the server.
+  Refer to the official IB `EClient` class documentation for further details and
+  method signatures.
 
 ##### [`IBWrap`](R/IBWrap.R)
 Like the official IB `EWrapper` class, this holds the callbacks that are dispatched
@@ -187,7 +188,7 @@ only dummy methods.
 Users need to derive from it and override the desired methods.
 The code [above](#usage) provides a quick view of the procedure.
 
-For a more extensive example, refer to the definition of
+For a more extensive example refer to the definition of
 [`IBWrapSimple`](R/IBWrapSimple.R), which is provided for
 illustrative purposes and which prints out the content of the responses or store it
 within `IBWrapSimple$context` for later inspection.
@@ -198,7 +199,7 @@ refer again to the official IB `EWrapper` class documentation.
 #### Notes
 Callbacks are generally invoked with arguments and types matching the signatures
 as described in the official documentation.
-However, there are few notable exceptions:
+However, there are few exceptions:
 - `tickPrice()` has an extra `size` argument,
   which is meaningful only when `TickType ∈ {BID, ASK, LAST}`.
   In these cases, the official IB API fires an extra `tickSize()` event instead.
@@ -211,19 +212,19 @@ However, there are few notable exceptions:
 These modifications make it possible to establish the rule:
 _one callback per server response_.
 
-As a corollary, `historicalDataEnd()` and `scannerDataEnd()` are redundant and
-thus are **not** used in this package.
+Consequently, `historicalDataEnd()` and `scannerDataEnd()` are redundant and
+are **not** used in this package.
 
-`data.frame` structures are also used as arguments in several other callbacks,
-such as: `softDollarTiers()`, `familyCodes()`,
-`mktDepthExchanges()`, `smartComponents()`, `newsProviders()`, `histogramData()`,
+`data.frame` are passed to several other callbacks, such as:
+`softDollarTiers()`, `familyCodes()`, `mktDepthExchanges()`,
+`smartComponents()`, `newsProviders()`, `histogramData()`,
 `marketRule()` and the `historicalTicks*()` family.
 
 ##### Data Structures
 Other classes that mainly hold data are also [defined](R/structs.R).
-They are implemented as simple R (nested) lists with names, types and default values
-matching the IB API counterparts.
-Examples are: `Contract`, `Order`, `ComboLeg`, `ExecutionFilter`, `ScannerSubscription`
+They are implemented as R lists, possibly nested, with names, types and default values
+matching the IB API counterparts: _e.g._
+`Contract`, `Order`, `ComboLeg`, `ExecutionFilter`, `ScannerSubscription`
 and `Condition`.
 
 To use them, simply make a copy and override their elements:
