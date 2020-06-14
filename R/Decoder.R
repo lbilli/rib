@@ -67,7 +67,7 @@ Decoder <- R6::R6Class("Decoder",
         args <- Validator[[fname]](args, no_names=no_names)
 
       # Return callback name and argument list
-      list(fname= fname, fargs= args)
+      list(fname=fname, fargs=args)
     },
 
     #

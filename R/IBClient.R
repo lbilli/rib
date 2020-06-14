@@ -273,10 +273,9 @@ IBClient <- R6::R6Class("IBClient",
 
     placeOrder= function(id, contract, order) {
 
-      msg <- if(self$serVersion < MIN_SERVER_VER_ORDER_CONTAINER)
-               c("3", "45")   ### PLACE_ORDER
-             else
-               "3"
+      msg <- c("3", ### PLACE_ORDER
+               if(self$serVersion < MIN_SERVER_VER_ORDER_CONTAINER)
+                 "45")
 
       # Add payload
       payload <- contract[c(1L:12L, 14L, 15L)]
@@ -531,7 +530,7 @@ IBClient <- R6::R6Class("IBClient",
 
     cancelMktDepth= function(tickerId, isSmartDepth) {
 
-      msg <- c("11", "1",  ### CANCEL_MKT_DEPTH
+      msg <- c("11", "1", ### CANCEL_MKT_DEPTH
                tickerId,
                if(self$serVersion >= MIN_SERVER_VER_SMART_DEPTH)
                  private$sanitize(list(isSmartDepth)))
@@ -614,10 +613,9 @@ IBClient <- R6::R6Class("IBClient",
 
     reqScannerSubscription= function(tickerId, subscription, scannerSubscriptionOptions=character(), scannerSubscriptionFilterOptions=character()) {
 
-      msg <- if(self$serVersion < MIN_SERVER_VER_SCANNER_GENERIC_OPTS)
-               c("22", "4") ### REQ_SCANNER_SUBSCRIPTION
-             else
-               "22"
+      msg <- c("22", ### REQ_SCANNER_SUBSCRIPTION
+               if(self$serVersion < MIN_SERVER_VER_SCANNER_GENERIC_OPTS)
+                 "4")
 
       # Add payload
       payload <- c(subscription[1L:21L],

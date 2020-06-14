@@ -13,7 +13,7 @@ Currently, only API versions ~`v100`~ `v142+` are supported.
 The package design mirrors the official C++/Java
 [IB API](http://interactivebrokers.github.io/tws-api/),
 which is based on an asynchronous request-response communication model
-over TCP socket.
+over TCP.
 
 ### Installation
 To install from GitHub,
@@ -116,7 +116,7 @@ ic$reqContractDetails(11, contract)
 # more requests can go here...
 
 # Parse responses
-# Might need to be called several times to process all messages
+# Might need to be called several times to exhaust all messages
 ic$checkMsg(2)
 
 # Find results in
@@ -156,7 +156,7 @@ repeat {
   if(done)
     break
 
-  # It is convenient to have a little wait here
+  # Might be convenient to have a little wait here
   Sys.sleep(1)
 }
 

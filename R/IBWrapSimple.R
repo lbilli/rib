@@ -21,7 +21,7 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                           cat("Size:", tickerId, field, size, "\n"),
 
     tickOptionComputation= function(tickerId, tickType, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice)
-                          self$context$option <- list(tickerId, tickType, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice),
+                             self$context$option <- list(tickerId, tickType, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice),
 
     tickGeneric=        function(tickerId, tickType, value)
                           cat("Generic:", tickerId, tickType, value, "\n"),
@@ -118,14 +118,14 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                         },
 
     realtimeBar=        function(reqId, time, open, high, low, close, volume, wap, count)
-                          cat(reqId, time, open, high, low, close, volume, wap, count, "\n"),
+                          cat("realtimeBar:", reqId, time, open, high, low, close, volume, wap, count, "\n"),
 
     currentTime=        function(time)
-                          cat("CurrentTime:", time, "\n"),
+                          cat("currentTime:", time, "\n"),
 
     fundamentalData=    function(reqId, data) {
                           self$context$fundamentalData <- data
-                          cat("FundamentalData:", reqId, "\n")
+                          cat("fundamentalData:", reqId, "\n")
                         },
 
     tickSnapshotEnd=    function(reqId)
