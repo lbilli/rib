@@ -1,7 +1,7 @@
 function                type                         args
 tickPrice               i,c,n,i,TickAttrib           tickerId,field,price,size,attrib
 tickSize                i,c,i                        tickerId,field,size
-tickOptionComputation   i,c,n,n,n,n,n,n,n,n          tickerId,tickType,impliedVol,delta,optPrice,pvDividend,gamma,vega,theta,undPrice
+tickOptionComputation   i,c,i,n,n,n,n,n,n,n,n        tickerId,tickType,tickAttrib,impliedVol,delta,optPrice,pvDividend,gamma,vega,theta,undPrice
 tickGeneric             i,c,n                        tickerId,tickType,value
 tickString              i,c,c                        tickerId,tickType,value
 tickEFP                 i,c,n,c,n,i,c,n,n            tickerId,tickType,basisPoints,formattedBasisPoints,totalDividends,holdDays,futureLastTradeDate,dividendImpact,dividendsToLastTradeDate

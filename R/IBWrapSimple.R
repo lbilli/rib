@@ -20,8 +20,8 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     tickSize=           function(tickerId, field, size)
                           cat("Size:", tickerId, field, size, "\n"),
 
-    tickOptionComputation= function(tickerId, tickType, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice)
-                             self$context$option <- list(tickerId, tickType, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice),
+    tickOptionComputation= function(tickerId, tickType, tickAttrib, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice)
+                             self$context$option <- list(tickerId, tickType, tickAttrib, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice),
 
     tickGeneric=        function(tickerId, tickType, value)
                           cat("Generic:", tickerId, tickType, value, "\n"),

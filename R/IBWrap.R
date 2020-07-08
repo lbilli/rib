@@ -11,7 +11,7 @@ IBWrap <- R6::R6Class("IBWrap",
 
     tickSize= function(tickerId, field, size) warning("Default implementation."),
 
-    tickOptionComputation= function(tickerId, tickType, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice) warning("Default implementation."),
+    tickOptionComputation= function(tickerId, tickType, tickAttrib, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice) warning("Default implementation."),
 
     tickGeneric= function(tickerId, tickType, value) warning("Default implementation."),
 

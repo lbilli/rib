@@ -44,7 +44,7 @@ validateTZ <- function(tz)
   if(tz %in% c("EST", "EDT", "Eastern Standard Time"))
     tz <- "America/New_York"
 
-  else if(tz %in% c("CST", "CDT"))
+  else if(tz %in% c("CST", "CDT", "Central Standard Time"))
     tz <- "America/Chicago"
 
   else if(tz %in% c("PST", "PDT"))

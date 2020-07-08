@@ -21,10 +21,11 @@ Decoder <- R6::R6Class("Decoder",
       # The first field is the message ID
       msgId <- imsg$pop()
 
-      # The second field is unused version, for msgId < 75 and != 3, 5, 11, 17
+      # The second field is unused version, for msgId < 75 and != 3, 5, 11, 17, 21
       imsgId <- Validator$i(msgId)
-      if(imsgId  < 75L && ! imsgId %in% c(3L, 5L, 11L, 17L) ||
-         imsgId ==  5L && private$serverVersion < MIN_SERVER_VER_ORDER_CONTAINER)
+      if(imsgId  < 75L && ! imsgId %in% c(3L, 5L, 11L, 17L, 21L) ||
+         imsgId ==  5L && private$serverVersion < MIN_SERVER_VER_ORDER_CONTAINER ||
+         imsgId == 21L && private$serverVersion < MIN_SERVER_VER_PRICE_BASED_VOLATILITY)
         imsg$pop()
 
       # Convert ID -> Name
@@ -126,17 +127,20 @@ Decoder <- R6::R6Class("Decoder",
 
     TICK_OPTION_COMPUTATION= function(imsg) {
 
-      m <- imsg$pop(10L)
+      m <- if(private$serverVersion >= MIN_SERVER_VER_PRICE_BASED_VOLATILITY)
+             imsg$pop(11L)
+           else
+             c(imsg$pop(2L), NA_character_, imsg$pop(8L))
 
       # Convert tickType to string
       m[2L] <- map_ticktype[m[2L]]
 
       # (impliedVol, optPrice, pvDividend, undPrice) == -1 means NA
-      idx <- c(3L, 5L, 6L, 10L)
+      idx <- c(4L, 6L, 7L, 11L)
       m[idx][m[idx] == "-1"] <- NA_character_
 
       # (delta, gamma, vega, theta) == -2 means NA
-      idx <- c(4L, 7L, 8L, 9L)
+      idx <- c(5L, 8L, 9L, 10L)
       m[idx][m[idx] == "-2"] <- NA_character_
 
       private$validate("tickOptionComputation", m, no_names=TRUE)
