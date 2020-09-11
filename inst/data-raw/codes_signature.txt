@@ -23,7 +23,7 @@ updateMktDepth          i,i,i,i,n,i                  id,position,operation,side,
 updateMktDepthL2        i,i,c,i,i,n,i,l              id,position,marketMaker,operation,side,price,size,isSmartDepth
 updateNewsBulletin      i,i,c,c                      msgId,msgType,newsMessage,originExch
 managedAccounts         c                            accountsList
-receiveFA               c,c                          pFaDataType,cxml
+receiveFA               c,c                          faDataType,xml
 historicalData          i,dBar                       reqId,bar
 scannerParameters       c                            xml
 scannerData             i,i,vContractDetails,c,c,c,c reqId,rank,contractDetails,distance,benchmark,projection,legsStr
@@ -78,3 +78,4 @@ tickByTickMidPoint      i,c,n                        reqId,time,midPoint
 orderBound              i,i,i                        orderId,apiClientId,apiOrderId
 completedOrder          Contract,Order,OrderState    contract,order,orderState
 completedOrdersEnd      NA                           NA
+replaceFAEnd            i,c                          reqId,text

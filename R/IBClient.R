@@ -564,9 +564,18 @@ IBClient <- R6::R6Class("IBClient",
 
     reqManagedAccts= function() private$req_simple("17", "1"), ### REQ_MANAGED_ACCTS
 
-    requestFA= function(pFaDataType) private$req_simple("18", "1", map_enum2int("faDataType", pFaDataType)), ### REQ_FA
+    requestFA= function(faDataType) private$req_simple("18", "1", map_enum2int("FaDataType", faDataType)), ### REQ_FA
 
-    replaceFA= function(pFaDataType, cxml) private$req_simple("19", "1", map_enum2int("faDataType", pFaDataType), cxml), ### REPLACE_FA
+    replaceFA= function(reqId, faDataType, xml) {
+
+      msg <- c("19", "1", ### REPLACE_FA
+               map_enum2int("FaDataType", faDataType),
+               xml,
+               if(self$serVersion >= MIN_SERVER_VER_REPLACE_FA_END) reqId)
+
+      # Encode and send
+      private$encodeMsg(msg)
+    },
 
     reqHistoricalData= function(tickerId, contract, endDateTime, durationStr, barSizeSetting, whatToShow, useRTH, formatDate, keepUpToDate, chartOptions=character()) {
 

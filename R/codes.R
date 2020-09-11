@@ -176,4 +176,5 @@ map_inbound <- c(  "1" = "TICK_PRICE",
                   "99" = "TICK_BY_TICK",
                  "100" = "ORDER_BOUND",
                  "101" = "COMPLETED_ORDER",
-                 "102" = "COMPLETED_ORDERS_END")
+                 "102" = "COMPLETED_ORDERS_END",
+                 "103" = "REPLACE_FA_END")

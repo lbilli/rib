@@ -555,9 +555,9 @@ Decoder <- R6::R6Class("Decoder",
 
     RECEIVE_FA= function(imsg) {
 
-      pFaDataType <- map_int2enum("faDataType", imsg$pop())
+      faDataType <- map_int2enum("FaDataType", imsg$pop())
 
-      private$validate("receiveFA", pFaDataType=pFaDataType, cxml=imsg$pop())
+      private$validate("receiveFA", faDataType=faDataType, xml=imsg$pop())
     },
 
     HISTORICAL_DATA= function(imsg) {
@@ -1251,6 +1251,11 @@ Decoder <- R6::R6Class("Decoder",
     COMPLETED_ORDERS_END= function(imsg) {
 
       private$validate("completedOrdersEnd")
+    },
+
+    REPLACE_FA_END= function(imsg) {
+
+      private$validate("replaceFAEnd", imsg$pop(2L), no_names=TRUE)
     }
   )
 )

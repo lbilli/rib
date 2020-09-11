@@ -57,7 +57,7 @@ IBWrap <- R6::R6Class("IBWrap",
 
     managedAccounts= function(accountsList) warning("Default implementation."),
 
-    receiveFA= function(pFaDataType, cxml) warning("Default implementation."),
+    receiveFA= function(faDataType, xml) warning("Default implementation."),
 
     historicalData= function(reqId, bar) warning("Default implementation."),
 
@@ -167,6 +167,8 @@ IBWrap <- R6::R6Class("IBWrap",
 
     completedOrder= function(contract, order, orderState) warning("Default implementation."),
 
-    completedOrdersEnd= function() warning("Default implementation.")
+    completedOrdersEnd= function() warning("Default implementation."),
+
+    replaceFAEnd= function(reqId, text) warning("Default implementation.")
   )
 )

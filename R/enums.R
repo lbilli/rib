@@ -7,7 +7,7 @@ IBEnum <- list(
                                CLOSE=   2L,
                                UNKNOWN= 3L),
 
-               faDataType= c(GROUPS=   1L,
+               FaDataType= c(GROUPS=   1L,
                              PROFILES= 2L,
                              ALIASES=  3L),
 

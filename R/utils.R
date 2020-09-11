@@ -56,6 +56,9 @@ validateTZ <- function(tz)
   else if(tz %in% c("BST", "British Summer Time", "Greenwich Mean Time"))
     tz <- "Europe/London"
 
+  else if(tz %in% c("EET", "EEST"))
+    tz <- "Europe/Riga"
+
   else if(tz == "JST")
     tz <- "Asia/Tokyo"
 

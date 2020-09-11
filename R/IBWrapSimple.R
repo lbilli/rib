@@ -91,9 +91,9 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     managedAccounts=    function(accountsList)
                           self$context$accounts <- accountsList,
 
-    receiveFA=          function(pFaDataType, cxml) {
-                          self$context$fa <- cxml
-                          cat("ReceiveFA:", pFaDataType, "\n")
+    receiveFA=          function(faDataType, xml) {
+                          self$context$fa <- xml
+                          cat("ReceiveFA:", faDataType, "\n")
                         },
 
     historicalData=     function(reqId, bar) {
@@ -271,6 +271,9 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                         },
 
     completedOrdersEnd= function()
-                          cat("completedOrdersEnd.\n")
+                          cat("completedOrdersEnd.\n"),
+
+    replaceFAEnd=       function(reqId, text)
+                          cat("replaceFAEnd:", reqId, text, "\n")
   )
 )
