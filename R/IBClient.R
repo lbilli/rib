@@ -273,9 +273,7 @@ IBClient <- R6::R6Class("IBClient",
 
     placeOrder= function(id, contract, order) {
 
-      msg <- c("3", ### PLACE_ORDER
-               if(self$serVersion < MIN_SERVER_VER_ORDER_CONTAINER)
-                 "45")
+      msg <- "3" ### PLACE_ORDER
 
       # Add payload
       payload <- contract[c(1L:12L, 14L, 15L)]
@@ -429,16 +427,10 @@ IBClient <- R6::R6Class("IBClient",
                                     "mifid2DecisionAlgo",
                                     "mifid2ExecutionTrader",
                                     "mifid2ExecutionAlgo",
-                                    "dontUseAutoPriceForHedge")])
-
-      if(self$serVersion >= MIN_SERVER_VER_ORDER_CONTAINER)
-        payload <- c(payload, order["isOmsContainer"])
-
-      if(self$serVersion >= MIN_SERVER_VER_D_PEG_ORDERS)
-        payload <- c(payload, order["discretionaryUpToLimitPrice"])
-
-      if(self$serVersion >= MIN_SERVER_VER_PRICE_MGMT_ALGO)
-        payload <- c(payload, order["usePriceMgmtAlgo"])
+                                    "dontUseAutoPriceForHedge",
+                                    "isOmsContainer",
+                                    "discretionaryUpToLimitPrice",
+                                    "usePriceMgmtAlgo")])
 
       # TODO: remove this?
       # Check that NA's are only in allowed fields
@@ -515,12 +507,10 @@ IBClient <- R6::R6Class("IBClient",
       msg <- c("10", "5") ### REQ_MKT_DEPTH
 
       # Add payload
-      payload <- c(contract[if(self$serVersion >= MIN_SERVER_VER_MKT_DEPTH_PRIM_EXCHANGE) 1L:12L
-                            else c(1L:8L, 10:12L)],
-                            numRows,
-                            if(self$serVersion >= MIN_SERVER_VER_SMART_DEPTH)
-                              isSmartDepth,
-                            pack_tagvalue(mktDepthOptions, mode="string"))
+      payload <- c(contract[1L:12L],
+                   numRows,
+                   isSmartDepth,
+                   pack_tagvalue(mktDepthOptions, mode="string"))
 
       msg <- c(msg, tickerId, private$sanitize(payload))
 
@@ -532,8 +522,7 @@ IBClient <- R6::R6Class("IBClient",
 
       msg <- c("11", "1", ### CANCEL_MKT_DEPTH
                tickerId,
-               if(self$serVersion >= MIN_SERVER_VER_SMART_DEPTH)
-                 private$sanitize(list(isSmartDepth)))
+               private$sanitize(list(isSmartDepth)))
 
       private$encodeMsg(msg)
     },
@@ -622,14 +611,11 @@ IBClient <- R6::R6Class("IBClient",
 
     reqScannerSubscription= function(tickerId, subscription, scannerSubscriptionOptions=character(), scannerSubscriptionFilterOptions=character()) {
 
-      msg <- c("22", ### REQ_SCANNER_SUBSCRIPTION
-               if(self$serVersion < MIN_SERVER_VER_SCANNER_GENERIC_OPTS)
-                 "4")
+      msg <- "22" ### REQ_SCANNER_SUBSCRIPTION
 
       # Add payload
       payload <- c(subscription[1L:21L],
-                   if(self$serVersion >= MIN_SERVER_VER_SCANNER_GENERIC_OPTS)
-                     pack_tagvalue(scannerSubscriptionFilterOptions, mode="string"),
+                   pack_tagvalue(scannerSubscriptionFilterOptions, mode="string"),
                    pack_tagvalue(scannerSubscriptionOptions, mode="string"))
 
       # TODO: remove this?

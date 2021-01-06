@@ -24,7 +24,6 @@ Decoder <- R6::R6Class("Decoder",
       # The second field is unused version, for msgId < 75 and != 3, 5, 11, 17, 21
       imsgId <- Validator$i(msgId)
       if(imsgId  < 75L && ! imsgId %in% c(3L, 5L, 11L, 17L, 21L) ||
-         imsgId ==  5L && private$serverVersion < MIN_SERVER_VER_ORDER_CONTAINER ||
          imsgId == 21L && private$serverVersion < MIN_SERVER_VER_PRICE_BASED_VOLATILITY)
         imsg$pop()
 
@@ -372,16 +371,10 @@ Decoder <- R6::R6Class("Decoder",
       order$softDollarTier[1L:3L] <- imsg$pop(3L)
 
       order[c("cashQty",
-              "dontUseAutoPriceForHedge")] <- imsg$pop(2L)
-
-      if(private$serverVersion >= MIN_SERVER_VER_ORDER_CONTAINER)
-        order$isOmsContainer <- imsg$pop()
-
-      if(private$serverVersion >= MIN_SERVER_VER_D_PEG_ORDERS)
-        order$discretionaryUpToLimitPrice <- imsg$pop()
-
-      if(private$serverVersion >= MIN_SERVER_VER_PRICE_MGMT_ALGO)
-        order$usePriceMgmtAlgo <- imsg$pop()
+              "dontUseAutoPriceForHedge",
+              "isOmsContainer",
+              "discretionaryUpToLimitPrice",
+              "usePriceMgmtAlgo")] <- imsg$pop(5L)
 
       private$validate("openOrder", orderId=    order$orderId,
                                     contract=   contract,
@@ -453,10 +446,8 @@ Decoder <- R6::R6Class("Decoder",
            "underSymbol",
            "underSecType",
            "marketRuleIds",
-           "realExpirationDate")] <- imsg$pop(5L)
-
-      if(private$serverVersion >= MIN_SERVER_VER_STOCK_TYPE)
-        cd$stockType <- imsg$pop()
+           "realExpirationDate",
+           "stockType")] <- imsg$pop(6L)
 
       private$validate("contractDetails", reqId=reqId, contractDetails=cd)
     },
@@ -535,12 +526,7 @@ Decoder <- R6::R6Class("Decoder",
 
     MARKET_DEPTH_L2= function(imsg) {
 
-      m <- if(private$serverVersion >= MIN_SERVER_VER_SMART_DEPTH)
-             imsg$pop(8L)
-           else
-             c(imsg$pop(7L), "0")
-
-      private$validate("updateMktDepthL2", m, no_names=TRUE)
+      private$validate("updateMktDepthL2", imsg$pop(8L), no_names=TRUE)
     },
 
     NEWS_BULLETINS= function(imsg) {
@@ -1233,10 +1219,8 @@ Decoder <- R6::R6Class("Decoder",
       order[c("trailStopPrice",
               "lmtPriceOffset",
               "cashQty",
-              "dontUseAutoPriceForHedge")] <- imsg$pop(4L)
-
-      if(private$serverVersion >= MIN_SERVER_VER_ORDER_CONTAINER)
-        order$isOmsContainer <- imsg$pop()
+              "dontUseAutoPriceForHedge",
+              "isOmsContainer")] <- imsg$pop(5L)
 
       order[122L:129L] <- imsg$pop(8L)     # "autoCancelDate" through "parentPermId"
 
