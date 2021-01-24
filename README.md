@@ -117,7 +117,7 @@ ic$reqContractDetails(11, contract)
 
 # Parse responses
 # Might need to be called several times to exhaust all messages
-ic$checkMsg(2)
+ic$checkMsg()
 
 # Find results in
 wrap$context
