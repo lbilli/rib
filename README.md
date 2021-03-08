@@ -50,11 +50,16 @@ IBWrapCustom <- R6::R6Class("IBWrapCustom",
 
   public= list(
     # Customized methods go here
-    error=            function(id, errorCode, errorString) cat(id, errorCode, errorString, "\n"),
+    error=            function(id, errorCode, errorString)
+                        cat("Error:", id, errorCode, errorString, "\n"),
 
-    nextValidId=      function(orderId) cat("Next OrderId:", orderId, "\n"),
+    nextValidId=      function(orderId)
+                        cat("Next OrderId:", orderId, "\n"),
 
-    managedAccounts=  function(accountsList) cat("Managed Accounts:", accountsList, "\n")
+    managedAccounts=  function(accountsList)
+                        cat("Managed Accounts:", accountsList, "\n")
+
+    # more method overrides can go here...
   )
 )
 
@@ -170,7 +175,7 @@ ic$disconnect()
 This implements the IB `EClient` class functionality. Among its methods:
 - `new(wrap)`: constructor. Require an object derived from `IBWrap` as argument.
 - `replaceWrap(wrap)`: replace the `wrap`. As the client runs in a single thread,
-  it is possible to replace the set of callbacks in a connected client.
+  it is possible to swap wrappers on the fly in a connected client.
 - `connect(host, port, clientId, connectOptions)`: establish a connection.
 - `disconnect()`: terminate the connection.
 - `checkMsg(timeout, flush)`: wait for responses and dispatch callbacks.

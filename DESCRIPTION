@@ -1,6 +1,6 @@
 Package: rib
 Title: An R implementation of Interactive Brokers API
-Version: 0.10.0
+Version: 0.10.1
 Authors@R: person("Luca", "Billi", email = "noreply.section+dev@gmail.com", role = c("aut", "cre"))
 Description: A native R implementation of Interactive Brokers API.
     It establishes a TCP connection to a server and handles
