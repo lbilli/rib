@@ -437,10 +437,10 @@ Decoder <- R6::R6Class("Decoder",
       cd$contract$primaryExchange         <- imsg$pop()
       cd[9L:17L]                          <- imsg$pop(9L)
 
-      secIdListcount <- Validator$i(imsg$pop())
+      n <- Validator$i(imsg$pop())
 
-      if(secIdListcount > 0L)
-        cd$secIdList <- fold_tagvalue(imsg$pop(2L * secIdListcount))
+      if(n > 0L)
+        cd$secIdList <- fold_tagvalue(imsg$pop(2L * n))
 
       cd[c("aggGroup",
            "underSymbol",
@@ -492,10 +492,10 @@ Decoder <- R6::R6Class("Decoder",
            "evRule",
            "evMultiplier")] <- imsg$pop(11L)
 
-      secIdListCount <- Validator$i(imsg$pop())
+      n <- Validator$i(imsg$pop())
 
-      if(secIdListcount > 0L)
-        cd$secIdList <- fold_tagvalue(imsg$pop(2L * secIdListcount))
+      if(n > 0L)
+        cd$secIdList <- fold_tagvalue(imsg$pop(2L * n))
 
       cd[c("aggGroup",
            "marketRuleIds")] <- imsg$pop(2L)
