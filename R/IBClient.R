@@ -309,7 +309,7 @@ IBClient <- R6::R6Class("IBClient",
                      pack_tagvalue(order$smartComboRoutingParams, mode="unfold"))
       }
 
-      payload <- c(payload, "",
+      payload <- c(payload, "",       # Deprecated sharesAllocation
                             order[c("discretionaryAmt",
                                     "goodAfterTime",
                                     "goodTillDate",
@@ -326,10 +326,11 @@ IBClient <- R6::R6Class("IBClient",
                                     "settlingFirm",
                                     "allOrNone",
                                     "minQty",
-                                    "percentOffset",
-                                    "eTradeOnly",
-                                    "firmQuoteOnly",
-                                    "nbboPriceCap")],
+                                    "percentOffset")],
+
+                            FALSE,    # Deprecated eTradeOnly
+                            FALSE,    # Deprecated firmQuoteOnly
+                            "",       # Deprecated nbboPriceCap
 
                             map_enum2int("AuctionStrategy", order$auctionStrategy),
 
@@ -432,30 +433,11 @@ IBClient <- R6::R6Class("IBClient",
                                     "discretionaryUpToLimitPrice",
                                     "usePriceMgmtAlgo")])
 
-      # TODO: remove this?
-      # Check that NA's are only in allowed fields
-      idx <- which(is.na(payload))
-      stopifnot(names(payload)[idx] %in% c("lmtPrice", "auxPrice",
-                                 "minQty",   "percentOffset",
-                                 "nbboPriceCap", "startingPrice",
-                                 "stockRefPrice", "delta",
-                                 "stockRangeLower", "stockRangeUpper",
-                                 "volatility", "volatilityType",
-                                 "deltaNeutralAuxPrice", "referencePriceType",
-                                 "trailStopPrice", "trailingPercent",
-                                 "scaleInitLevelSize", "scaleSubsLevelSize",
-                                 "scalePriceIncrement", "scalePriceAdjustValue",
-                                 "scalePriceAdjustInterval", "scaleProfitOffset",
-                                 "scaleInitPosition", "scaleInitFillQty", "cashQty",
-                                 "usePriceMgmtAlgo",
+      if(self$serVersion >= MIN_SERVER_VER_DURATION)
+        payload <- c(payload, order$duration)
 
-                                 # The following ones are not set to "" in the API,
-                                 # but left as .Machine$double.xmax
-                                 "triggerPrice", "lmtPriceOffset", "adjustedStopPrice",
-                                 "adjustedStopLimitPrice", "adjustedTrailingAmount"))
       # Convert NA -> ""
-      payload[idx] <- ""
-
+      payload[is.na(payload)] <- ""
 
       msg <- c(msg, id, private$sanitize(payload))
 

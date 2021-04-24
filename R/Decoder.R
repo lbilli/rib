@@ -210,8 +210,7 @@ Decoder <- R6::R6Class("Decoder",
               "discretionaryAmt",
               "goodAfterTime")] <- imsg$pop(7L)
 
-      # Skip msg[32] "sharesAllocation"
-      imsg$pop()
+      imsg$pop() # Deprecated sharesAllocation
 
       order[c("faGroup",
               "faMethod",
@@ -228,24 +227,24 @@ Decoder <- R6::R6Class("Decoder",
 
       order$auctionStrategy <- map_int2enum("AuctionStrategy", imsg$pop())
 
-      order[47L:51L] <- imsg$pop(5L)     # "startingPrice" through "stockRangeUpper"
+      order[44L:48L] <- imsg$pop(5L)     # "startingPrice" through "stockRangeUpper"
 
       order[c("displaySize",
               "blockOrder",
               "sweepToFill",
               "allOrNone",
               "minQty",
-              "ocaType",
-              "eTradeOnly",
-              "firmQuoteOnly",
-              "nbboPriceCap",
-              "parentId",
-              "triggerMethod")] <- imsg$pop(11L)
+              "ocaType")] <- imsg$pop(6L)
 
-      order[54L:57L] <- imsg$pop(4L)   # "volatility" through "deltaNeutralAuxPrice"
+      imsg$pop(3L) # Deprecated eTradeOnly, firmQuoteOnly, nbboPriceCap
+
+      order[c("parentId",
+              "triggerMethod")] <- imsg$pop(2L)
+
+      order[51L:54L] <- imsg$pop(4L)   # "volatility" through "deltaNeutralAuxPrice"
 
       if(nzchar(order$deltaNeutralOrderType))
-        order[58L:65L] <- imsg$pop(8L)  # "deltaNeutralConId" through "deltaNeutralDesignatedLocation"
+        order[55L:62L] <- imsg$pop(8L)  # "deltaNeutralConId" through "deltaNeutralDesignatedLocation"
 
 
       order[c("continuousUpdate",
@@ -292,7 +291,7 @@ Decoder <- R6::R6Class("Decoder",
       order$scalePriceIncrement <- Validator$n(imsg$pop())
 
       if(!is.na(order$scalePriceIncrement) && order$scalePriceIncrement > 0L)
-        order[73L:79L] <- imsg$pop(7L)
+        order[70L:76L] <- imsg$pop(7L)
 
 
       order$hedgeType <- imsg$pop()
@@ -375,6 +374,9 @@ Decoder <- R6::R6Class("Decoder",
               "isOmsContainer",
               "discretionaryUpToLimitPrice",
               "usePriceMgmtAlgo")] <- imsg$pop(5L)
+
+      if(private$serverVersion >= MIN_SERVER_VER_DURATION)
+        order$duration <- imsg$pop()
 
       private$validate("openOrder", orderId=    order$orderId,
                                     contract=   contract,
@@ -1096,7 +1098,7 @@ Decoder <- R6::R6Class("Decoder",
               "designatedLocation",
               "exemptCode")] <- imsg$pop(18L)
 
-      order[47L:51L] <- imsg$pop(5L)     # "startingPrice" through "stockRangeUpper"
+      order[44L:48L] <- imsg$pop(5L)     # "startingPrice" through "stockRangeUpper"
 
       order[c("displaySize",
               "sweepToFill",
@@ -1105,10 +1107,10 @@ Decoder <- R6::R6Class("Decoder",
               "ocaType",
               "triggerMethod")] <- imsg$pop(6L)
 
-      order[54L:57L] <- imsg$pop(4L)   # "volatility" through "deltaNeutralAuxPrice"
+      order[51L:54L] <- imsg$pop(4L)   # "volatility" through "deltaNeutralAuxPrice"
 
       if(nzchar(order$deltaNeutralOrderType))
-        order[c(58L, 63L:65L)] <- imsg$pop(4L)  # "deltaNeutralConId" through "deltaNeutralDesignatedLocation"
+        order[c(55L, 60L:62L)] <- imsg$pop(4L)  # "deltaNeutralConId" through "deltaNeutralDesignatedLocation"
 
 
       order[c("continuousUpdate",
@@ -1153,7 +1155,7 @@ Decoder <- R6::R6Class("Decoder",
       order$scalePriceIncrement <- Validator$n(imsg$pop())
 
       if(!is.na(order$scalePriceIncrement) && order$scalePriceIncrement > 0L)
-        order[73L:79L] <- imsg$pop(7L)
+        order[70L:76L] <- imsg$pop(7L)
 
 
       order$hedgeType <- imsg$pop()
@@ -1222,7 +1224,7 @@ Decoder <- R6::R6Class("Decoder",
               "dontUseAutoPriceForHedge",
               "isOmsContainer")] <- imsg$pop(5L)
 
-      order[122L:129L] <- imsg$pop(8L)     # "autoCancelDate" through "parentPermId"
+      order[119L:126L] <- imsg$pop(8L)     # "autoCancelDate" through "parentPermId"
 
       orderState[c("completedTime",
                    "completedStatus")] <- imsg$pop(2L)
