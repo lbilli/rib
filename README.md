@@ -201,7 +201,7 @@ within `IBWrapSimple$context` for later inspection.
 For more details about callback definitions and signatures,
 refer again to the official IB `EWrapper` class documentation.
 
-#### Notes
+### Notes
 Callbacks are generally invoked with arguments and types matching the signatures
 as described in the official documentation.
 However, there are few exceptions:
@@ -224,6 +224,20 @@ are **not** used in this package.
 `softDollarTiers()`, `familyCodes()`, `mktDepthExchanges()`,
 `smartComponents()`, `newsProviders()`, `histogramData()`,
 `marketRule()` and the `historicalTicks*()` family.
+
+##### Missing Values
+Occasionally there is the need for numerical types to represent
+the lack of a value.
+
+The IB API does not adopt a uniform solution for all situations, but rather
+various sentinel values are used.
+They can be either the plain `0` or the largest representable value
+of a given type such as `2147483647` and `9223372036854775807`
+for 32 and 64 bit integers respectively or `1.7976931348623157E308`
+for 64 bit floating point.
+
+Within this package an effort is made to replace all these values with
+R built-in `NA`.
 
 ##### Data Structures
 Other classes that mainly hold data are also [defined](R/structs.R).
