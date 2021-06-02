@@ -264,7 +264,8 @@ Order <- list(orderId=                        0L,
               routeMarketableToBbo=           FALSE,
               parentPermId=                   NA_integer_,
               usePriceMgmtAlgo=               NA,
-              duration=                       NA_integer_)
+              duration=                       NA_integer_,
+              postToAts=                      NA_integer_)
 
 ScannerSubscription <- list(numberOfRows=             -1L,
                             instrument=               "",

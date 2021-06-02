@@ -436,6 +436,9 @@ IBClient <- R6::R6Class("IBClient",
       if(self$serVersion >= MIN_SERVER_VER_DURATION)
         payload <- c(payload, order$duration)
 
+      if(self$serVersion >= MIN_SERVER_VER_POST_TO_ATS)
+        payload <- c(payload, order$postToAts)
+
       # Convert NA -> ""
       payload[is.na(payload)] <- ""
 
