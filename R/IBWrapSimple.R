@@ -38,7 +38,7 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                         },
 
     openOrderEnd=       function()
-                          cat("OpenOrderEnd.\n"),
+                          cat("OpenOrderEnd\n"),
 
     updateAccountValue= function(key, val, currency, accountName)
                           cat("AccountValue:", key, val, currency, accountName, "\n"),
@@ -141,7 +141,7 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                           cat("Position:", account, contract$symbol, position, avgCost, "\n"),
 
     positionEnd=        function()
-                          cat("PositionEnd.\n"),
+                          cat("PositionEnd\n"),
 
     accountSummary=     function(reqId, account, tag, value, currency)
                           cat("Account:", reqId, account, tag, value, currency, "\n"),
@@ -267,13 +267,19 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
 
     completedOrder=     function(contract, order, orderState) {
                           self$context$completed <- list(contract=contract, order=order, orderstate=orderState)
-                          cat("completedOrder.\n")
+                          cat("completedOrder\n")
                         },
 
     completedOrdersEnd= function()
-                          cat("completedOrdersEnd.\n"),
+                          cat("completedOrdersEnd\n"),
 
     replaceFAEnd=       function(reqId, text)
-                          cat("replaceFAEnd:", reqId, text, "\n")
+                          cat("replaceFAEnd:", reqId, text, "\n"),
+
+    wshMetaData=        function(reqId, dataJson)
+                          cat("wshMetaData:", reqId, dataJson, "\n"),
+
+    wshEventData=       function(reqId, dataJson)
+                          cat("wshEventData:", reqId, dataJson, "\n")
   )
 )

@@ -42,7 +42,7 @@ fCondition <- function(type)
                 Execution=     list(secType= "", exchange= "", symbol= ""),
                 Volume=        list(is_more= FALSE, value= 0L, conId= 0L, exchange= ""),
                 PercentChange= list(is_more= FALSE, value= NA_real_, conId= 0L, exchange= ""),
-                stop("Unknown Condition type."))
+                stop("unknown Condition type"))
 
   c(type=type, conjunction="o", res)
 }

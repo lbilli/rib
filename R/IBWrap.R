@@ -7,168 +7,172 @@ IBWrap <- R6::R6Class("IBWrap",
   public= list(
 
     # Callbacks
-    tickPrice= function(tickerId, field, price, size, attrib) warning("Default implementation."),
+    tickPrice= function(tickerId, field, price, size, attrib) warning("default implementation"),
 
-    tickSize= function(tickerId, field, size) warning("Default implementation."),
+    tickSize= function(tickerId, field, size) warning("default implementation"),
 
-    tickOptionComputation= function(tickerId, tickType, tickAttrib, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice) warning("Default implementation."),
+    tickOptionComputation= function(tickerId, tickType, tickAttrib, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice) warning("default implementation"),
 
-    tickGeneric= function(tickerId, tickType, value) warning("Default implementation."),
+    tickGeneric= function(tickerId, tickType, value) warning("default implementation"),
 
-    tickString= function(tickerId, tickType, value) warning("Default implementation."),
+    tickString= function(tickerId, tickType, value) warning("default implementation"),
 
-    tickEFP= function(tickerId, tickType, basisPoints, formattedBasisPoints, totalDividends, holdDays, futureLastTradeDate, dividendImpact, dividendsToLastTradeDate) warning("Default implementation."),
+    tickEFP= function(tickerId, tickType, basisPoints, formattedBasisPoints, totalDividends, holdDays, futureLastTradeDate, dividendImpact, dividendsToLastTradeDate) warning("default implementation"),
 
-    orderStatus= function(orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice) warning("Default implementation."),
+    orderStatus= function(orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice) warning("default implementation"),
 
-    openOrder= function(orderId, contract, order, orderstate) warning("Default implementation."),
+    openOrder= function(orderId, contract, order, orderstate) warning("default implementation"),
 
-    openOrderEnd= function() warning("Default implementation."),
+    openOrderEnd= function() warning("default implementation"),
 
-#    connectionClosed= function() warning("Default implementation."),
+#    connectionClosed= function() warning("default implementation"),
 
-    updateAccountValue= function(key, val, currency, accountName) warning("Default implementation."),
+    updateAccountValue= function(key, val, currency, accountName) warning("default implementation"),
 
-    updatePortfolio= function(contract, position, marketPrice, marketValue, averageCost, unrealizedPNL, realizedPNL, accountName) warning("Default implementation."),
+    updatePortfolio= function(contract, position, marketPrice, marketValue, averageCost, unrealizedPNL, realizedPNL, accountName) warning("default implementation"),
 
-    updateAccountTime= function(timeStamp) warning("Default implementation."),
+    updateAccountTime= function(timeStamp) warning("default implementation"),
 
-    accountDownloadEnd= function(accountName) warning("Default implementation."),
+    accountDownloadEnd= function(accountName) warning("default implementation"),
 
-    nextValidId= function(orderId) warning("Default implementation."),
+    nextValidId= function(orderId) warning("default implementation"),
 
-    contractDetails= function(reqId, contractDetails) warning("Default implementation."),
+    contractDetails= function(reqId, contractDetails) warning("default implementation"),
 
-    bondContractDetails= function(reqId, contractDetails) warning("Default implementation."),
+    bondContractDetails= function(reqId, contractDetails) warning("default implementation"),
 
-    contractDetailsEnd= function(reqId) warning("Default implementation."),
+    contractDetailsEnd= function(reqId) warning("default implementation"),
 
-    execDetails= function(reqId, contract, execution) warning("Default implementation."),
+    execDetails= function(reqId, contract, execution) warning("default implementation"),
 
-    execDetailsEnd= function(reqId) warning("Default implementation."),
+    execDetailsEnd= function(reqId) warning("default implementation"),
 
-    error= function(id, errorCode, errorString) warning("Default implementation."),
+    error= function(id, errorCode, errorString) warning("default implementation"),
 
-    updateMktDepth= function(id, position, operation, side, price, size) warning("Default implementation."),
+    updateMktDepth= function(id, position, operation, side, price, size) warning("default implementation"),
 
-    updateMktDepthL2= function(id, position, marketMaker, operation, side, price, size, isSmartDepth) warning("Default implementation."),
+    updateMktDepthL2= function(id, position, marketMaker, operation, side, price, size, isSmartDepth) warning("default implementation"),
 
-    updateNewsBulletin= function(msgId, msgType, newsMessage, originExch) warning("Default implementation."),
+    updateNewsBulletin= function(msgId, msgType, newsMessage, originExch) warning("default implementation"),
 
-    managedAccounts= function(accountsList) warning("Default implementation."),
+    managedAccounts= function(accountsList) warning("default implementation"),
 
-    receiveFA= function(faDataType, xml) warning("Default implementation."),
+    receiveFA= function(faDataType, xml) warning("default implementation"),
 
-    historicalData= function(reqId, bar) warning("Default implementation."),
+    historicalData= function(reqId, bar) warning("default implementation"),
 
-    scannerParameters= function(xml) warning("Default implementation."),
+    scannerParameters= function(xml) warning("default implementation"),
 
-    scannerData= function(reqId, rank, contractDetails, distance, benchmark, projection, legsStr) warning("Default implementation."),
+    scannerData= function(reqId, rank, contractDetails, distance, benchmark, projection, legsStr) warning("default implementation"),
 
-    realtimeBar= function(reqId, time, open, high, low, close, volume, wap, count) warning("Default implementation."),
+    realtimeBar= function(reqId, time, open, high, low, close, volume, wap, count) warning("default implementation"),
 
-    currentTime= function(time) warning("Default implementation."),
+    currentTime= function(time) warning("default implementation"),
 
-    fundamentalData= function(reqId, data) warning("Default implementation."),
+    fundamentalData= function(reqId, data) warning("default implementation"),
 
-    deltaNeutralValidation= function(reqId, deltaNeutralContract) warning("Default implementation."),
+    deltaNeutralValidation= function(reqId, deltaNeutralContract) warning("default implementation"),
 
-    tickSnapshotEnd= function(reqId) warning("Default implementation."),
+    tickSnapshotEnd= function(reqId) warning("default implementation"),
 
-    marketDataType= function(reqId, marketDataType) warning("Default implementation."),
+    marketDataType= function(reqId, marketDataType) warning("default implementation"),
 
-    commissionReport= function(commissionReport) warning("Default implementation."),
+    commissionReport= function(commissionReport) warning("default implementation"),
 
-    position= function(account, contract, position, avgCost) warning("Default implementation."),
+    position= function(account, contract, position, avgCost) warning("default implementation"),
 
-    positionEnd= function() warning("Default implementation."),
+    positionEnd= function() warning("default implementation"),
 
-    accountSummary= function(reqId, account, tag, value, currency) warning("Default implementation."),
+    accountSummary= function(reqId, account, tag, value, currency) warning("default implementation"),
 
-    accountSummaryEnd= function(reqId) warning("Default implementation."),
+    accountSummaryEnd= function(reqId) warning("default implementation"),
 
-    verifyMessageAPI= function(apiData) warning("Default implementation."),
+    verifyMessageAPI= function(apiData) warning("default implementation"),
 
-    verifyCompleted= function(isSuccessful, errorText) warning("Default implementation."),
+    verifyCompleted= function(isSuccessful, errorText) warning("default implementation"),
 
-    displayGroupList= function(reqId, groups) warning("Default implementation."),
+    displayGroupList= function(reqId, groups) warning("default implementation"),
 
-    displayGroupUpdated= function(reqId, contractInfo) warning("Default implementation."),
+    displayGroupUpdated= function(reqId, contractInfo) warning("default implementation"),
 
-    verifyAndAuthMessageAPI= function(apiData, xyzChallange) warning("Default implementation."),
+    verifyAndAuthMessageAPI= function(apiData, xyzChallange) warning("default implementation"),
 
-    verifyAndAuthCompleted= function(isSuccessful, errorText) warning("Default implementation."),
+    verifyAndAuthCompleted= function(isSuccessful, errorText) warning("default implementation"),
 
-#    connectAck= function() warning("Default implementation."),
+#    connectAck= function() warning("default implementation"),
 
-    positionMulti= function(reqId, account, modelCode, contract, position, avgCost) warning("Default implementation."),
+    positionMulti= function(reqId, account, modelCode, contract, position, avgCost) warning("default implementation"),
 
-    positionMultiEnd= function(reqId) warning("Default implementation."),
+    positionMultiEnd= function(reqId) warning("default implementation"),
 
-    accountUpdateMulti= function(reqId, account, modelCode, key, value, currency) warning("Default implementation."),
+    accountUpdateMulti= function(reqId, account, modelCode, key, value, currency) warning("default implementation"),
 
-    accountUpdateMultiEnd= function(reqId) warning("Default implementation."),
+    accountUpdateMultiEnd= function(reqId) warning("default implementation"),
 
-    securityDefinitionOptionalParameter= function(reqId, exchange, underlyingConId, tradingClass, multiplier, expirations, strikes) warning("Default implementation."),
+    securityDefinitionOptionalParameter= function(reqId, exchange, underlyingConId, tradingClass, multiplier, expirations, strikes) warning("default implementation"),
 
-    securityDefinitionOptionalParameterEnd= function(reqId) warning("Default implementation."),
+    securityDefinitionOptionalParameterEnd= function(reqId) warning("default implementation"),
 
-    softDollarTiers= function(reqId, tiers) warning("Default implementation."),
+    softDollarTiers= function(reqId, tiers) warning("default implementation"),
 
-    familyCodes= function(familyCodes) warning("Default implementation."),
+    familyCodes= function(familyCodes) warning("default implementation"),
 
-    symbolSamples= function(reqId, contractDescriptions) warning("Default implementation."),
+    symbolSamples= function(reqId, contractDescriptions) warning("default implementation"),
 
-    mktDepthExchanges= function(depthMktDataDescriptions) warning("Default implementation."),
+    mktDepthExchanges= function(depthMktDataDescriptions) warning("default implementation"),
 
-    tickNews= function(tickerId, timeStamp, providerCode, articleId, headline, extraData) warning("Default implementation."),
+    tickNews= function(tickerId, timeStamp, providerCode, articleId, headline, extraData) warning("default implementation"),
 
-    smartComponents= function(reqId, theMap) warning("Default implementation."),
+    smartComponents= function(reqId, theMap) warning("default implementation"),
 
-    tickReqParams= function(tickerId, minTick, bboExchange, snapshotPermissions) warning("Default implementation."),
+    tickReqParams= function(tickerId, minTick, bboExchange, snapshotPermissions) warning("default implementation"),
 
-    newsProviders= function(newsProviders) warning("Default implementation."),
+    newsProviders= function(newsProviders) warning("default implementation"),
 
-    newsArticle= function(requestId, articleType, articleText) warning("Default implementation."),
+    newsArticle= function(requestId, articleType, articleText) warning("default implementation"),
 
-    historicalNews= function(requestId, time, providerCode, articleId, headline) warning("Default implementation."),
+    historicalNews= function(requestId, time, providerCode, articleId, headline) warning("default implementation"),
 
-    historicalNewsEnd= function(requestId, hasMore) warning("Default implementation."),
+    historicalNewsEnd= function(requestId, hasMore) warning("default implementation"),
 
-    headTimestamp= function(reqId, headTimestamp) warning("Default implementation."),
+    headTimestamp= function(reqId, headTimestamp) warning("default implementation"),
 
-    histogramData= function(reqId, data) warning("Default implementation."),
+    histogramData= function(reqId, data) warning("default implementation"),
 
-    historicalDataUpdate= function(reqId, bar) warning("Default implementation."),
+    historicalDataUpdate= function(reqId, bar) warning("default implementation"),
 
-    rerouteMktDataReq= function(reqId, conid, exchange) warning("Default implementation."),
+    rerouteMktDataReq= function(reqId, conid, exchange) warning("default implementation"),
 
-    rerouteMktDepthReq= function(reqId, conid, exchange) warning("Default implementation."),
+    rerouteMktDepthReq= function(reqId, conid, exchange) warning("default implementation"),
 
-    marketRule= function(marketRuleId, priceIncrements) warning("Default implementation."),
+    marketRule= function(marketRuleId, priceIncrements) warning("default implementation"),
 
-    pnl= function(reqId, dailyPnL, unrealizedPnL, realizedPnL) warning("Default implementation."),
+    pnl= function(reqId, dailyPnL, unrealizedPnL, realizedPnL) warning("default implementation"),
 
-    pnlSingle= function(reqId, pos, dailyPnL, unrealizedPnL, realizedPnL, value) warning("Default implementation."),
+    pnlSingle= function(reqId, pos, dailyPnL, unrealizedPnL, realizedPnL, value) warning("default implementation"),
 
-    historicalTicks= function(reqId, ticks, done) warning("Default implementation."),
+    historicalTicks= function(reqId, ticks, done) warning("default implementation"),
 
-    historicalTicksBidAsk= function(reqId, ticks, done) warning("Default implementation."),
+    historicalTicksBidAsk= function(reqId, ticks, done) warning("default implementation"),
 
-    historicalTicksLast= function(reqId, ticks, done) warning("Default implementation."),
+    historicalTicksLast= function(reqId, ticks, done) warning("default implementation"),
 
-    tickByTickAllLast= function(reqId, tickType, time, price, size, attribs, exchange, specialConditions) warning("Default implementation."),
+    tickByTickAllLast= function(reqId, tickType, time, price, size, attribs, exchange, specialConditions) warning("default implementation"),
 
-    tickByTickBidAsk= function(reqId, time, bidPrice, askPrice, bidSize, askSize, attribs) warning("Default implementation."),
+    tickByTickBidAsk= function(reqId, time, bidPrice, askPrice, bidSize, askSize, attribs) warning("default implementation"),
 
-    tickByTickMidPoint= function(reqId, time, midPoint) warning("Default implementation."),
+    tickByTickMidPoint= function(reqId, time, midPoint) warning("default implementation"),
 
-    orderBound= function(orderId, apiClientId, apiOrderId) warning("Default implementation."),
+    orderBound= function(orderId, apiClientId, apiOrderId) warning("default implementation"),
 
-    completedOrder= function(contract, order, orderState) warning("Default implementation."),
+    completedOrder= function(contract, order, orderState) warning("default implementation"),
 
-    completedOrdersEnd= function() warning("Default implementation."),
+    completedOrdersEnd= function() warning("default implementation"),
 
-    replaceFAEnd= function(reqId, text) warning("Default implementation.")
+    replaceFAEnd= function(reqId, text) warning("default implementation"),
+
+    wshMetaData= function(reqId, dataJson) warning("default implementation"),
+
+    wshEventData= function(reqId, dataJson) warning("default implementation")
   )
 )

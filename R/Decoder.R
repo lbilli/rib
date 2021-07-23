@@ -32,7 +32,7 @@ Decoder <- R6::R6Class("Decoder",
 
       # Unknown msgId
       res <- if(is.na(msgName)) {
-               warning("Unknown message id: ", msgId)
+               warning("unknown message id: ", msgId)
                NULL
              }
              else
@@ -41,7 +41,7 @@ Decoder <- R6::R6Class("Decoder",
 
       # Check that all the message has been processed
       if(imsg$left() > 0L)
-        warning("Message: ", msgName, " not completely processed")
+        warning("message: ", msgName, " not completely processed")
 
       res
     }
@@ -1056,7 +1056,7 @@ Decoder <- R6::R6Class("Decoder",
                                                midPoint= imsg$pop())
       }
       else {
-        warning("TICK_BY_TICK: Unknown TickType ", tickType)
+        warning("TICK_BY_TICK: unknown TickType ", tickType)
         NULL
       }
     },
@@ -1245,6 +1245,16 @@ Decoder <- R6::R6Class("Decoder",
     REPLACE_FA_END= function(imsg) {
 
       private$validate("replaceFAEnd", imsg$pop(2L), no_names=TRUE)
+    },
+
+    WSH_META_DATA= function(imsg) {
+
+      private$validate("wshMetaData", imsg$pop(2L), no_names=TRUE)
+    },
+
+    WSH_EVENT_DATA= function(imsg) {
+
+      private$validate("wshEventData", imsg$pop(2L), no_names=TRUE)
     }
   )
 )

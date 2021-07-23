@@ -79,3 +79,5 @@ orderBound              i,i,i                        orderId,apiClientId,apiOrde
 completedOrder          Contract,Order,OrderState    contract,order,orderState
 completedOrdersEnd      NA                           NA
 replaceFAEnd            i,c                          reqId,text
+wshMetaData             i,c                          reqId,dataJson
+wshEventData            i,c                          reqId,dataJson

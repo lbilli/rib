@@ -143,7 +143,7 @@ IBClient <- R6::R6Class("IBClient",
 
       stopifnot(length(res)==2L)
 
-      cat("Server Version and Timestamp:", res, "\n")
+      cat("server version and timestamp:", res, "\n")
       private$serverVersion   <- as.integer(res[1L])
       private$serverTimestamp <- from_IBtime(res[2L])
       private$serverTZ        <- attr(private$serverTimestamp, "tzone")
@@ -153,7 +153,7 @@ IBClient <- R6::R6Class("IBClient",
          private$serverVersion > MAX_CLIENT_VER) {
 
         self$disconnect()
-        stop("Unsupported server version: ", res[1L])
+        stop("unsupported version")
       }
 
       # startAPI
@@ -896,6 +896,14 @@ IBClient <- R6::R6Class("IBClient",
 
       # Encode and send
       private$encodeMsg(msg)
-    }
+    },
+
+    reqWshMetaData= function(reqId) private$req_simple("100", reqId), ### REQ_WSH_META_DATA
+
+    cancelWshMetaData= function(reqId) private$req_simple("101", reqId), ### CANCEL_WSH_META_DATA
+
+    reqWshEventData= function(reqId, conId) private$req_simple("102", reqId, conId), ### REQ_WSH_EVENT_DATA
+
+    cancelWshEventData= function(reqId) private$req_simple("103", reqId) ### CANCEL_WSH_EVENT_DATA
   )
 )
