@@ -41,7 +41,8 @@ Decoder <- R6::R6Class("Decoder",
 
       # Check that all the message has been processed
       if(imsg$left() > 0L)
-        warning("message: ", msgName, " not completely processed")
+        warning("message: ", msgName, " not completely processed. Ignored: ",
+                paste0(dQuote(imsg$pop(imsg$left())), collapse=" "))
 
       res
     }
@@ -380,6 +381,9 @@ Decoder <- R6::R6Class("Decoder",
 
       if(private$serverVersion >= MIN_SERVER_VER_POST_TO_ATS)
         order$postToAts <- imsg$pop()
+
+      if(private$serverVersion >= MIN_SERVER_VER_AUTO_CANCEL_PARENT)
+        order$autoCancelParent <- imsg$pop()
 
       private$validate("openOrder", orderId=    order$orderId,
                                     contract=   contract,

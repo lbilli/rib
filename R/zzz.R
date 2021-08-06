@@ -5,13 +5,6 @@
                                    header= TRUE,
                                    colClasses= "character")
 
-  load_map <- function(file) {
-
-                codes <- load_data(file)
-
-                function(k) codes[match(k, codes$name), , drop=TRUE]
-              }
-
   ns <- environment(sys.function())
 
   assign("signature_wrap", load_data("codes_signature.txt"), ns, inherits=FALSE)
