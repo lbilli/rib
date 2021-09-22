@@ -458,6 +458,9 @@ Decoder <- R6::R6Class("Decoder",
            "realExpirationDate",
            "stockType")] <- imsg$pop(6L)
 
+      if(private$serverVersion >= MIN_SERVER_VER_FRACTIONAL_SIZE_SUPPORT)
+        cd$sizeMinTick <- imsg$pop()
+
       private$validate("contractDetails", reqId=reqId, contractDetails=cd)
     },
 
