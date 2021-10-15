@@ -548,7 +548,7 @@ IBClient <- R6::R6Class("IBClient",
       msg <- c("19", "1", ### REPLACE_FA
                map_enum2int("FaDataType", faDataType),
                xml,
-               if(self$serVersion >= MIN_SERVER_VER_REPLACE_FA_END) reqId)
+               reqId)
 
       # Encode and send
       private$encodeMsg(msg)

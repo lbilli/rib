@@ -23,8 +23,7 @@ Decoder <- R6::R6Class("Decoder",
 
       # The second field is unused version, for msgId < 75 and != 3, 5, 11, 17, 21
       imsgId <- Validator$i(msgId)
-      if(imsgId  < 75L && ! imsgId %in% c(3L, 5L, 11L, 17L, 21L) ||
-         imsgId == 21L && private$serverVersion < MIN_SERVER_VER_PRICE_BASED_VOLATILITY)
+      if(imsgId  < 75L && ! imsgId %in% c(3L, 5L, 11L, 17L, 21L))
         imsg$pop()
 
       # Convert ID -> Name
@@ -127,10 +126,7 @@ Decoder <- R6::R6Class("Decoder",
 
     TICK_OPTION_COMPUTATION= function(imsg) {
 
-      m <- if(private$serverVersion >= MIN_SERVER_VER_PRICE_BASED_VOLATILITY)
-             imsg$pop(11L)
-           else
-             c(imsg$pop(2L), NA_character_, imsg$pop(8L))
+      m <- imsg$pop(11L)
 
       # Convert tickType to string
       m[2L] <- map_ticktype[m[2L]]

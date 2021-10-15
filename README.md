@@ -8,7 +8,7 @@ implements [Interactive Brokers](https://www.interactivebrokers.com/) API
 to communicate with their TWS or IBGateway.
 
 It aims to be feature complete, however it does not support legacy versions.
-Currently, only API versions ~`v100`~ ~`v142+`~ `v155+` are supported.
+Currently, only API versions `v157+` are supported.
 
 The package design mirrors the official C++/Java
 [IB API](https://interactivebrokers.github.io/tws-api/),
