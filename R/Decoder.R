@@ -462,8 +462,7 @@ Decoder <- R6::R6Class("Decoder",
       if(private$serverVersion >= MIN_SERVER_VER_SIZE_RULES)
         cd[c("minSize",
              "sizeIncrement",
-             "suggestedSizeIncrement",
-             "minCashQtySize")] <- imsg$pop(4L)
+             "suggestedSizeIncrement")] <- imsg$pop(3L)
 
       private$validate("contractDetails", reqId=reqId, contractDetails=cd)
     },
@@ -522,8 +521,7 @@ Decoder <- R6::R6Class("Decoder",
       if(private$serverVersion >= MIN_SERVER_VER_SIZE_RULES)
         cd[c("minSize",
              "sizeIncrement",
-             "suggestedSizeIncrement",
-             "minCashQtySize")] <- imsg$pop(4L)
+             "suggestedSizeIncrement")] <- imsg$pop(3L)
 
       private$validate("bondContractDetails", reqId=reqId, contractDetails=cd)
     },
