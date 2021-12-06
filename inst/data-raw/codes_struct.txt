@@ -24,3 +24,4 @@ PriceIncrement          n,n                                         lowEdge,incr
 HistoricalTick          c,n,n                                       time,price,size
 HistoricalTickBidAsk    c,i,n,n,n,n                                 time,mask,priceBid,priceAsk,sizeBid,sizeAsk
 HistoricalTickLast      c,i,n,n,c,c                                 time,mask,price,size,exchange,specialConditions
+HistoricalSession       c,c,c                                       startDateTime,endDateTime,refDate

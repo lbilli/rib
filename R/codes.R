@@ -179,4 +179,5 @@ map_inbound <- c(  "1" = "TICK_PRICE",
                  "102" = "COMPLETED_ORDERS_END",
                  "103" = "REPLACE_FA_END",
                  "104" = "WSH_META_DATA",
-                 "105" = "WSH_EVENT_DATA")
+                 "105" = "WSH_EVENT_DATA",
+                 "106" = "HISTORICAL_SCHEDULE")

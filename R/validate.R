@@ -146,6 +146,7 @@ generate_validator <- function()
              "DepthMktDataDescription",
              "FamilyCode",
              "HistogramData",
+             "HistoricalSession",
              "HistoricalTick",
              "HistoricalTickBidAsk",
              "HistoricalTickLast",

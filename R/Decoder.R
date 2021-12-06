@@ -1272,6 +1272,24 @@ Decoder <- R6::R6Class("Decoder",
     WSH_EVENT_DATA= function(imsg) {
 
       private$validate("wshEventData", imsg$pop(2L), no_names=TRUE)
+    },
+
+    HISTORICAL_SCHEDULE= function(imsg) {
+
+      reqId         <- imsg$pop()
+      startDateTime <- imsg$pop()
+      endDateTime   <- imsg$pop()
+      timeZone      <- imsg$pop()
+
+      n <- Validator$i(imsg$pop())
+
+      sessions <- private$to_matrix(imsg, n, "HistoricalSession")
+
+      private$validate("historicalSchedule", reqId=         reqId,
+                                             startDateTime= startDateTime,
+                                             endDateTime=   endDateTime,
+                                             timeZone=      timeZone,
+                                             sessions=      sessions)
     }
   )
 )

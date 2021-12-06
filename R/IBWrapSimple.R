@@ -284,6 +284,11 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                           cat("wshMetaData:", reqId, dataJson, "\n"),
 
     wshEventData=       function(reqId, dataJson)
-                          cat("wshEventData:", reqId, dataJson, "\n")
+                          cat("wshEventData:", reqId, dataJson, "\n"),
+
+    historicalSchedule= function(reqId, startDateTime, endDateTime, timeZone, sessions) {
+                          self$context$schedule <- sessions
+                          cat("historicalSchedule:", reqId, startDateTime, endDateTime, timeZone, "\n")
+                        }
   )
 )
