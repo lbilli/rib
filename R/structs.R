@@ -267,7 +267,8 @@ Order <- list(orderId=                        0L,
               parentPermId=                   NA_integer_,
               usePriceMgmtAlgo=               NA,
               duration=                       NA_integer_,
-              postToAts=                      NA_integer_)
+              postToAts=                      NA_integer_,
+              advancedErrorOverride=          "")
 
 ScannerSubscription <- list(numberOfRows=             -1L,
                             instrument=               "",

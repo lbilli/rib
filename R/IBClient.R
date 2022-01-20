@@ -442,6 +442,9 @@ IBClient <- R6::R6Class("IBClient",
       if(self$serVersion >= MIN_SERVER_VER_AUTO_CANCEL_PARENT)
         payload <- c(payload, order$autoCancelParent)
 
+      if(self$serVersion >= MIN_SERVER_VER_ADVANCED_ORDER_REJECT)
+        payload <- c(payload, order$advancedErrorOverride)
+
       # Convert NA -> ""
       payload[is.na(payload)] <- ""
 

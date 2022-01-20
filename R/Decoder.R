@@ -180,7 +180,12 @@ Decoder <- R6::R6Class("Decoder",
 
     ERR_MSG= function(imsg) {
 
-      private$validate("error", imsg$pop(3L), no_names=TRUE)
+      m <- if(private$serverVersion >= MIN_SERVER_VER_ADVANCED_ORDER_REJECT)
+             imsg$pop(4L)
+           else
+             c(imsg$pop(3L), "")
+
+      private$validate("error", m, no_names=TRUE)
     },
 
     OPEN_ORDER= function(imsg) {

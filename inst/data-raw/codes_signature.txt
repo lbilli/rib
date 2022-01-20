@@ -18,7 +18,7 @@ bondContractDetails     i,ContractDetails            reqId,contractDetails
 contractDetailsEnd      i                            reqId
 execDetails             i,Contract,Execution         reqId,contract,execution
 execDetailsEnd          i                            reqId
-error                   i,i,c                        id,errorCode,errorString
+error                   i,i,c,c                      id,errorCode,errorString,advancedOrderRejectJson
 updateMktDepth          i,i,i,i,n,n                  id,position,operation,side,price,size
 updateMktDepthL2        i,i,c,i,i,n,n,l              id,position,marketMaker,operation,side,price,size,isSmartDepth
 updateNewsBulletin      i,i,c,c                      msgId,msgType,newsMessage,originExch
