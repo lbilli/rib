@@ -1295,6 +1295,11 @@ Decoder <- R6::R6Class("Decoder",
                                              endDateTime=   endDateTime,
                                              timeZone=      timeZone,
                                              sessions=      sessions)
+    },
+
+    USER_INFO= function(imsg) {
+
+      private$validate("userInfo", imsg$pop(2L), no_names=TRUE)
     }
   )
 )

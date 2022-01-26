@@ -82,3 +82,4 @@ replaceFAEnd            i,c                          reqId,text
 wshMetaData             i,c                          reqId,dataJson
 wshEventData            i,c                          reqId,dataJson
 historicalSchedule      i,c,c,c,dHistoricalSession   reqId,startDateTime,endDateTime,timeZone,sessions
+userInfo                i,c                          reqId,whiteBrandingId

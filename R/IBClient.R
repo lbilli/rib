@@ -910,6 +910,8 @@ IBClient <- R6::R6Class("IBClient",
 
     reqWshEventData= function(reqId, conId) private$req_simple("102", reqId, conId), ### REQ_WSH_EVENT_DATA
 
-    cancelWshEventData= function(reqId) private$req_simple("103", reqId) ### CANCEL_WSH_EVENT_DATA
+    cancelWshEventData= function(reqId) private$req_simple("103", reqId), ### CANCEL_WSH_EVENT_DATA
+
+    reqUserInfo= function(reqId) private$req_simple("104", reqId) ### REQ_USER_INFO
   )
 )

@@ -289,6 +289,9 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     historicalSchedule= function(reqId, startDateTime, endDateTime, timeZone, sessions) {
                           self$context$schedule <- sessions
                           cat("historicalSchedule:", reqId, startDateTime, endDateTime, timeZone, "\n")
-                        }
+                        },
+
+    userInfo=        function(reqId, whiteBrandingId)
+                          cat("userInfo:", reqId, whiteBrandingId, "\n")
   )
 )
