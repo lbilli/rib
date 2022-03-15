@@ -268,7 +268,8 @@ Order <- list(orderId=                        0L,
               usePriceMgmtAlgo=               NA,
               duration=                       NA_integer_,
               postToAts=                      NA_integer_,
-              advancedErrorOverride=          "")
+              advancedErrorOverride=          "",
+              manualOrderTime=                "")
 
 ScannerSubscription <- list(numberOfRows=             -1L,
                             instrument=               "",

@@ -234,7 +234,7 @@ IBClient <- R6::R6Class("IBClient",
     #
     # ########################################################################
 
-    reqMktData= function(tickerId, contract, genericTicks="", snapshot=TRUE, regulatorySnaphsot=FALSE, mktDataOptions=character()) {
+    reqMktData= function(tickerId, contract, genericTicks, snapshot, regulatorySnaphsot=FALSE, mktDataOptions=character()) {
 
       msg <- c("1", "11") ### REQ_MKT_DATA
 
@@ -445,6 +445,9 @@ IBClient <- R6::R6Class("IBClient",
       if(self$serVersion >= MIN_SERVER_VER_ADVANCED_ORDER_REJECT)
         payload <- c(payload, order$advancedErrorOverride)
 
+      if(self$serVersion >= MIN_SERVER_VER_MANUAL_ORDER_TIME)
+        payload <- c(payload, order$manualOrderTime)
+
       # Convert NA -> ""
       payload[is.na(payload)] <- ""
 
@@ -454,16 +457,22 @@ IBClient <- R6::R6Class("IBClient",
       private$encodeMsg(msg)
     },
 
-    cancelOrder= function(id) private$req_simple("4", "1", id), ### CANCEL_ORDER
+    cancelOrder= function(id, manualOrderCancelTime) {
+
+      msg <- c("4", "1", ### CANCEL_ORDER
+               id,
+               if(self$serVersion >= MIN_SERVER_VER_MANUAL_ORDER_TIME) manualOrderCancelTime)
+
+      # Encode and send
+      private$encodeMsg(msg)
+    },
 
     reqOpenOrders= function() private$req_simple("5", "1"), ### REQ_OPEN_ORDERS
 
     reqAccountUpdates= function(subscribe, acctCode) {
 
-      msg <- c("6", "2") ### REQ_ACCT_DATA
-
-      # Add payload
-      msg <- c(msg, private$sanitize(list(subscribe, acctCode)))
+      msg <- c("6", "2", ### REQ_ACCT_DATA
+               private$sanitize(list(subscribe, acctCode)))
 
       # Encode and send
       private$encodeMsg(msg)

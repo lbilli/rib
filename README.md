@@ -50,8 +50,8 @@ IBWrapCustom <- R6::R6Class("IBWrapCustom",
 
   public= list(
     # Customized methods go here
-    error=            function(id, errorCode, errorString)
-                        cat("Error:", id, errorCode, errorString, "\n"),
+    error=            function(id, errorCode, errorString, advancedOrderRejectJson)
+                        cat("Error:", id, errorCode, errorString, advancedOrderRejectJson, "\n"),
 
     nextValidId=      function(orderId)
                         cat("Next OrderId:", orderId, "\n"),
