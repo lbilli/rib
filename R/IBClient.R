@@ -94,7 +94,11 @@ IBClient <- R6::R6Class("IBClient",
 
       # Convert bool -> integer (0,1)
       if(length(idx <- which(vapply(v, is.logical, NA))) > 0L)
-        v[idx] <- lapply(v[idx], as.integer)
+        v[idx] <- as.integer(v[idx])
+
+      # Convert Inf -> "Infinity"
+      if(length(idx <- which(vapply(v, function(x) x == Inf, NA))) > 0L)
+        v[idx] <- "Infinity"
 
       as.character(v)
     },
@@ -447,6 +451,19 @@ IBClient <- R6::R6Class("IBClient",
 
       if(self$serVersion >= MIN_SERVER_VER_MANUAL_ORDER_TIME)
         payload <- c(payload, order$manualOrderTime)
+
+      if(self$serVersion >= MIN_SERVER_VER_PEGBEST_PEGMID_OFFSETS) {
+
+        if(contract$exchange == "IBKRATS")
+          payload <- c(payload, order$minTradeQty)
+
+        if(order$orderType == "PEG BEST")
+          payload <- c(payload, order[c("minCompeteSize", "competeAgainstBestOffset")])
+
+        if(order$orderType == "PEG BEST" && order$competeAgainstBestOffset == Inf ||
+           order$orderType == "PEG MID")
+          payload <- c(payload, order[c("midOffsetAtWhole", "midOffsetAtHalf")])
+      }
 
       # Convert NA -> ""
       payload[is.na(payload)] <- ""
@@ -917,7 +934,18 @@ IBClient <- R6::R6Class("IBClient",
 
     cancelWshMetaData= function(reqId) private$req_simple("101", reqId), ### CANCEL_WSH_META_DATA
 
-    reqWshEventData= function(reqId, conId) private$req_simple("102", reqId, conId), ### REQ_WSH_EVENT_DATA
+    reqWshEventData= function(reqId, wshEventData) {
+
+      msg <- c("102", ### REQ_WSH_EVENT_DATA
+               reqId,
+               if(self$serVersion >= MIN_SERVER_VER_WSH_EVENT_DATA_FILTERS)
+                 private$sanitize(wshEventData)
+               else
+                 wshEventData$conId)
+
+      # Encode and send
+      private$encodeMsg(msg)
+    },
 
     cancelWshEventData= function(reqId) private$req_simple("103", reqId), ### CANCEL_WSH_EVENT_DATA
 

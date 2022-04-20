@@ -384,6 +384,13 @@ Decoder <- R6::R6Class("Decoder",
       if(private$serverVersion >= MIN_SERVER_VER_AUTO_CANCEL_PARENT)
         order$autoCancelParent <- imsg$pop()
 
+      if(private$serverVersion >= MIN_SERVER_VER_PEGBEST_PEGMID_OFFSETS)
+         order[c("minTradeQty",
+                 "minCompeteSize",
+                 "competeAgainstBestOffset",
+                 "midOffsetAtWhole",
+                 "midOffsetAtHalf")] <- imsg$pop(5L)
+
       private$validate("openOrder", orderId=    order$orderId,
                                     contract=   contract,
                                     order=      order,
@@ -1253,6 +1260,13 @@ Decoder <- R6::R6Class("Decoder",
 
       orderState[c("completedTime",
                    "completedStatus")] <- imsg$pop(2L)
+
+      if(private$serverVersion >= MIN_SERVER_VER_PEGBEST_PEGMID_OFFSETS)
+         order[c("minTradeQty",
+                 "minCompeteSize",
+                 "competeAgainstBestOffset",
+                 "midOffsetAtWhole",
+                 "midOffsetAtHalf")] <- imsg$pop(5L)
 
       private$validate("completedOrder", contract=   contract,
                                          order=      order,

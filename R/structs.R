@@ -269,7 +269,12 @@ Order <- list(orderId=                        0L,
               duration=                       NA_integer_,
               postToAts=                      NA_integer_,
               advancedErrorOverride=          "",
-              manualOrderTime=                "")
+              manualOrderTime=                "",
+              minTradeQty=                    NA_integer_,
+              minCompeteSize=                 NA_integer_,
+              competeAgainstBestOffset=       NA_real_,
+              midOffsetAtWhole=               NA_real_,
+              midOffsetAtHalf=                NA_real_)
 
 ScannerSubscription <- list(numberOfRows=             -1L,
                             instrument=               "",
@@ -292,3 +297,9 @@ ScannerSubscription <- list(numberOfRows=             -1L,
                             averageOptionVolumeAbove= NA_integer_,
                             scannerSettingPairs=      "",
                             stockTypeFilter=          "")
+
+WshEventData <- list(conId=           NA_integer_,
+                     filter=          "",
+                     fillWatchlist=   FALSE,
+                     fillPortfolio=   FALSE,
+                     fillCompetitors= FALSE)

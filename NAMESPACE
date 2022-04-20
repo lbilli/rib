@@ -16,6 +16,7 @@ export(ExecutionFilter)
 export(Order)
 export(ScannerSubscription)
 export(SoftDollarTier)
+export(WshEventData)
 
 # Utils
 export(from_IBtime)

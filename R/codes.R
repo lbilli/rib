@@ -97,7 +97,10 @@ map_ticktype <- c( "0" = "BID_SIZE",
                   "96" = "ETF_NAV_LAST",
                   "97" = "ETF_FROZEN_NAV_LAST",
                   "98" = "ETF_NAV_HIGH",
-                  "99" = "ETF_NAV_LOW")
+                  "99" = "ETF_NAV_LOW",
+                 "100" = "SOCIAL_MARKET_ANALYTICS",
+                 "101" = "ESTIMATED_IPO_MIDPOINT",
+                 "102" = "FINAL_IPO_LAST")
 
 
 map_inbound <- c(  "1" = "TICK_PRICE",
