@@ -85,12 +85,13 @@ IBClient <- R6::R6Class("IBClient",
       readBin(raw_msg, character(), n=n)
     },
 
-    # Convert bool -> integer and check for NA
     # Return character vector
     sanitize= function(v) {
 
-      stopifnot(is.list(v),
-                !is.na(v))
+      stopifnot(is.list(v))
+
+      # Convert NA -> ""
+      v[is.na(v)] <- ""
 
       # Convert bool -> integer (0,1)
       if(length(idx <- which(vapply(v, is.logical, NA))) > 0L)
@@ -199,7 +200,6 @@ IBClient <- R6::R6Class("IBClient",
       private$wrap <- wrap
     },
 
-
     #
     # Process server responses
     #
@@ -269,7 +269,6 @@ IBClient <- R6::R6Class("IBClient",
 
       msg <- c(msg, tickerId, private$sanitize(payload))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -279,7 +278,6 @@ IBClient <- R6::R6Class("IBClient",
 
       msg <- "3" ### PLACE_ORDER
 
-      # Add payload
       payload <- contract[c(1L:12L, 14L, 15L)]
 
       payload <- c(payload, order[4L:9L])       # "action" through "tif"
@@ -300,7 +298,6 @@ IBClient <- R6::R6Class("IBClient",
 
         for(combo in contract$comboLegs)
           payload <- c(payload, combo)
-
 
         # Order$orderComboLegs
         payload <- c(payload,
@@ -381,7 +378,6 @@ IBClient <- R6::R6Class("IBClient",
                               else
                                 FALSE
 
-
       payload <- c(payload, deltaNeutralContract, order$algoStrategy)
 
       if(nzchar(order$algoStrategy, keepNA=TRUE))
@@ -410,7 +406,6 @@ IBClient <- R6::R6Class("IBClient",
 
         for(cond in order$conditions)
           payload <- c(payload, map_enum2int("Condition", cond$type), cond[-1L])
-
 
           payload <- c(payload, order[c("conditionsIgnoreRth",
                                         "conditionsCancelOrder")])
@@ -465,12 +460,8 @@ IBClient <- R6::R6Class("IBClient",
           payload <- c(payload, order[c("midOffsetAtWhole", "midOffsetAtHalf")])
       }
 
-      # Convert NA -> ""
-      payload[is.na(payload)] <- ""
-
       msg <- c(msg, id, private$sanitize(payload))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -480,7 +471,6 @@ IBClient <- R6::R6Class("IBClient",
                id,
                if(self$serVersion >= MIN_SERVER_VER_MANUAL_ORDER_TIME) manualOrderCancelTime)
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -491,7 +481,6 @@ IBClient <- R6::R6Class("IBClient",
       msg <- c("6", "2", ### REQ_ACCT_DATA
                private$sanitize(list(subscribe, acctCode)))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -501,7 +490,6 @@ IBClient <- R6::R6Class("IBClient",
                reqId,
                private$sanitize(filter))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -515,7 +503,6 @@ IBClient <- R6::R6Class("IBClient",
                reqId,
                private$sanitize(contract[1L:15L]))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -523,7 +510,6 @@ IBClient <- R6::R6Class("IBClient",
 
       msg <- c("10", "5") ### REQ_MKT_DEPTH
 
-      # Add payload
       payload <- c(contract[1L:12L],
                    numRows,
                    isSmartDepth,
@@ -531,7 +517,6 @@ IBClient <- R6::R6Class("IBClient",
 
       msg <- c(msg, tickerId, private$sanitize(payload))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -549,7 +534,6 @@ IBClient <- R6::R6Class("IBClient",
       msg <- c("12", "1", ### REQ_NEWS_BULLETINS
                private$sanitize(list(allMsgs)))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -562,7 +546,6 @@ IBClient <- R6::R6Class("IBClient",
       msg <- c("15", "1", ### REQ_AUTO_OPEN_ORDERS
              private$sanitize(list(bAutoBind)))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -579,7 +562,6 @@ IBClient <- R6::R6Class("IBClient",
                xml,
                reqId)
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -587,7 +569,6 @@ IBClient <- R6::R6Class("IBClient",
 
       msg <- "20" ### REQ_HISTORICAL_DATA
 
-      # Add payload
       payload <- contract[1L:13L]
 
       payload <- c(payload, endDateTime, barSizeSetting, durationStr, useRTH, whatToShow, formatDate)
@@ -607,7 +588,6 @@ IBClient <- R6::R6Class("IBClient",
 
       msg <- c(msg, tickerId, private$sanitize(payload))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -615,14 +595,12 @@ IBClient <- R6::R6Class("IBClient",
 
       msg <- c("21", "2") ### EXERCISE_OPTIONS
 
-      # Add payload
       payload <- contract[c(1L:8L, 10L:12L)]
 
       payload <- c(payload, exerciseAction, exerciseQuantity, account, override)
 
       msg <- c(msg, tickerId, private$sanitize(payload))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -630,7 +608,6 @@ IBClient <- R6::R6Class("IBClient",
 
       msg <- "22" ### REQ_SCANNER_SUBSCRIPTION
 
-      # Add payload
       payload <- c(subscription[1L:21L],
                    pack_tagvalue(scannerSubscriptionFilterOptions, mode="string"),
                    pack_tagvalue(scannerSubscriptionOptions, mode="string"))
@@ -647,7 +624,6 @@ IBClient <- R6::R6Class("IBClient",
 
       msg <- c(msg, tickerId, private$sanitize(payload))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -669,11 +645,8 @@ IBClient <- R6::R6Class("IBClient",
                    useRTH,
                    pack_tagvalue(realTimeBarsOptions, mode="string"))
 
-
-      # Add payload
       msg <- c(msg, tickerId, private$sanitize(payload))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -687,7 +660,6 @@ IBClient <- R6::R6Class("IBClient",
                reportType,
                pack_tagvalue(fundamentalDataOptions, mode="string"))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -697,7 +669,6 @@ IBClient <- R6::R6Class("IBClient",
 
       msg <- c("54", "2") ### REQ_CALC_IMPLIED_VOLAT
 
-      # Add payload
       payload <- c(contract[1L:12L],
                    optionPrice,
                    underPrice,
@@ -705,7 +676,6 @@ IBClient <- R6::R6Class("IBClient",
 
       msg <- c(msg, reqId, private$sanitize(payload))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -713,7 +683,6 @@ IBClient <- R6::R6Class("IBClient",
 
       msg <- c("55", "2") ### REQ_CALC_OPTION_PRICE
 
-      # Add payload
       payload <- c(contract[1L:12L],
                    volatility,
                    underPrice,
@@ -721,7 +690,6 @@ IBClient <- R6::R6Class("IBClient",
 
       msg <- c(msg, reqId, private$sanitize(payload))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -749,7 +717,6 @@ IBClient <- R6::R6Class("IBClient",
                apiName,
                apiVersion)
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -774,7 +741,6 @@ IBClient <- R6::R6Class("IBClient",
                apiVersion,
                opaqueIsvKey)
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -792,7 +758,6 @@ IBClient <- R6::R6Class("IBClient",
                modelCode,
                private$sanitize(list(ledgerAndNLV)))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -807,7 +772,6 @@ IBClient <- R6::R6Class("IBClient",
                underlyingSecType,
                underlyingConId)
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -829,7 +793,6 @@ IBClient <- R6::R6Class("IBClient",
                articleId,
                pack_tagvalue(newsArticleOptions, mode="string"))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -846,7 +809,6 @@ IBClient <- R6::R6Class("IBClient",
                totalResults,
                pack_tagvalue(historicalNewsOptions, mode="string"))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -858,7 +820,6 @@ IBClient <- R6::R6Class("IBClient",
                whatToShow,
                formatDate)
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -869,7 +830,6 @@ IBClient <- R6::R6Class("IBClient",
                private$sanitize(c(contract[1L:13L], useRTH)),
                timePeriod)
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -891,7 +851,6 @@ IBClient <- R6::R6Class("IBClient",
 
       msg <- "96" ### REQ_HISTORICAL_TICKS
 
-      # Add payload
       payload <- c(contract[1L:13L],
                    startDateTime,
                    endDateTime,
@@ -902,7 +861,6 @@ IBClient <- R6::R6Class("IBClient",
 
       msg <- c(msg, reqId, private$sanitize(payload), pack_tagvalue(miscOptions, mode="string"))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -915,7 +873,6 @@ IBClient <- R6::R6Class("IBClient",
                numberOfTicks,
                private$sanitize(list(ignoreSize)))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -926,7 +883,6 @@ IBClient <- R6::R6Class("IBClient",
       msg <- c("99", ### REQ_COMPLETED_ORDERS
                private$sanitize(list(apiOnly)))
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
@@ -938,12 +894,13 @@ IBClient <- R6::R6Class("IBClient",
 
       msg <- c("102", ### REQ_WSH_EVENT_DATA
                reqId,
-               if(self$serVersion >= MIN_SERVER_VER_WSH_EVENT_DATA_FILTERS)
+               if(self$serVersion >= MIN_SERVER_VER_WSH_EVENT_DATA_FILTERS_DATE)
                  private$sanitize(wshEventData)
+               else if(self$serVersion >= MIN_SERVER_VER_WSH_EVENT_DATA_FILTERS)
+                 private$sanitize(wshEventData[1L:5L])
                else
                  wshEventData$conId)
 
-      # Encode and send
       private$encodeMsg(msg)
     },
 
