@@ -430,16 +430,10 @@ IBClient <- R6::R6Class("IBClient",
                                     "dontUseAutoPriceForHedge",
                                     "isOmsContainer",
                                     "discretionaryUpToLimitPrice",
-                                    "usePriceMgmtAlgo")])
-
-      if(self$serVersion >= MIN_SERVER_VER_DURATION)
-        payload <- c(payload, order$duration)
-
-      if(self$serVersion >= MIN_SERVER_VER_POST_TO_ATS)
-        payload <- c(payload, order$postToAts)
-
-      if(self$serVersion >= MIN_SERVER_VER_AUTO_CANCEL_PARENT)
-        payload <- c(payload, order$autoCancelParent)
+                                    "usePriceMgmtAlgo",
+                                    "duration",
+                                    "postToAts",
+                                    "autoCancelParent")])
 
       if(self$serVersion >= MIN_SERVER_VER_ADVANCED_ORDER_REJECT)
         payload <- c(payload, order$advancedErrorOverride)

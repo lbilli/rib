@@ -21,10 +21,9 @@ Decoder <- R6::R6Class("Decoder",
       # The first field is the message ID
       msgId <- imsg$pop()
 
-      # The second field is unused version, for msgId < 75 and != 3, 5, 11, 17, 21
+      # The second field is unused version, for msgId < 75 and != 3, 5, 10, 11, 17, 18, 21
       imsgId <- Validator$i(msgId)
-      if(imsgId  < 75L && ! imsgId %in% c(3L, 5L, 10L, 11L, 17L, 18L, 21L) ||
-         imsgId %in% c(10L, 18L) && private$serverVersion < MIN_SERVER_VER_SIZE_RULES)
+      if(imsgId  < 75L && ! imsgId %in% c(3L, 5L, 10L, 11L, 17L, 18L, 21L))
         imsg$pop()
 
       # Convert ID -> Name
@@ -373,16 +372,10 @@ Decoder <- R6::R6Class("Decoder",
               "dontUseAutoPriceForHedge",
               "isOmsContainer",
               "discretionaryUpToLimitPrice",
-              "usePriceMgmtAlgo")] <- imsg$pop(5L)
-
-      if(private$serverVersion >= MIN_SERVER_VER_DURATION)
-        order$duration <- imsg$pop()
-
-      if(private$serverVersion >= MIN_SERVER_VER_POST_TO_ATS)
-        order$postToAts <- imsg$pop()
-
-      if(private$serverVersion >= MIN_SERVER_VER_AUTO_CANCEL_PARENT)
-        order$autoCancelParent <- imsg$pop()
+              "usePriceMgmtAlgo",
+              "duration",
+              "postToAts",
+              "autoCancelParent")] <- imsg$pop(8L)
 
       if(private$serverVersion >= MIN_SERVER_VER_PEGBEST_PEGMID_OFFSETS)
          order[c("minTradeQty",
@@ -446,10 +439,6 @@ Decoder <- R6::R6Class("Decoder",
       cd$contract$tradingClass            <- imsg$pop()
       cd$contract$conId                   <- imsg$pop()
       cd$minTick                          <- imsg$pop()
-
-      if(private$serverVersion < MIN_SERVER_VER_SIZE_RULES)
-        imsg$pop()  # deprecated mdSizeMultiplier
-
       cd$contract$multiplier              <- imsg$pop()
       cd[4L:8L]                           <- imsg$pop(5L)
       cd$contract$primaryExchange         <- imsg$pop()
@@ -465,16 +454,10 @@ Decoder <- R6::R6Class("Decoder",
            "underSecType",
            "marketRuleIds",
            "realExpirationDate",
-           "stockType")] <- imsg$pop(6L)
-
-      if(private$serverVersion >= MIN_SERVER_VER_FRACTIONAL_SIZE_SUPPORT &&
-         private$serverVersion < MIN_SERVER_VER_SIZE_RULES)
-        imsg$pop()  # deprecated sizeMinTick
-
-      if(private$serverVersion >= MIN_SERVER_VER_SIZE_RULES)
-        cd[c("minSize",
-             "sizeIncrement",
-             "suggestedSizeIncrement")] <- imsg$pop(3L)
+           "stockType",
+           "minSize",
+           "sizeIncrement",
+           "suggestedSizeIncrement")] <- imsg$pop(9L)
 
       private$validate("contractDetails", reqId=reqId, contractDetails=cd)
     },
@@ -507,12 +490,8 @@ Decoder <- R6::R6Class("Decoder",
       cd$contract[c("tradingClass",
                     "conId")] <- imsg$pop(2L)
 
-      cd$minTick <- imsg$pop()
-
-      if(private$serverVersion < MIN_SERVER_VER_SIZE_RULES)
-        imsg$pop()  # deprecated mdSizeMultiplier
-
-      cd[c("orderTypes",
+      cd[c("minTick",
+           "orderTypes",
            "validExchanges",
            "nextOptionDate",
            "nextOptionType",
@@ -520,7 +499,7 @@ Decoder <- R6::R6Class("Decoder",
            "notes",
            "longName",
            "evRule",
-           "evMultiplier")] <- imsg$pop(9L)
+           "evMultiplier")] <- imsg$pop(10L)
 
       n <- Validator$i(imsg$pop())
 
@@ -528,12 +507,10 @@ Decoder <- R6::R6Class("Decoder",
         cd$secIdList <- fold_tagvalue(imsg$pop(2L * n))
 
       cd[c("aggGroup",
-           "marketRuleIds")] <- imsg$pop(2L)
-
-      if(private$serverVersion >= MIN_SERVER_VER_SIZE_RULES)
-        cd[c("minSize",
-             "sizeIncrement",
-             "suggestedSizeIncrement")] <- imsg$pop(3L)
+           "marketRuleIds",
+           "minSize",
+           "sizeIncrement",
+           "suggestedSizeIncrement")] <- imsg$pop(5L)
 
       private$validate("bondContractDetails", reqId=reqId, contractDetails=cd)
     },
