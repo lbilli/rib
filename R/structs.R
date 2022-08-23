@@ -9,7 +9,7 @@ CommissionReport <- list(execId=              "",
                          yieldRedemptionDate= 0L)     # yyyymmdd format
 
 Execution <- list(execId=        "",
-                  time=          "",      # Comes in as "20160926  15:59:27" (2 spaces!)
+                  time=          "",
                   acctNumber=    "",
                   exchange=      "",
                   side=          "",
@@ -29,7 +29,7 @@ Execution <- list(execId=        "",
 
 ExecutionFilter <- list(clientId= 0L,
                         acctCode= "",
-                        time=     "",    # "yyyymmdd hh:mm:ss ttz" format
+                        time=     "",
                         symbol=   "",
                         secType=  "",
                         exchange= "",
