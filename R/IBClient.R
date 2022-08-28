@@ -10,7 +10,6 @@ IBClient <- R6::R6Class("IBClient",
 
     serverVersion=   NULL,  # Returned on connection
     serverTimestamp= NULL,  # Returned on connection
-    serverTZ=        NULL,  # Server Timezone
 
     Id=              NULL,  # Client ID
 
@@ -115,8 +114,6 @@ IBClient <- R6::R6Class("IBClient",
 
     serTimestamp= function() private$serverTimestamp,
 
-    serTZ=        function() private$serverTZ,
-
     clientId=     function() private$Id,
 
     isOpen=       function() !is.null(private$socket) && isOpen(private$socket)
@@ -150,8 +147,7 @@ IBClient <- R6::R6Class("IBClient",
 
       cat("server version and timestamp:", res, "\n")
       private$serverVersion   <- as.integer(res[1L])
-      private$serverTimestamp <- from_IBtime(res[2L])
-      private$serverTZ        <- attr(private$serverTimestamp, "tzone")
+      private$serverTimestamp <- res[2L]
 
       # Check server version
       if(private$serverVersion < MIN_CLIENT_VER ||
@@ -182,7 +178,6 @@ IBClient <- R6::R6Class("IBClient",
         private$socket          <-
         private$serverVersion   <-
         private$serverTimestamp <-
-        private$serverTZ        <-
         private$Id              <-
         private$decoder         <- NULL
       }
