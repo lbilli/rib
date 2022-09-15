@@ -860,6 +860,9 @@ Decoder <- R6::R6Class("Decoder",
                               if(nsec>0L)
                                 cd$derivativeSecTypes <- imsg$pop(nsec)
 
+                              if(private$serverVersion >= MIN_SERVER_VER_BOND_ISSUERID)
+                                cd$contract[c("description",
+                                              "issuerId")] <- imsg$pop(2L)
                               cd
                             })
 

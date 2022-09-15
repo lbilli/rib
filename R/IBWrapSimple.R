@@ -62,8 +62,10 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                           cat("contractDetails:", reqId, contractDetails$contract$conId, "\n")
                          },
 
-    bondContractDetails=function(reqId, contractDetails)
-                          self$context$bond <- contractDetails,
+    bondContractDetails=function(reqId, contractDetails) {
+                          self$context$bond <- contractDetails
+                          cat("bondDetails:", reqId, contractDetails$contract$conId, "\n")
+                        },
 
     contractDetailsEnd= function(reqId)
                           cat("contractDetailsEnd:", reqId, "\n"),
@@ -188,9 +190,8 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                         },
 
     symbolSamples=      function(reqId, contractDescriptions) {
+                          self$context$cds <- contractDescriptions
                           cat("symbolSamples:", reqId, length(contractDescriptions), "\n")
-                          for(cd in contractDescriptions)
-                            cat("  ", cd$contract$conId, cd$contract$symbol, cd$contract$primaryExchange, cd$contract$currency, cd$derivativeSecTypes, "\n")
                         },
 
     mktDepthExchanges=  function(depthMktDataDescriptions) {

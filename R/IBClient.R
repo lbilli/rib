@@ -490,7 +490,8 @@ IBClient <- R6::R6Class("IBClient",
 
       msg <- c("9", "8", ### REQ_CONTRACT_DATA
                reqId,
-               private$sanitize(contract[1L:15L]))
+               private$sanitize(contract[1L:15L]),
+               if(self$serVersion >= MIN_SERVER_VER_BOND_ISSUERID) contract$issuerId)
 
       private$encodeMsg(msg)
     },
