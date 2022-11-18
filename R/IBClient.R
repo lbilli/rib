@@ -1,4 +1,4 @@
-IBClient <- R6::R6Class("IBClient",
+IBClient <- R6Class("IBClient",
 
   class=      FALSE,
   cloneable=  FALSE,
@@ -12,8 +12,6 @@ IBClient <- R6::R6Class("IBClient",
     serverTimestamp= NULL,  # Returned on connection
 
     Id=              NULL,  # Client ID
-
-    wrap=            NULL,  # Callbacks wrapper
 
     decoder=         NULL,  # Decoder
 
@@ -121,11 +119,6 @@ IBClient <- R6::R6Class("IBClient",
 
   public= list(
 
-    initialize= function(wrap) {
-
-      self$replaceWrap(wrap)
-    },
-
     connect= function(host="localhost", port=4002L, clientId=1L, connectOptions="", optionalCapabilities="") {
 
       stopifnot(is.null(private$socket))
@@ -184,24 +177,13 @@ IBClient <- R6::R6Class("IBClient",
     },
 
     #
-    # Replace wrapper
-    #
-    replaceWrap= function(wrap) {
-
-      # Check if "wrap" is an IBWrap class
-      # TODO Improve this
-      stopifnot(exists("verifyAndAuthCompleted", wrap, mode="function", inherits=FALSE))
-
-      private$wrap <- wrap
-    },
-
-    #
     # Process server responses
     #
     # Block up to timeout
-    # Discard messages if flush=TRUE
+    # If wrap is missing, messages are discarded
+    # otherwise callbacks are dispatched
     #
-    checkMsg= function(timeout=0.2, flush=FALSE) {
+    checkMsg= function(wrap, timeout=0.2) {
 
       stopifnot(self$isOpen)
 
@@ -213,14 +195,14 @@ IBClient <- R6::R6Class("IBClient",
 
         msg <- private$readOneMsg()
 
-        if(!flush) {
+        if(!missing(wrap)) {
 
           # Decode message
           res <- private$decoder$decode(msg)
 
-          # Dispatch
+          # Dispatch callback
           if(!is.null(res))
-            do.call(private$wrap[[res$fname]], res$fargs)
+            do.call(wrap[[res$fname]], res$fargs)
         }
       }
 
@@ -601,16 +583,6 @@ IBClient <- R6::R6Class("IBClient",
       payload <- c(subscription[1L:21L],
                    pack_tagvalue(scannerSubscriptionFilterOptions, mode="string"),
                    pack_tagvalue(scannerSubscriptionOptions, mode="string"))
-
-      # TODO: remove this?
-      # Check that NA's are only in allowed fields
-      idx <- which(is.na(payload))
-      stopifnot(names(payload)[idx] %in% c("numberOfRows", "abovePrice", "belowPrice",
-                                           "aboveVolume", "marketCapAbove", "marketCapBelow",
-                                           "couponRateAbove", "couponRateBelow",
-                                           "excludeConvertible", "averageOptionVolumeAbove"))
-      # Convert NA -> ""
-      payload[idx] <- ""
 
       msg <- c(msg, tickerId, private$sanitize(payload))
 

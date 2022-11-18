@@ -1,4 +1,4 @@
-IBWrapSimple <- R6::R6Class("IBWrapSimple",
+IBWrapSimple <- R6Class("IBWrapSimple",
 
   class=      FALSE,
   cloneable=  FALSE,
@@ -73,7 +73,7 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     execDetails=        function(reqId, contract, execution) {
                           self$context$ex_contract <- contract
                           self$context$execution <- execution
-                          cat("execDetails:", reqId, contract$symbol, execution$side, execution$shares, execution$price, "\n")
+                          cat("execDetails:", reqId, contract$symbol, execution$time, execution$side, execution$shares, execution$price, "\n")
                         },
 
     execDetailsEnd=     function(reqId)

@@ -1,3 +1,5 @@
+importFrom(R6, R6Class)
+
 # Main classes
 export(IBClient)
 export(IBWrap)

@@ -1,4 +1,4 @@
-Decoder <- R6::R6Class("Decoder",
+Decoder <- R6Class("Decoder",
 
   class=      FALSE,
   cloneable=  FALSE,

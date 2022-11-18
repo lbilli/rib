@@ -2,33 +2,26 @@
 # Helper functions to generate IB structs
 #
 
-IBContract <- function(symbol="", secType="STK", exchange="SMART",
-                       currency="USD", conId=0L, localSymbol="")
+setfields <- function(s, ...)
 {
-  res <- Contract
+  args <- list(...)
 
-  res$conId       <- conId
-  res$symbol      <- symbol
-  res$secType     <- secType
-  res$exchange    <- exchange
-  res$currency    <- currency
-  res$localSymbol <- localSymbol
+  k <- names(args)
 
-  res
+  stopifnot(!is.null(k))
+
+  idx <- match(k, names(s))
+
+  stopifnot(!is.na(idx))
+
+  s[idx] <- args
+
+  s
 }
 
-IBOrder <- function(action="BUY", totalQuantity, orderType="LMT", lmtPrice)
-{
-  res <- Order
+IBContract <- function(...) setfields(Contract, ...)
 
-  res$action        <- action
-  res$totalQuantity <- totalQuantity
-  res$orderType     <- orderType
-  res$lmtPrice      <- lmtPrice
-
-  res
-}
-
+IBOrder <- function(...) setfields(Order, ...)
 
 #
 # Generate Condition structs
