@@ -15,8 +15,13 @@ The package design mirrors the official C++/Java
 which is based on an asynchronous communication model over TCP.
 
 ### Installation
-To install from GitHub,
-assuming [`devtools`](https://CRAN.R-project.org/package=devtools) or at least
+To install from [CRAN](https://CRAN.R-project.org/package=rib):
+```R
+install.packages("rib")
+```
+
+To install the latest snapshot from GitHub, assuming
+[`devtools`](https://CRAN.R-project.org/package=devtools) or at least
 [`remotes`](https://CRAN.R-project.org/package=remotes) is already installed:
 ```R
 remotes::install_github("lbilli/rib")
