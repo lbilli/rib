@@ -1,3 +1,15 @@
+ticktype <- function(t)
+{
+  res <- map_ticktype[t]
+
+  if(is.na(res)){
+    warning("unknown ticktype: ", t)
+    "UNKNOWN"
+  }
+  else
+    res
+}
+
 map_ticktype <- c( "0" = "BID_SIZE",
                    "1" = "BID",
                    "2" = "ASK",
@@ -100,7 +112,9 @@ map_ticktype <- c( "0" = "BID_SIZE",
                   "99" = "ETF_NAV_LOW",
                  "100" = "SOCIAL_MARKET_ANALYTICS",
                  "101" = "ESTIMATED_IPO_MIDPOINT",
-                 "102" = "FINAL_IPO_LAST")
+                 "102" = "FINAL_IPO_LAST",
+                 "103" = "DELAYED_YIELD_BID",
+                 "104" = "DELAYED_YIELD_ASK")
 
 
 map_inbound <- c(  "1" = "TICK_PRICE",

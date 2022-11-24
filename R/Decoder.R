@@ -103,7 +103,7 @@ Decoder <- R6Class("Decoder",
       m <- imsg$pop(5L)
 
       # Convert tickType to string
-      m[2L] <- map_ticktype[m[2L]]
+      m[2L] <- ticktype(m[2L])
 
       attrib <- private$unmask(m[5L], c("canAutoExecute", "pastLimit", "preOpen"))
 
@@ -119,7 +119,7 @@ Decoder <- R6Class("Decoder",
       m <- imsg$pop(3L)
 
       # Convert tickType to string
-      m[2L] <- map_ticktype[m[2L]]
+      m[2L] <- ticktype(m[2L])
 
       private$validate("tickSize",  m, no_names=TRUE)
     },
@@ -129,7 +129,7 @@ Decoder <- R6Class("Decoder",
       m <- imsg$pop(11L)
 
       # Convert tickType to string
-      m[2L] <- map_ticktype[m[2L]]
+      m[2L] <- ticktype(m[2L])
 
       # (impliedVol, optPrice, pvDividend, undPrice) == -1 means NA
       idx <- c(4L, 6L, 7L, 11L)
@@ -147,7 +147,7 @@ Decoder <- R6Class("Decoder",
       m <- imsg$pop(3L)
 
       # Convert tickType to string
-      m[2L] <- map_ticktype[m[2L]]
+      m[2L] <- ticktype(m[2L])
 
       private$validate("tickGeneric", m, no_names=TRUE)
     },
@@ -157,7 +157,7 @@ Decoder <- R6Class("Decoder",
       m <- imsg$pop(3L)
 
       # Convert tickType to string
-      m[2L] <- map_ticktype[m[2L]]
+      m[2L] <- ticktype(m[2L])
 
       private$validate("tickString", m, no_names=TRUE)
     },
@@ -167,7 +167,7 @@ Decoder <- R6Class("Decoder",
       m <- imsg$pop(9L)
 
       # Convert tickType to string
-      m[2L] <- map_ticktype[m[2L]]
+      m[2L] <- ticktype(m[2L])
 
       private$validate("tickEFP", m, no_names=TRUE)
     },
