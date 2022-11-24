@@ -3,12 +3,13 @@ importFrom(R6, R6Class)
 # Main classes
 export(IBClient)
 export(IBWrap)
-export(IBWrapSimple)
 
 # Helpers
 export(IBContract)
 export(IBOrder)
 export(fCondition)
+export(map_enum2int)
+export(map_int2enum)
 
 # Structures
 export(ComboLeg)

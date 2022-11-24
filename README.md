@@ -4,16 +4,15 @@
 
 Originally inspired by [`IBrokers`](https://CRAN.R-project.org/package=IBrokers),
 `rib` is a native [R](https://www.r-project.org/) client that
-implements [Interactive Brokers](https://www.interactivebrokers.com/) API
-to communicate with their TWS or IBGateway.
+implements the [Interactive Brokers](https://www.interactivebrokers.com/) API
+to communicate with TWS or IBGateway.
 
 It aims to be feature complete, however it does not support legacy versions.
 Currently, only API versions `v165+` are supported.
 
 The package design mirrors the official C++/Java
 [IB API](https://interactivebrokers.github.io/tws-api/),
-which is based on an asynchronous request-response communication model
-over TCP.
+which is based on an asynchronous communication model over TCP.
 
 ### Installation
 To install from GitHub,
@@ -26,9 +25,9 @@ remotes::install_github("lbilli/rib")
 ### Usage
 The user interacts mainly with two classes, implemented as
 [`R6`](https://CRAN.R-project.org/package=R6) objects:
-- `IBClient`: responsible to establish the connection and send requests to the server.
-- `IBWrap`: base class holding the callbacks that are executed when the
-  client processes the responses. Customized versions are derived from this class.
+- `IBClient`: responsible to establish the connection and send requests to the server
+- `IBWrap`: base class holding the callbacks that are executed when responses
+  are processed. User customizations are derived from this class.
 
 Other data structures, such as `Contract` and `Order`, are implemented as R lists,
 or nested lists, and mirror the respective classes of the official IB API.
@@ -65,35 +64,35 @@ IBWrapCustom <- R6::R6Class("IBWrapCustom",
 
 # Instantiate wrapper and client
 wrap <- IBWrapCustom$new()
-ic   <- IBClient$new(wrap)
+ic   <- IBClient$new()
 
 # Connect to the server with clientId = 1
 ic$connect(port=4002, clientId=1)
 
 # Check connection messages (optional)
-ic$checkMsg()
+ic$checkMsg(wrap)
 
 # Define contract
-contract <- IBContract("GOOG")
+contract <- IBContract(symbol="GOOG", secType="STK", exchange="SMART", currency="USD")
 
 # Define order
-order <- IBOrder("BUY", 10, "LMT", 1000)
+order <- IBOrder(action="BUY", totalQuantity=10, orderType="LMT", lmtPrice=1000)
 
 orderId <- 1    # Should match whatever is returned by the server
 
 # Send order
 ic$placeOrder(orderId, contract, order)
 
-# Check messages
-ic$checkMsg()
+# Check inbound messages
+ic$checkMsg(wrap)
 
 # Disconnect
 ic$disconnect()
 ```
 
-As R is single threaded, in general it is the user's responsability to code
-an event loop that handles the request-response pattern:
-_i.e._ there is no `Reader` in the background monitoring the connection
+As R is single threaded, in general it is the user's responsibility to code
+some kind of event loop to periodically process incoming messages:
+_i.e._ there is no background `Reader` monitoring the connection
 and processing the server responses.
 
 Two possible approaches, with or without a loop, are described:
@@ -111,18 +110,18 @@ library(rib)
 
 # Instantiate wrapper, client and connect
 wrap <- IBWrapSimple$new()
-ic   <- IBClient$new(wrap)
+ic   <- IBClient$new()
 ic$connect(port=4002, clientId=1)
 
 # Send requests, e.g.:
-contract <- IBContract("GOOG")
+contract <- IBContract(symbol="GOOG", secType="STK", exchange="SMART", currency="USD")
 ic$reqContractDetails(11, contract)
 
 # more requests can go here...
 
 # Parse responses
 # Might need to be called several times to exhaust all messages
-ic$checkMsg()
+ic$checkMsg(wrap)
 
 # Find results in
 wrap$context
@@ -145,7 +144,7 @@ library(rib)
 
 # Instantiate wrapper, client and connect
 wrap <- IBWrapSimple$new()
-ic   <- IBClient$new(wrap)
+ic   <- IBClient$new()
 ic$connect(port=4002, clientId=1)
 
 # Main loop
@@ -156,7 +155,7 @@ repeat {
   ic$reqContractDetails(...)
 
   # Wait and process responses
-  ic$checkMsg()
+  ic$checkMsg(wrap)
 
   if(done)
     break
@@ -173,33 +172,31 @@ ic$disconnect()
 
 ##### [`IBClient`](R/IBClient.R)
 This implements the IB `EClient` class functionality. Among its methods:
-- `new(wrap)`: constructor. Require an object derived from `IBWrap` as argument.
-- `replaceWrap(wrap)`: replace the `wrap`. As the client runs in a single thread,
-  it is possible to swap wrappers on the fly in a connected client.
+- `new()`: create a new instance.
 - `connect(host, port, clientId, connectOptions)`: establish a connection.
 - `disconnect()`: terminate the connection.
-- `checkMsg(timeout, flush)`: wait for responses and dispatch callbacks.
+- `checkMsg(wrap, timeout)`: wait for responses and dispatch callbacks defined
+  in `wrap`, which must be an instance of a class derived from `IBWrap`.
   If no response is available, it **blocks** up to `timeout` seconds.
-  If `flush=TRUE` callbacks are not dispatched.
-  Return the number of responses processed. **Needs to be called regularly**.
-- methods that send specific requests to the server.
+  If `wrap` is missing, messages are taken off the wire and discarded.
+  Return the number of responses processed. **Needs to be called regularly!**
+- methods that send requests to the server.
   Refer to the official IB `EClient` class documentation for further details and
   method signatures.
 
 ##### [`IBWrap`](R/IBWrap.R)
 Like the official IB `EWrapper` class, this holds the callbacks that are dispatched
-when responses are processed. `IBWrap` itself is a base class containing
-only dummy methods.
+when responses are processed. `IBWrap` itself contains only stubs.
 Users need to derive from it and override the desired methods.
-The code [above](#usage) provides a quick view of the procedure.
+The code [above](#usage) provides a template of the procedure.
 
 For a more extensive example refer to the definition of
-[`IBWrapSimple`](R/IBWrapSimple.R), which is provided for
-illustrative purposes and which prints out the content of the responses or store it
-within `IBWrapSimple$context` for later inspection.
+[`IBWrapSimple`](examples/IBWrapSimple.R), mainly provided for
+illustrative purposes, which simply prints out the content of the responses
+or store it within `IBWrapSimple$context` for later inspection.
 
 For more details about callback definitions and signatures,
-refer again to the official IB `EWrapper` class documentation.
+refer to the official IB `EWrapper` class documentation.
 
 ### Notes
 Callbacks are generally invoked with arguments and types matching the signatures
@@ -226,21 +223,21 @@ are **not** used in this package.
 `marketRule()` and the `historicalTicks*()` family.
 
 ##### Missing Values
-Occasionally there is the need for numerical types to represent
+Occasionally, for numerical types, there is the need to represent
 the lack of a value.
 
-The IB API does not adopt a uniform solution for all situations, but rather
-various sentinel values are used.
+IB API does not have a uniform solution across the board, but rather
+it adopts a variety of sentinel values.
 They can be either the plain `0` or the largest representable value
 of a given type such as `2147483647` and `9223372036854775807`
-for 32 and 64 bit integers respectively or `1.7976931348623157E308`
-for 64 bit floating point.
+for 32- and 64-bit integers respectively or `1.7976931348623157E308`
+for 64-bit floating point.
 
-Within this package an effort is made to replace all these values with
-R built-in `NA`.
+This package makes an effort to use R built-in `NA`
+in all circumstances.
 
 ##### Data Structures
-Other classes that mainly hold data are also [defined](R/structs.R).
+Other classes that mainly hold data are also [replicated](R/structs.R).
 They are implemented as R lists, possibly nested, with names, types and default values
 matching the IB API counterparts: _e.g._
 `Contract`, `Order`, `ComboLeg`, `ExecutionFilter`, `ScannerSubscription`
@@ -253,9 +250,9 @@ contract$conId    <- 12345
 contract$currency <- "USD"
 ```
 In the case of `Contract` and `Order`, helper [functions](R/factory.R)
-are also provided to prefill some common fields:
+are also provided to simplify the assignment to a subset of the fields:
 ```R
-contract <- IBContract("GOOG")
+contract <- IBContract(symbol="GOOG", secType="STK", exchange="SMART", currency="USD")
 
 # Equivalent to
 contract <- Contract
@@ -266,7 +263,7 @@ contract$currency <- "USD"
 ```
 and
 ```R
-order <- IBOrder(totalQuantity=100, lmtPrice=50)
+order <- IBOrder(action="BUY", totalQuantity=100, orderType="LMT", lmtPrice=50)
 
 # Equivalent to
 order <- Order

@@ -1,7 +1,7 @@
 .onLoad <- function(libname, pkgname) {
 
   load_data <- function(file)
-                 utils::read.table(file= system.file("data-raw/", file, package=pkgname),
+                 utils::read.table(file= system.file("data-raw", file, package=pkgname),
                                    header= TRUE,
                                    colClasses= "character")
 

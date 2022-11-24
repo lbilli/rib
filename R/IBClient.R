@@ -138,7 +138,7 @@ IBClient <- R6Class("IBClient",
 
       stopifnot(length(res)==2L)
 
-      cat("server version and timestamp:", res, "\n")
+      message("server version: ", res[1L], " timestamp: ", res[2L])
       private$serverVersion   <- as.integer(res[1L])
       private$serverTimestamp <- res[2L]
 
