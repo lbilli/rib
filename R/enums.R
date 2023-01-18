@@ -8,7 +8,6 @@ IBEnum <- list(
                                UNKNOWN= 3L),
 
                FaDataType= c(GROUPS=   1L,
-                             PROFILES= 2L,
                              ALIASES=  3L),
 
                MarketData= c(REALTIME=       1L,
