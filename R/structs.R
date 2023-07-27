@@ -25,7 +25,8 @@ Execution <- list(execId=        "",
                   evRule=        "",
                   evMultiplier=  0,
                   modelCode=     "",
-                  lastLiquidity= 0L)
+                  lastLiquidity= 0L,
+                  pendingPriceRevision= FALSE)
 
 ExecutionFilter <- list(clientId= 0L,
                         acctCode= "",

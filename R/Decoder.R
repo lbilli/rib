@@ -524,6 +524,9 @@ Decoder <- R6Class("Decoder",
 
       execution[c(1L:9L, 11L:18L)] <- imsg$pop(17L)
 
+      if(private$serverVersion >= MIN_SERVER_VER_PENDING_PRICE_REVISION)
+        execution$pendingPriceRevision <- imsg$pop()
+
       private$validate("execDetails", reqId=reqId, contract=contract, execution=execution)
     },
 

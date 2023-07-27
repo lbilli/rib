@@ -1,6 +1,6 @@
 # rib
 
-[![CRAN status](https://www.r-pkg.org/badges/version/rib?color=blue)](https://CRAN.R-project.org/package=rib)
+[![CRAN status](https://www.r-pkg.org/badges/version-ago/rib?color=red)](https://CRAN.R-project.org/package=rib)
 ![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/rib)
 
 **An R implementation of Interactive Brokers API**
