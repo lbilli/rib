@@ -51,7 +51,6 @@ IBClient <- R6Class("IBClient",
              else         c(header, raw_msg)
 
       # Write to socket
-      stopifnot(self$isOpen)
       writeBin(res, private$socket)
     },
 
@@ -64,6 +63,10 @@ IBClient <- R6Class("IBClient",
 
       # Read header and decode message length
       len <- readBin(private$socket, integer(), size=HEADER_LEN, endian="big")
+
+      # Invalid socket
+      if(length(len)==0L)
+        stop("lost connection")
 
       # Header consistency check
       stopifnot(len >  0L,
@@ -112,9 +115,7 @@ IBClient <- R6Class("IBClient",
 
     serTimestamp= function() private$serverTimestamp,
 
-    clientId=     function() private$Id,
-
-    isOpen=       function() !is.null(private$socket) && isOpen(private$socket)
+    clientId=     function() private$Id
   ),
 
   public= list(
@@ -184,8 +185,6 @@ IBClient <- R6Class("IBClient",
     # otherwise callbacks are dispatched
     #
     checkMsg= function(wrap, timeout=0.2) {
-
-      stopifnot(self$isOpen)
 
       count <- 0L
 
