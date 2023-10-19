@@ -2,7 +2,7 @@ ticktype <- function(t)
 {
   res <- map_ticktype[t]
 
-  if(is.na(res)){
+  if(is.na(res)) {
     warning("unknown ticktype: ", t)
     "UNKNOWN"
   }
@@ -199,3 +199,21 @@ map_inbound <- c(  "1" = "TICK_PRICE",
                  "105" = "WSH_EVENT_DATA",
                  "106" = "HISTORICAL_SCHEDULE",
                  "107" = "USER_INFO")
+
+
+funddist <- function(v) switch(v,
+                               N= "Accumulation Fund",
+                               Y= "Income Fund",
+                                  "None")
+
+
+fundtype <- function(v) switch(v,
+                               "000" = "Others",
+                               "001" = "Money Market",
+                               "002" = "Fixed Income",
+                               "003" = "Multi-asset",
+                               "004" = "Equity",
+                               "005" = "Sector",
+                               "006" = "Guaranteed",
+                               "007" = "Alternative",
+                                       "None")

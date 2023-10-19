@@ -22,7 +22,7 @@ pack_tagvalue <- function(tv, mode=c("string", "unfold"))
   stopifnot(!is.null(tags),
             nzchar(tags, keepNA=TRUE))
 
-  if(mode=="string")
+  if(mode == "string")
     paste0(tags, "=", tv, ";", collapse="")
 
   else {

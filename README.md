@@ -6,9 +6,9 @@
 **An R implementation of Interactive Brokers API**
 
 Originally inspired by [`IBrokers`](https://CRAN.R-project.org/package=IBrokers),
-`rib` is a native [R](https://www.r-project.org/) client that
-implements the [Interactive Brokers](https://www.interactivebrokers.com/) API
-to communicate with TWS or IBGateway.
+`rib` is a native [R](https://www.r-project.org/) client that implements
+[Interactive Brokers](https://www.interactivebrokers.com/) API to communicate
+with TWS or IBGateway.
 
 It aims to be feature complete, however it does not support legacy versions.
 Currently, only API versions `v176+` are supported.
@@ -33,16 +33,16 @@ remotes::install_github("lbilli/rib")
 ### Usage
 The user interacts mainly with two classes, implemented as
 [`R6`](https://CRAN.R-project.org/package=R6) objects:
-- `IBClient`: responsible to establish the connection and send requests to the server
-- `IBWrap`: base class holding the callbacks that are executed when responses
+- `IBClient`: responsible to establish a connection and send requests to the server
+- `IBWrap`: base class holding the callbacks that are invoked when responses
   are processed. User customizations are derived from this class.
 
 Other data structures, such as `Contract` and `Order`, are implemented as R lists,
-or nested lists, and mirror the respective classes of the official IB API.
+or nested lists, and mirror the respective classes in the official IB API.
 
 A complete minimal working example is shown.
-For this code to work, an instance of the IB TWS or IBGateway needs to be running
-on the local machine, listening on port `4002`.
+For this code to work, an instance of IB TWS or IBGateway needs to be running
+on the local machine and listening on port `4002`.
 **Note:** _demo_ or _paper_ account recommended!! :smirk:
 ```R
 library(rib)
@@ -84,7 +84,7 @@ ic$checkMsg(wrap)
 contract <- IBContract(symbol="GOOG", secType="STK", exchange="SMART", currency="USD")
 
 # Define order
-order <- IBOrder(action="BUY", totalQuantity=10, orderType="LMT", lmtPrice=1000)
+order <- IBOrder(action="BUY", totalQuantity=10, orderType="LMT", lmtPrice=100)
 
 orderId <- 1    # Should match whatever is returned by the server
 
@@ -271,14 +271,14 @@ contract$currency <- "USD"
 ```
 and
 ```R
-order <- IBOrder(action="BUY", totalQuantity=100, orderType="LMT", lmtPrice=50)
+order <- IBOrder(action="BUY", totalQuantity=100, orderType="LMT", lmtPrice=110)
 
 # Equivalent to
 order <- Order
 order$action        <- "BUY"
 order$totalQuantity <- 100
 order$orderType     <- "LMT"
-order$lmtPrice      <- 50
+order$lmtPrice      <- 110
 ```
 To instantiate a `Condition`, invoke `fCondition(type)`
 and fill in the appropriate fields:

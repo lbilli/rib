@@ -11,7 +11,7 @@ IBClient <- R6Class("IBClient",
     serverVersion=   NULL,  # Returned on connection
     serverTimestamp= NULL,  # Returned on connection
 
-    Id=              NULL,  # Client ID
+    id=              NULL,  # Client ID
 
     decoder=         NULL,  # Decoder
 
@@ -65,7 +65,7 @@ IBClient <- R6Class("IBClient",
       len <- readBin(private$socket, integer(), size=HEADER_LEN, endian="big")
 
       # Invalid socket
-      if(length(len)==0L)
+      if(length(len) == 0L)
         stop("lost connection")
 
       # Header consistency check
@@ -115,7 +115,7 @@ IBClient <- R6Class("IBClient",
 
     serTimestamp= function() private$serverTimestamp,
 
-    clientId=     function() private$Id
+    clientId=     function() private$id
   ),
 
   public= list(
@@ -137,7 +137,7 @@ IBClient <- R6Class("IBClient",
       # Server response
       res <- private$readOneMsg()
 
-      stopifnot(length(res)==2L)
+      stopifnot(length(res) == 2L)
 
       message("server version: ", res[1L], " timestamp: ", res[2L])
       private$serverVersion   <- as.integer(res[1L])
@@ -154,7 +154,7 @@ IBClient <- R6Class("IBClient",
       # startAPI
       self$startApi(clientId, optionalCapabilities)
 
-      private$Id <- clientId
+      private$id <- clientId
 
       # TODO
       # Verify that connection was successful
@@ -172,7 +172,7 @@ IBClient <- R6Class("IBClient",
         private$socket          <-
         private$serverVersion   <-
         private$serverTimestamp <-
-        private$Id              <-
+        private$id              <-
         private$decoder         <- NULL
       }
     },
@@ -188,7 +188,7 @@ IBClient <- R6Class("IBClient",
 
       count <- 0L
 
-      while(socketSelect(list(private$socket), write=FALSE, timeout=timeout)){
+      while(socketSelect(list(private$socket), write=FALSE, timeout=timeout)) {
 
         count <- count + 1L
 

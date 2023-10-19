@@ -455,6 +455,15 @@ Decoder <- R6Class("Decoder",
            "sizeIncrement",
            "suggestedSizeIncrement")] <- imsg$pop(9L)
 
+      if(private$serverVersion >= MIN_SERVER_VER_FUND_DATA_FIELDS &&
+         cd$contract$secType == "FUND") {
+
+        cd[44L:58L] <- imsg$pop(15L)
+
+        cd$fundDistributionPolicyIndicator <- funddist(imsg$pop())
+        cd$fundAssetType <- fundtype(imsg$pop())
+      }
+
       private$validate("contractDetails", reqId=reqId, contractDetails=cd)
     },
 
