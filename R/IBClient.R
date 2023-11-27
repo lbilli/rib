@@ -560,13 +560,16 @@ IBClient <- R6Class("IBClient",
       private$encodeMsg(msg)
     },
 
-    exerciseOptions= function(tickerId, contract, exerciseAction, exerciseQuantity, account, override) {
+    exerciseOptions= function(tickerId, contract, exerciseAction, exerciseQuantity, account, override, manualOrderTime) {
 
       msg <- c("21", "2") ### EXERCISE_OPTIONS
 
       payload <- contract[c(1L:8L, 10L:12L)]
 
       payload <- c(payload, exerciseAction, exerciseQuantity, account, override)
+
+      if(self$serVersion >= MIN_SERVER_VER_MANUAL_ORDER_TIME_EXERCISE_OPTIONS)
+        payload <- c(payload, manualOrderTime)
 
       msg <- c(msg, tickerId, private$sanitize(payload))
 
