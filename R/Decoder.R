@@ -430,15 +430,21 @@ Decoder <- R6Class("Decoder",
 
       cd <- ContractDetails
 
-      cd$contract[c(2L:6L, 8L, 10L, 11L)] <- imsg$pop(8L)
-      cd$marketName                       <- imsg$pop()
-      cd$contract$tradingClass            <- imsg$pop()
-      cd$contract$conId                   <- imsg$pop()
-      cd$minTick                          <- imsg$pop()
-      cd$contract$multiplier              <- imsg$pop()
-      cd[4L:8L]                           <- imsg$pop(5L)
-      cd$contract$primaryExchange         <- imsg$pop()
-      cd[9L:17L]                          <- imsg$pop(9L)
+      cd$contract[2L:4L] <- imsg$pop(3L)
+
+      if(private$serverVersion >= MIN_SERVER_VER_LAST_TRADE_DATE)
+        cd$contract$lastTradeDate <- imsg$pop()
+
+      cd$contract[c(5L, 6L, 8L, 10L, 11L)] <- imsg$pop(5L)
+
+      cd$marketName               <- imsg$pop()
+      cd$contract$tradingClass    <- imsg$pop()
+      cd$contract$conId           <- imsg$pop()
+      cd$minTick                  <- imsg$pop()
+      cd$contract$multiplier      <- imsg$pop()
+      cd[4L:8L]                   <- imsg$pop(5L)
+      cd$contract$primaryExchange <- imsg$pop()
+      cd[9L:17L]                  <- imsg$pop(9L)
 
       n <- Validator$i(imsg$pop())
 

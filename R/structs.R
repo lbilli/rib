@@ -69,6 +69,7 @@ Contract  <- list(conId=                        0L,
                   secId=                        "",
                   description=                  "",
                   issuerId=                     "",
+                  lastTradeDate=                "",
                   comboLegsDescrip=             "",
                   comboLegs=                    list(),
                   deltaNeutralContract=         NA)
