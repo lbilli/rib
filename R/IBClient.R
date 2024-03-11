@@ -385,8 +385,8 @@ IBClient <- R6Class("IBClient",
         for(cond in order$conditions)
           payload <- c(payload, map_enum2int("Condition", cond$type), cond[-1L])
 
-          payload <- c(payload, order[c("conditionsIgnoreRth",
-                                        "conditionsCancelOrder")])
+        payload <- c(payload, order[c("conditionsIgnoreRth",
+                                      "conditionsCancelOrder")])
       }
 
       payload <- c(payload, order[c("adjustedOrderType",
@@ -396,11 +396,11 @@ IBClient <- R6Class("IBClient",
                                     "adjustedStopLimitPrice",
                                     "adjustedTrailingAmount",
                                     "adjustableTrailingUnit",
-                                    "extOperator")])
+                                    "extOperator")],
 
-      payload <- c(payload, order$softDollarTier[c("name", "val")])
+                            order$softDollarTier[c("name", "val")],
 
-      payload <- c(payload, order[c("cashQty",
+                            order[c("cashQty",
                                     "mifid2DecisionMaker",
                                     "mifid2DecisionAlgo",
                                     "mifid2ExecutionTrader",
@@ -427,6 +427,8 @@ IBClient <- R6Class("IBClient",
         payload <- c(payload, order[c("midOffsetAtWhole",
                                       "midOffsetAtHalf")])
 
+      if(self$serVersion >= MIN_SERVER_VER_CUSTOMER_ACCOUNT)
+        payload <- c(payload, order$customerAccount)
 
       msg <- c(msg, id, private$sanitize(payload))
 
@@ -560,16 +562,23 @@ IBClient <- R6Class("IBClient",
       private$encodeMsg(msg)
     },
 
-    exerciseOptions= function(tickerId, contract, exerciseAction, exerciseQuantity, account, override, manualOrderTime) {
+    exerciseOptions= function(tickerId, contract, exerciseAction, exerciseQuantity, account, override, manualOrderTime, customerAccount) {
 
       msg <- c("21", "2") ### EXERCISE_OPTIONS
 
       payload <- contract[c(1L:8L, 10L:12L)]
 
-      payload <- c(payload, exerciseAction, exerciseQuantity, account, override)
+      payload <- c(payload,
+                   exerciseAction,
+                   exerciseQuantity,
+                   account,
+                   override,
 
-      if(self$serVersion >= MIN_SERVER_VER_MANUAL_ORDER_TIME_EXERCISE_OPTIONS)
-        payload <- c(payload, manualOrderTime)
+                   if(self$serVersion >= MIN_SERVER_VER_MANUAL_ORDER_TIME_EXERCISE_OPTIONS)
+                     manualOrderTime,
+
+                   if(self$serVersion >= MIN_SERVER_VER_CUSTOMER_ACCOUNT)
+                     customerAccount)
 
       msg <- c(msg, tickerId, private$sanitize(payload))
 

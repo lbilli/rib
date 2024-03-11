@@ -380,6 +380,9 @@ Decoder <- R6Class("Decoder",
               "midOffsetAtWhole",
               "midOffsetAtHalf")] <- imsg$pop(13L)
 
+      if(private$serverVersion >= MIN_SERVER_VER_CUSTOMER_ACCOUNT)
+        order$customerAccount <- imsg$pop()
+
       private$validate("openOrder", orderId=    order$orderId,
                                     contract=   contract,
                                     order=      order,
@@ -1261,6 +1264,9 @@ Decoder <- R6Class("Decoder",
               "competeAgainstBestOffset",
               "midOffsetAtWhole",
               "midOffsetAtHalf")] <- imsg$pop(5L)
+
+      if(private$serverVersion >= MIN_SERVER_VER_CUSTOMER_ACCOUNT)
+        order$customerAccount <- imsg$pop()
 
       private$validate("completedOrder", contract=   contract,
                                          order=      order,

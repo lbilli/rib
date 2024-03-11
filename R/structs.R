@@ -294,7 +294,8 @@ Order <- list(orderId=                        0L,
               minCompeteSize=                 NA_integer_,
               competeAgainstBestOffset=       NA_real_,
               midOffsetAtWhole=               NA_real_,
-              midOffsetAtHalf=                NA_real_)
+              midOffsetAtHalf=                NA_real_,
+              customerAccount=                "")
 
 ScannerSubscription <- list(numberOfRows=             -1L,
                             instrument=               "",
