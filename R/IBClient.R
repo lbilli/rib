@@ -218,26 +218,17 @@ IBClient <- R6Class("IBClient",
 
       msg <- c("1", "11") ### REQ_MKT_DATA
 
-      # Add payload (as list)
-      payload <- contract[1L:12L]
+      payload <- c(contract[1L:12L],
 
-      # ComboLegs
-      if(contract$secType == "BAG") {
+                   if(contract$secType == "BAG")
+                     c(length(contract$comboLegs),
+                       do.call(c, lapply(contract$comboLegs, function(l) l[1L:4L]))),
 
-        payload <- c(payload, length(contract$comboLegs))
+                   if(is.list(contract$deltaNeutralContract))
+                     c(TRUE, contract$deltaNeutralContract)
+                   else
+                     FALSE,
 
-        for(combo in contract$comboLegs)
-          payload <- c(payload, combo[1L:4L])
-      }
-
-      # DeltaNeutralContract
-      deltaNeutralContract <- if(is.list(contract$deltaNeutralContract))
-                                c(TRUE, contract$deltaNeutralContract)
-                              else
-                                FALSE
-
-      payload <- c(payload,
-                   deltaNeutralContract,
                    genericTicks,
                    snapshot,
                    regulatorySnaphsot,
@@ -254,181 +245,175 @@ IBClient <- R6Class("IBClient",
 
       msg <- "3" ### PLACE_ORDER
 
-      payload <- contract[c(1L:12L, 14L, 15L)]
+      payload <- c(contract[c(1L:12L, 14L, 15L)],
 
-      payload <- c(payload, order[4L:9L]) # "action" -> "tif"
+                   order[4L:9L], # "action" -> "tif"
 
-      payload <- c(payload, order[c("ocaGroup",
-                                    "account",
-                                    "openClose")],
+                   order[c("ocaGroup",
+                           "account",
+                           "openClose")],
 
-                            map_enum2int("Origin", order$origin),
+                   map_enum2int("Origin", order$origin),
 
-                            order[14L:22L]) # "orderRef" -> "hidden"
+                   order[14L:22L], # "orderRef" -> "hidden"
 
-      if(contract$secType == "BAG") {
+                   if(contract$secType == "BAG")
+                     c(length(contract$comboLegs),
+                       do.call(c, contract$comboLegs),
 
-        # Contract$comboLegs
-        payload <- c(payload, length(contract$comboLegs))
+                       length(order$orderComboLegs),
+                       order$orderComboLegs,
 
-        for(combo in contract$comboLegs)
-          payload <- c(payload, combo)
+                       length(order$smartComboRoutingParams),
+                       pack_tagvalue(order$smartComboRoutingParams, mode="unfold")),
 
-        # Order$orderComboLegs
-        payload <- c(payload,
-                     length(order$orderComboLegs),
-                     order$orderComboLegs)
+                   "", # Deprecated sharesAllocation
 
-        # Order$smartComboRoutingParams
-        payload <- c(payload,
-                     length(order$smartComboRoutingParams),
-                     pack_tagvalue(order$smartComboRoutingParams, mode="unfold"))
-      }
+                   order[c("discretionaryAmt",
+                           "goodAfterTime",
+                           "goodTillDate",
+                           "faGroup",
+                           "faMethod",
+                           "faPercentage")],
 
-      payload <- c(payload, "", # Deprecated sharesAllocation
+                   if(self$serVersion < MIN_SERVER_VER_FA_PROFILE_DESUPPORT)
+                     "", # Deprecated faProfile
 
-                            order[c("discretionaryAmt",
-                                    "goodAfterTime",
-                                    "goodTillDate",
-                                    "faGroup",
-                                    "faMethod",
-                                    "faPercentage")],
+                   order[c("modelCode",
+                           "shortSaleSlot",
+                           "designatedLocation",
+                           "exemptCode",
+                           "ocaType",
+                           "rule80A",
+                           "settlingFirm",
+                           "allOrNone",
+                           "minQty",
+                           "percentOffset")],
 
-      if(self$serVersion < MIN_SERVER_VER_FA_PROFILE_DESUPPORT) "", # Deprecated faProfile
+                   FALSE, # Deprecated eTradeOnly
+                   FALSE, # Deprecated firmQuoteOnly
+                   "",    # Deprecated nbboPriceCap
 
-                            order[c("modelCode",
-                                    "shortSaleSlot",
-                                    "designatedLocation",
-                                    "exemptCode",
-                                    "ocaType",
-                                    "rule80A",
-                                    "settlingFirm",
-                                    "allOrNone",
-                                    "minQty",
-                                    "percentOffset")],
+                   map_enum2int("AuctionStrategy", order$auctionStrategy),
 
-                            FALSE, # Deprecated eTradeOnly
-                            FALSE, # Deprecated firmQuoteOnly
-                            "",    # Deprecated nbboPriceCap
+                   order[c("startingPrice",
+                           "stockRefPrice",
+                           "delta",
+                           "stockRangeLower",
+                           "stockRangeUpper",
+                           "overridePercentageConstraints",
+                           "volatility",
+                           "volatilityType",
+                           "deltaNeutralOrderType",
+                           "deltaNeutralAuxPrice")],
 
-                            map_enum2int("AuctionStrategy", order$auctionStrategy),
+                   if(nzchar(order$deltaNeutralOrderType, keepNA=TRUE))
+                     order[54L:61L], # "deltaNeutralConId" -> "deltaNeutralDesignatedLocation"
 
-                            order[c("startingPrice",
-                                    "stockRefPrice",
-                                    "delta",
-                                    "stockRangeLower",
-                                    "stockRangeUpper",
-                                    "overridePercentageConstraints",
-                                    "volatility",
-                                    "volatilityType",
-                                    "deltaNeutralOrderType",
-                                    "deltaNeutralAuxPrice")])
+                   order[c("continuousUpdate",
+                           "referencePriceType",
+                           "trailStopPrice",
+                           "trailingPercent",
+                           "scaleInitLevelSize",
+                           "scaleSubsLevelSize",
+                           "scalePriceIncrement")],
 
-      if(nzchar(order$deltaNeutralOrderType, keepNA=TRUE))
-        payload <- c(payload, order[54L:61L]) # "deltaNeutralConId" -> "deltaNeutralDesignatedLocation"
+                   if(!is.na(order$scalePriceIncrement) &&
+                      order$scalePriceIncrement > 0)
+                     order[69L:75L], # "scalePriceAdjustValue" -> "scaleRandomPercent"
 
-      payload <- c(payload, order[c("continuousUpdate",
-                                    "referencePriceType",
-                                    "trailStopPrice",
-                                    "trailingPercent",
-                                    "scaleInitLevelSize",
-                                    "scaleSubsLevelSize",
-                                    "scalePriceIncrement")])
+                   order[c("scaleTable",
+                           "activeStartTime",
+                           "activeStopTime",
+                           "hedgeType")],
 
-      if(!is.na(order$scalePriceIncrement) && order$scalePriceIncrement > 0)
-        payload <- c(payload, order[69L:75L]) # "scalePriceAdjustValue" -> "scaleRandomPercent"
+                   if(nzchar(order$hedgeType, keepNA=TRUE))
+                     order$hedgeParam,
 
-      payload <- c(payload, order[c("scaleTable",
-                                    "activeStartTime",
-                                    "activeStopTime",
-                                    "hedgeType")])
-      if(nzchar(order$hedgeType, keepNA=TRUE))
-        payload <- c(payload, order$hedgeParam)
+                   order[c("optOutSmartRouting",
+                           "clearingAccount",
+                           "clearingIntent",
+                           "notHeld")],
 
-      payload <- c(payload, order[c("optOutSmartRouting",
-                                    "clearingAccount",
-                                    "clearingIntent",
-                                    "notHeld")])
+                   if(is.list(contract$deltaNeutralContract))
+                     c(TRUE, contract$deltaNeutralContract)
+                   else
+                     FALSE,
 
-      # DeltaNeutralContract
-      deltaNeutralContract <- if(is.list(contract$deltaNeutralContract))
-                                c(TRUE, contract$deltaNeutralContract)
-                              else
-                                FALSE
+                   order$algoStrategy,
 
-      payload <- c(payload, deltaNeutralContract, order$algoStrategy)
+                   if(nzchar(order$algoStrategy, keepNA=TRUE))
+                     c(length(order$algoParams),
+                       pack_tagvalue(order$algoParams, mode="unfold")),
 
-      if(nzchar(order$algoStrategy, keepNA=TRUE))
-        payload <- c(payload, length(order$algoParams), pack_tagvalue(order$algoParams, mode="unfold"))
+                   order[c("algoId",
+                           "whatIf")],
 
-      payload <- c(payload, order[c("algoId",
-                                    "whatIf")],
+                  pack_tagvalue(order$orderMiscOptions, mode="string"),
 
-                            pack_tagvalue(order$orderMiscOptions, mode="string"),
+                   order[c("solicited",
+                           "randomizeSize",
+                           "randomizePrice")],
 
-                            order[c("solicited",
-                                    "randomizeSize",
-                                    "randomizePrice")])
+                   if(order$orderType == "PEG BENCH")
+                     order[c("referenceContractId",
+                             "isPeggedChangeAmountDecrease",
+                             "peggedChangeAmount",
+                             "referenceChangeAmount",
+                             "referenceExchangeId")],
 
-      if(order$orderType == "PEG BENCH")
-        payload <- c(payload, order[c("referenceContractId",
-                                      "isPeggedChangeAmountDecrease",
-                                      "peggedChangeAmount",
-                                      "referenceChangeAmount",
-                                      "referenceExchangeId")])
+                   length(order$conditions),
 
-      payload <- c(payload, length(order$conditions))
+                   if(length(order$conditions) > 0L)
+                     c(do.call(c, lapply(order$conditions,
+                                         function(cond)
+                                           c(map_enum2int("Condition", cond$type), cond[-1L]))),
+                       order[c("conditionsIgnoreRth",
+                               "conditionsCancelOrder")]),
 
-      # Conditions
-      if(length(order$conditions) > 0L) {
+                   order[c("adjustedOrderType",
+                           "triggerPrice",
+                           "lmtPriceOffset",
+                           "adjustedStopPrice",
+                           "adjustedStopLimitPrice",
+                           "adjustedTrailingAmount",
+                           "adjustableTrailingUnit",
+                           "extOperator")],
 
-        for(cond in order$conditions)
-          payload <- c(payload, map_enum2int("Condition", cond$type), cond[-1L])
+                   order$softDollarTier[c("name", "val")],
 
-        payload <- c(payload, order[c("conditionsIgnoreRth",
-                                      "conditionsCancelOrder")])
-      }
+                   order[c("cashQty",
+                           "mifid2DecisionMaker",
+                           "mifid2DecisionAlgo",
+                           "mifid2ExecutionTrader",
+                           "mifid2ExecutionAlgo",
+                           "dontUseAutoPriceForHedge",
+                           "isOmsContainer",
+                           "discretionaryUpToLimitPrice",
+                           "usePriceMgmtAlgo",
+                           "duration",
+                           "postToAts",
+                           "autoCancelParent",
+                           "advancedErrorOverride",
+                           "manualOrderTime")],
 
-      payload <- c(payload, order[c("adjustedOrderType",
-                                    "triggerPrice",
-                                    "lmtPriceOffset",
-                                    "adjustedStopPrice",
-                                    "adjustedStopLimitPrice",
-                                    "adjustedTrailingAmount",
-                                    "adjustableTrailingUnit",
-                                    "extOperator")],
+                   if(contract$exchange == "IBKRATS")
+                     order$minTradeQty,
 
-                            order$softDollarTier[c("name", "val")],
+                   if(order$orderType == "PEG BEST")
+                     order[c("minCompeteSize",
+                             "competeAgainstBestOffset")],
 
-                            order[c("cashQty",
-                                    "mifid2DecisionMaker",
-                                    "mifid2DecisionAlgo",
-                                    "mifid2ExecutionTrader",
-                                    "mifid2ExecutionAlgo",
-                                    "dontUseAutoPriceForHedge",
-                                    "isOmsContainer",
-                                    "discretionaryUpToLimitPrice",
-                                    "usePriceMgmtAlgo",
-                                    "duration",
-                                    "postToAts",
-                                    "autoCancelParent",
-                                    "advancedErrorOverride",
-                                    "manualOrderTime")])
+                   if(order$orderType == "PEG BEST" && order$competeAgainstBestOffset == Inf ||
+                      order$orderType == "PEG MID")
+                     order[c("midOffsetAtWhole",
+                             "midOffsetAtHalf")],
 
-      if(contract$exchange == "IBKRATS")
-        payload <- c(payload, order$minTradeQty)
+                   if(self$serVersion >= MIN_SERVER_VER_CUSTOMER_ACCOUNT)
+                     order$customerAccount,
 
-      if(order$orderType == "PEG BEST")
-        payload <- c(payload, order[c("minCompeteSize",
-                                      "competeAgainstBestOffset")])
-
-      if(order$orderType == "PEG BEST" && order$competeAgainstBestOffset == Inf ||
-         order$orderType == "PEG MID")
-        payload <- c(payload, order[c("midOffsetAtWhole",
-                                      "midOffsetAtHalf")])
-
-      if(self$serVersion >= MIN_SERVER_VER_CUSTOMER_ACCOUNT)
-        payload <- c(payload, order$customerAccount)
+                   if(self$serVersion >= MIN_SERVER_VER_PROFESSIONAL_CUSTOMER)
+                     order$professionalCustomer)
 
       msg <- c(msg, id, private$sanitize(payload))
 
@@ -540,20 +525,18 @@ IBClient <- R6Class("IBClient",
 
       msg <- "20" ### REQ_HISTORICAL_DATA
 
-      payload <- contract[1L:13L]
+      payload <- c(contract[1L:13L],
+                   endDateTime,
+                   barSizeSetting,
+                   durationStr,
+                   useRTH,
+                   whatToShow,
+                   formatDate,
 
-      payload <- c(payload, endDateTime, barSizeSetting, durationStr, useRTH, whatToShow, formatDate)
+                   if(contract$secType == "BAG")
+                     c(length(contract$comboLegs),
+                       do.call(c, lapply(contract$comboLegs, function(l) l[1L:4L]))),
 
-      # ComboLegs
-      if(contract$secType == "BAG") {
-
-        payload <- c(payload, length(contract$comboLegs))
-
-        for(combo in contract$comboLegs)
-          payload <- c(payload, combo[1L:4L])
-      }
-
-      payload <- c(payload,
                    keepUpToDate,
                    pack_tagvalue(chartOptions, mode="string"))
 
@@ -562,13 +545,13 @@ IBClient <- R6Class("IBClient",
       private$encodeMsg(msg)
     },
 
-    exerciseOptions= function(tickerId, contract, exerciseAction, exerciseQuantity, account, override, manualOrderTime, customerAccount) {
+    exerciseOptions= function(tickerId, contract, exerciseAction, exerciseQuantity,
+                              account, override, manualOrderTime, customerAccount,
+                              professionalCustomer) {
 
       msg <- c("21", "2") ### EXERCISE_OPTIONS
 
-      payload <- contract[c(1L:8L, 10L:12L)]
-
-      payload <- c(payload,
+      payload <- c(contract[c(1L:8L, 10L:12L)],
                    exerciseAction,
                    exerciseQuantity,
                    account,
@@ -578,7 +561,10 @@ IBClient <- R6Class("IBClient",
                      manualOrderTime,
 
                    if(self$serVersion >= MIN_SERVER_VER_CUSTOMER_ACCOUNT)
-                     customerAccount)
+                     customerAccount,
+
+                   if(self$serVersion >= MIN_SERVER_VER_PROFESSIONAL_CUSTOMER)
+                     professionalCustomer)
 
       msg <- c(msg, tickerId, private$sanitize(payload))
 

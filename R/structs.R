@@ -295,7 +295,8 @@ Order <- list(orderId=                        0L,
               competeAgainstBestOffset=       NA_real_,
               midOffsetAtWhole=               NA_real_,
               midOffsetAtHalf=                NA_real_,
-              customerAccount=                "")
+              customerAccount=                "",
+              professionalCustomer=           FALSE)
 
 ScannerSubscription <- list(numberOfRows=             -1L,
                             instrument=               "",

@@ -104,7 +104,7 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
 
     historicalData=     function(reqId, bar) {
                           self$context$historical <- bar
-                          cat("historicalData:", reqId, "Rows:", nrow(self$context$historical), "\n")
+                          cat("historicalData:", reqId, "Rows:", nrow(bar), "\n")
                         },
 
     scannerParameters=  function(xml) {
@@ -245,17 +245,17 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
 
     historicalTicks=    function(reqId, ticks, done) {
                           self$context$historicalTicks <- ticks
-                          cat("historicalTicks:", reqId, done, "\n")
+                          cat("historicalTicks:", reqId, done, nrow(ticks), "\n")
                         },
 
     historicalTicksBidAsk= function(reqId, ticks, done) {
                              self$context$historicalTicksBidAsk <- ticks
-                             cat("historicalTicksBidAsk:", reqId, done, "\n")
+                             cat("historicalTicksBidAsk:", reqId, done, nrow(ticks), "\n")
                            },
 
     historicalTicksLast= function(reqId, ticks, done) {
                            self$context$historicalTicksLast <- ticks
-                           cat("historicalTicksLast:", reqId, done, "\n")
+                           cat("historicalTicksLast:", reqId, done, nrow(ticks), "\n")
                          },
 
     tickByTickAllLast=  function(reqId, tickType, time, price, size, attribs, exchange, specialConditions)

@@ -383,6 +383,9 @@ Decoder <- R6Class("Decoder",
       if(private$serverVersion >= MIN_SERVER_VER_CUSTOMER_ACCOUNT)
         order$customerAccount <- imsg$pop()
 
+      if(private$serverVersion >= MIN_SERVER_VER_PROFESSIONAL_CUSTOMER)
+        order$professionalCustomer <- imsg$pop()
+
       private$validate("openOrder", orderId=    order$orderId,
                                     contract=   contract,
                                     order=      order,
@@ -1267,6 +1270,9 @@ Decoder <- R6Class("Decoder",
 
       if(private$serverVersion >= MIN_SERVER_VER_CUSTOMER_ACCOUNT)
         order$customerAccount <- imsg$pop()
+
+      if(private$serverVersion >= MIN_SERVER_VER_PROFESSIONAL_CUSTOMER)
+        order$professionalCustomer <- imsg$pop()
 
       private$validate("completedOrder", contract=   contract,
                                          order=      order,
