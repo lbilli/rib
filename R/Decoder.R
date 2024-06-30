@@ -84,6 +84,18 @@ Decoder <- R6Class("Decoder",
     },
 
     #
+    # Make a list of structs
+    #
+    to_list= function(imsg, n, struct) {
+
+      names <- get("names", environment(Validator[[struct]]))
+
+      m <- length(names)
+
+      lapply(seq_len(n), function(i) as.list(structure(imsg$pop(m), names=names)) )
+    },
+
+    #
     # Unmask "mask" into a list of logicals
     #
     unmask= function(mask, names) {
@@ -258,18 +270,8 @@ Decoder <- R6Class("Decoder",
       # ComboLegs
       comboLegsCount <- Validator$i(imsg$pop())
 
-      if(comboLegsCount > 0L) {
-
-        contract$comboLegs <- lapply(seq_len(comboLegsCount),
-                                     function(i) {
-
-                                        combo <- ComboLeg
-
-                                        combo[1L:8L] <- imsg$pop(8L)
-
-                                        combo
-                                      })
-      }
+      if(comboLegsCount > 0L)
+        contract$comboLegs <- private$to_list(imsg, comboLegsCount, "ComboLeg")
 
       # OrderComboLeg
       orderComboLegsCount <- Validator$i(imsg$pop())
@@ -341,15 +343,16 @@ Decoder <- R6Class("Decoder",
 
       if(conditionsSize > 0L) {
 
-        for(i in seq_len(conditionsSize)) {
+        order$conditions <- lapply(seq_len(conditionsSize),
+                                   function(i) {
 
-          condition <- fCondition(map_int2enum("Condition",
-                                                Validator$i(imsg$pop())))
+                                     cond <- fCondition(map_int2enum("Condition",
+                                                                     Validator$i(imsg$pop())))
 
-          condition[-1L] <- imsg$pop(length(condition) - 1L)
+                                     cond[-1L] <- imsg$pop(length(cond) - 1L)
 
-          order$conditions[[i]] <- condition
-        }
+                                     cond
+                                   })
 
         order[c("conditionsIgnoreRth",
                 "conditionsCancelOrder")] <- imsg$pop(2L)
@@ -385,6 +388,10 @@ Decoder <- R6Class("Decoder",
 
       if(private$serverVersion >= MIN_SERVER_VER_PROFESSIONAL_CUSTOMER)
         order$professionalCustomer <- imsg$pop()
+
+      if(private$serverVersion >= MIN_SERVER_VER_BOND_ACCRUED_INTEREST)
+        order$bondAccruedInterest <- imsg$pop()
+
 
       private$validate("openOrder", orderId=    order$orderId,
                                     contract=   contract,
@@ -474,6 +481,14 @@ Decoder <- R6Class("Decoder",
 
         cd$fundDistributionPolicyIndicator <- funddist(imsg$pop())
         cd$fundAssetType <- fundtype(imsg$pop())
+      }
+
+      if(private$serverVersion >= MIN_SERVER_VER_INELIGIBILITY_REASONS) {
+
+        ineligibilityReasonCount <- Validator$i(imsg$pop())
+
+        if(ineligibilityReasonCount > 0L)
+          cd$ineligibilityReasonList <- private$to_list(imsg, ineligibilityReasonCount, "IneligibilityReason")
       }
 
       private$validate("contractDetails", reqId=reqId, contractDetails=cd)
@@ -1157,18 +1172,8 @@ Decoder <- R6Class("Decoder",
       # ComboLegs
       comboLegsCount <- Validator$i(imsg$pop())
 
-      if(comboLegsCount > 0L) {
-
-        contract$comboLegs <- lapply(seq_len(comboLegsCount),
-                                     function(i) {
-
-                                        combo <- ComboLeg
-
-                                        combo[1L:8L] <- imsg$pop(8L)
-
-                                        combo
-                                      })
-      }
+      if(comboLegsCount > 0L)
+        contract$comboLegs <- private$to_list(imsg, comboLegsCount, "ComboLeg")
 
       # OrderComboLeg
       orderComboLegsCount <- Validator$i(imsg$pop())
@@ -1237,15 +1242,16 @@ Decoder <- R6Class("Decoder",
 
       if(conditionsSize > 0L) {
 
-        for(i in seq_len(conditionsSize)) {
+        order$conditions <- lapply(seq_len(conditionsSize),
+                                   function(i) {
 
-          condition <- fCondition(map_int2enum("Condition",
-                                                Validator$i(imsg$pop())))
+                                     cond <- fCondition(map_int2enum("Condition",
+                                                                     Validator$i(imsg$pop())))
 
-          condition[-1L] <- imsg$pop(length(condition) - 1L)
+                                     cond[-1L] <- imsg$pop(length(cond) - 1L)
 
-          order$conditions[[i]] <- condition
-        }
+                                     cond
+                                   })
 
         order[c("conditionsIgnoreRth",
                 "conditionsCancelOrder")] <- imsg$pop(2L)

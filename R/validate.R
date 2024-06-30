@@ -131,7 +131,8 @@ generate_validator <- function()
   for(s in c("ComboLeg",
              "ContractDescription",
              "ContractDetails",
-             "Condition"))
+             "Condition",
+             "IneligibilityReason"))
 
     ev[[paste0("v", s)]] <- (function() {
 

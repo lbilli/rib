@@ -133,7 +133,8 @@ ContractDetails <- list(contract=           Contract,
                         fundBlueSkyStates=               "",
                         fundBlueSkyTerritories=          "",
                         fundDistributionPolicyIndicator= "",
-                        fundAssetType=                   "")
+                        fundAssetType=                   "",
+                        ineligibilityReasonList=         list())
 
 ContractDescription <- list(contract=           Contract,
                             derivativeSecTypes= character())
@@ -296,7 +297,15 @@ Order <- list(orderId=                        0L,
               midOffsetAtWhole=               NA_real_,
               midOffsetAtHalf=                NA_real_,
               customerAccount=                "",
-              professionalCustomer=           FALSE)
+              professionalCustomer=           FALSE,
+              bondAccruedInterest=            "",
+              externalUserId=                 "",
+              manualOrderIndicator=           2147483647L)
+
+OrderCancel <- list(manualOrderCancelTime= "",
+                    extOperator=           "",
+                    externalUserId=        "",
+                    manualOrderIndicator=  NA_integer_)
 
 ScannerSubscription <- list(numberOfRows=             -1L,
                             instrument=               "",

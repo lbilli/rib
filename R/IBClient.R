@@ -413,18 +413,27 @@ IBClient <- R6Class("IBClient",
                      order$customerAccount,
 
                    if(self$serVersion >= MIN_SERVER_VER_PROFESSIONAL_CUSTOMER)
-                     order$professionalCustomer)
+                     order$professionalCustomer,
+
+                   if(self$serVersion >= MIN_SERVER_VER_RFQ_FIELDS)
+                     order[c("externalUserId",
+                             "manualOrderIndicator")])
+
 
       msg <- c(msg, id, private$sanitize(payload))
 
       private$encodeMsg(msg)
     },
 
-    cancelOrder= function(id, manualOrderCancelTime) {
+    cancelOrder= function(id, orderCancel) {
 
       msg <- c("4", "1", ### CANCEL_ORDER
                id,
-               manualOrderCancelTime)
+
+               if(self$serVersion >= MIN_SERVER_VER_RFQ_FIELDS)
+                 private$sanitize(orderCancel)
+               else
+                 orderCancel$manualOrderCancelTime)
 
       private$encodeMsg(msg)
     },
