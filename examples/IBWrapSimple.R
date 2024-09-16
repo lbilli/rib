@@ -267,8 +267,8 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     tickByTickMidPoint= function(reqId, time, midPoint)
                           cat("tickByTickMidPoint:", reqId, time, midPoint, "\n"),
 
-    orderBound=         function(orderId, apiClientId, apiOrderId)
-                          cat("orderBound:", orderId, apiClientId, apiOrderId, "\n"),
+    orderBound=         function(permId, clientId, orderId)
+                          cat("orderBound:", permId, clientId, orderId, "\n"),
 
     completedOrder=     function(contract, order, orderState) {
                           self$context$completed <- list(contract=contract, order=order, orderstate=orderState)

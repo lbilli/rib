@@ -415,9 +415,12 @@ IBClient <- R6Class("IBClient",
                    if(self$serVersion >= MIN_SERVER_VER_PROFESSIONAL_CUSTOMER)
                      order$professionalCustomer,
 
-                   if(self$serVersion >= MIN_SERVER_VER_RFQ_FIELDS)
-                     order[c("externalUserId",
-                             "manualOrderIndicator")])
+                   if(self$serVersion >= MIN_SERVER_VER_RFQ_FIELDS &&
+                      self$serVersion < MIN_SERVER_VER_UNDO_RFQ_FIELDS)
+                     c("", NA_integer_),
+
+                   if(self$serVersion >= MIN_SERVER_VER_INCLUDE_OVERNIGHT)
+                     order$includeOvernight)
 
 
       msg <- c(msg, id, private$sanitize(payload))
@@ -429,11 +432,11 @@ IBClient <- R6Class("IBClient",
 
       msg <- c("4", "1", ### CANCEL_ORDER
                id,
+               orderCancel$manualOrderCancelTime,
 
-               if(self$serVersion >= MIN_SERVER_VER_RFQ_FIELDS)
-                 private$sanitize(orderCancel)
-               else
-                 orderCancel$manualOrderCancelTime)
+               if(self$serVersion >= MIN_SERVER_VER_RFQ_FIELDS &&
+                  self$serVersion < MIN_SERVER_VER_UNDO_RFQ_FIELDS)
+                 c("", "", NA_integer_))
 
       private$encodeMsg(msg)
     },

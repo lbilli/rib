@@ -163,7 +163,7 @@ IBWrap <- R6Class("IBWrap",
 
     tickByTickMidPoint= function(reqId, time, midPoint) warning("default implementation"),
 
-    orderBound= function(orderId, apiClientId, apiOrderId) warning("default implementation"),
+    orderBound= function(permId, clientId, orderId) warning("default implementation"),
 
     completedOrder= function(contract, order, orderState) warning("default implementation"),
 

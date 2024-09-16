@@ -75,7 +75,7 @@ historicalTicksLast     i,dHistoricalTickLast,l      reqId,ticks,done
 tickByTickAllLast       i,i,c,n,n,TickAttribLast,c,c reqId,tickType,time,price,size,attribs,exchange,specialConditions
 tickByTickBidAsk        i,c,n,n,n,n,TickAttribBidAsk reqId,time,bidPrice,askPrice,bidSize,askSize,attribs
 tickByTickMidPoint      i,c,n                        reqId,time,midPoint
-orderBound              i,i,i                        orderId,apiClientId,apiOrderId
+orderBound              i,i,i                        permId,clientId,orderId
 completedOrder          Contract,Order,OrderState    contract,order,orderState
 completedOrdersEnd      NA                           NA
 replaceFAEnd            i,c                          reqId,text
