@@ -126,8 +126,10 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     realtimeBar=        function(reqId, time, open, high, low, close, volume, wap, count)
                           cat("realtimeBar:", reqId, time, open, high, low, close, volume, wap, count, "\n"),
 
-    currentTime=        function(time)
-                          cat("currentTime:", time, "\n"),
+    currentTime=        function(time) {
+                          self$context$time <- time
+                          cat("currentTime:", time, "\n")
+                        },
 
     fundamentalData=    function(reqId, data) {
                           self$context$fundamentalData <- data
@@ -180,13 +182,13 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                                               cat("sdopEnd:", reqId, "\n"),
 
     softDollarTiers=    function(reqId, tiers) {
+                          self$context$softdollar <- tiers
                           cat("softDollarTiers:", reqId, nrow(tiers), "\n")
-                          print(tiers)
                         },
 
     familyCodes=        function(familyCodes) {
+                          self$context$familycodes <- familyCodes
                           cat("familyCodes:", nrow(familyCodes), "\n")
-                          print(familyCodes)
                         },
 
     symbolSamples=      function(reqId, contractDescriptions) {
@@ -202,12 +204,17 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     tickNews=           function(tickerId, timeStamp, providerCode, articleId, headline, extraData)
                           cat("tickNews:", tickerId, timeStamp, providerCode, articleId, headline, extraData, "\n"),
 
+    smartComponents=    function(reqId, theMap) {
+                          self$context$smartcomponents <- theMap
+                          cat("smartComponents:", reqId, nrow(theMap), "\n")
+                        },
+
     tickReqParams=      function(tickerId, minTick, bboExchange, snapshotPermissions)
                           cat("tickReqParams:", tickerId, minTick, bboExchange, snapshotPermissions, "\n"),
 
     newsProviders=      function(newsProviders) {
+                          self$context$newsproviders <- newsProviders
                           cat("newsProviders:", nrow(newsProviders), "\n")
-                          print(newsProviders)
                         },
 
     newsArticle=        function(requestId, articleType, articleText) {
@@ -233,8 +240,8 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                             cat("historicalDataUpdate:", reqId, unlist(bar), "\n"),
 
     marketRule=         function(marketRuleId, priceIncrements) {
+                          self$context$marketrule <- priceIncrements
                           cat("marketRule:", marketRuleId, nrow(priceIncrements), "\n")
-                          print(priceIncrements)
                         },
 
     pnl=                function(reqId, dailyPnL, unrealizedPnL, realizedPnL)

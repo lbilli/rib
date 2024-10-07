@@ -72,9 +72,9 @@ pnlSingle               i,i,n,n,n,n                  reqId,pos,dailyPnL,unrealiz
 historicalTicks         i,dHistoricalTick,l          reqId,ticks,done
 historicalTicksBidAsk   i,dHistoricalTickBidAsk,l    reqId,ticks,done
 historicalTicksLast     i,dHistoricalTickLast,l      reqId,ticks,done
-tickByTickAllLast       i,i,c,n,n,TickAttribLast,c,c reqId,tickType,time,price,size,attribs,exchange,specialConditions
-tickByTickBidAsk        i,c,n,n,n,n,TickAttribBidAsk reqId,time,bidPrice,askPrice,bidSize,askSize,attribs
-tickByTickMidPoint      i,c,n                        reqId,time,midPoint
+tickByTickAllLast       i,i,i,n,n,TickAttribLast,c,c reqId,tickType,time,price,size,attribs,exchange,specialConditions
+tickByTickBidAsk        i,i,n,n,n,n,TickAttribBidAsk reqId,time,bidPrice,askPrice,bidSize,askSize,attribs
+tickByTickMidPoint      i,i,n                        reqId,time,midPoint
 orderBound              i,i,i                        permId,clientId,orderId
 completedOrder          Contract,Order,OrderState    contract,order,orderState
 completedOrdersEnd      NA                           NA

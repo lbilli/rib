@@ -13,7 +13,7 @@ IBClient <- R6Class("IBClient",
 
     id=              NULL,  # Client ID
 
-    decoder=         NULL,  # Decoder
+    decoder=         Decoder$new(),  # Decoder
 
     #
     # Finalizer
@@ -158,9 +158,6 @@ IBClient <- R6Class("IBClient",
 
       # TODO
       # Verify that connection was successful
-
-      # Instantiate Decoder
-      private$decoder <- Decoder$new(private$serverVersion)
     },
 
     disconnect= function() {
@@ -172,8 +169,7 @@ IBClient <- R6Class("IBClient",
         private$socket          <-
         private$serverVersion   <-
         private$serverTimestamp <-
-        private$id              <-
-        private$decoder         <- NULL
+        private$id              <- NULL
       }
     },
 
@@ -197,7 +193,7 @@ IBClient <- R6Class("IBClient",
         if(!missing(wrap)) {
 
           # Decode message
-          res <- private$decoder$decode(msg)
+          res <- private$decoder$decode(msg, private$serverVersion)
 
           # Dispatch callback
           if(!is.null(res))
@@ -420,7 +416,10 @@ IBClient <- R6Class("IBClient",
                      c("", NA_integer_),
 
                    if(self$serVersion >= MIN_SERVER_VER_INCLUDE_OVERNIGHT)
-                     order$includeOvernight)
+                     order$includeOvernight,
+
+                   if(self$serVersion >= MIN_SERVER_VER_CME_TAGGING_FIELDS)
+                     order$manualOrderIndicator)
 
 
       msg <- c(msg, id, private$sanitize(payload))
@@ -430,13 +429,21 @@ IBClient <- R6Class("IBClient",
 
     cancelOrder= function(id, orderCancel) {
 
-      msg <- c("4", "1", ### CANCEL_ORDER
+      msg <- c("4", ### CANCEL_ORDER
+
+               if(self$serVersion < MIN_SERVER_VER_CME_TAGGING_FIELDS)
+                 "1",
+
                id,
                orderCancel$manualOrderCancelTime,
 
                if(self$serVersion >= MIN_SERVER_VER_RFQ_FIELDS &&
                   self$serVersion < MIN_SERVER_VER_UNDO_RFQ_FIELDS)
-                 c("", "", NA_integer_))
+                 c("", "", ""),
+
+               if(self$serVersion >= MIN_SERVER_VER_CME_TAGGING_FIELDS)
+                 private$sanitize(orderCancel[c("extOperator",
+                                                "manualOrderIndicator")]))
 
       private$encodeMsg(msg)
     },
@@ -666,7 +673,18 @@ IBClient <- R6Class("IBClient",
 
     cancelCalculateOptionPrice= function(reqId) private$req_simple("57", "1", reqId), ### CANCEL_CALC_OPTION_PRICE
 
-    reqGlobalCancel= function() private$req_simple("58", "1"), ### REQ_GLOBAL_CANCEL
+    reqGlobalCancel= function(orderCancel) {
+
+      msg <- c("58", ### REQ_GLOBAL_CANCEL
+
+               if(self$serVersion < MIN_SERVER_VER_CME_TAGGING_FIELDS)
+                 "1"
+               else
+                 private$sanitize(orderCancel[c("extOperator",
+                                                "manualOrderIndicator")]))
+
+      private$encodeMsg(msg)
+    },
 
     reqMarketDataType= function(marketDataType) private$req_simple("59", "1", marketDataType), ### REQ_MARKET_DATA_TYPE
 

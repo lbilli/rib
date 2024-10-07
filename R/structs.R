@@ -299,9 +299,12 @@ Order <- list(orderId=                        0L,
               customerAccount=                "",
               professionalCustomer=           FALSE,
               bondAccruedInterest=            "",
-              includeOvernight=               FALSE)
+              includeOvernight=               FALSE,
+              manualOrderIndicator=           NA_integer_)
 
-OrderCancel <- list(manualOrderCancelTime= "")
+OrderCancel <- list(manualOrderCancelTime= "",
+                    extOperator=           "",
+                    manualOrderIndicator=  NA_integer_)
 
 ScannerSubscription <- list(numberOfRows=             -1L,
                             instrument=               "",
