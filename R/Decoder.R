@@ -398,6 +398,10 @@ Decoder <- R6Class("Decoder",
       if(ver >= MIN_SERVER_VER_INCLUDE_OVERNIGHT)
         order$includeOvernight <- imsg$pop()
 
+      if(ver >= MIN_SERVER_VER_CME_TAGGING_FIELDS_IN_OPEN_ORDER)
+        order[c("extOperator",
+                "manualOrderIndicator")] <- imsg$pop(2L)
+
       private$validate("openOrder", orderId=    order$orderId,
                                     contract=   contract,
                                     order=      order,
