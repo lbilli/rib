@@ -5,6 +5,7 @@
 \alias{DeltaNeutralContract}
 \alias{ExecutionFilter}
 \alias{Order}
+\alias{OrderCancel}
 \alias{ScannerSubscription}
 \alias{SoftDollarTier}
 \alias{WshEventData}
@@ -30,6 +31,8 @@ DeltaNeutralContract
 ExecutionFilter
 
 Order
+
+OrderCancel
 
 ScannerSubscription
 
