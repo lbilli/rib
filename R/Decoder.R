@@ -16,9 +16,10 @@ Decoder <- R6Class("Decoder",
       # The first field is the message ID
       msgId <- imsg$pop()
 
-      # The second field is unused version, for msgId < 75 and != 3, 5, 10, 11, 17, 18, 21
+      # The second field is unused version, for msgId < 75 and != 3, 4, 5, 10, 11, 17, 18, 21
       imsgId <- Validator$i(msgId)
-      if(imsgId  < 75L && ! imsgId %in% c(3L, 5L, 10L, 11L, 17L, 18L, 21L))
+      if(imsgId < 75L && ! imsgId %in% c(3L, 4L, 5L, 10L, 11L, 17L, 18L, 21L) ||
+         imsgId == 4L && ver < MIN_SERVER_VER_ERROR_TIME)
         imsg$pop()
 
       # Find handler
@@ -196,14 +197,23 @@ Decoder <- R6Class("Decoder",
     # ERR_MSG
     "4"= function(imsg, ver) {
 
-      private$validate("error", imsg$pop(4L), no_names=TRUE)
+      m <- imsg$pop(4L)
+
+      errorTime <- if(ver >= MIN_SERVER_VER_ERROR_TIME) imsg$pop() else "0"
+
+      private$validate("error", id=          m[1L],
+                                errorTime=   errorTime,
+                                errorCode=   m[2L],
+                                errorString= m[3L],
+                                advancedOrderRejectJson= m[4L])
     },
 
     # OPEN_ORDER
     "5"= function(imsg, ver) {
 
-      order    <- Order
-      contract <- Contract
+      contract   <- Contract
+      order      <- Order
+      orderState <- OrderState
 
       order$orderId <- imsg$pop()
 
@@ -229,19 +239,15 @@ Decoder <- R6Class("Decoder",
 
       order[c("faGroup",
               "faMethod",
-              "faPercentage")] <- imsg$pop(3L)
-
-      if(ver < MIN_SERVER_VER_FA_PROFILE_DESUPPORT)
-        imsg$pop() # Deprecated faProfile
-
-      order[c("modelCode",
+              "faPercentage",
+              "modelCode",
               "goodTillDate",
               "rule80A",
               "percentOffset",
               "settlingFirm",
               "shortSaleSlot",
               "designatedLocation",
-              "exemptCode")] <- imsg$pop(8L)
+              "exemptCode")] <- imsg$pop(11L)
 
       order$auctionStrategy <- map_int2enum("AuctionStrategy", imsg$pop())
 
@@ -328,9 +334,16 @@ Decoder <- R6Class("Decoder",
       order[c("solicited",
               "whatIf")] <- imsg$pop(2L)
 
-      orderState <- OrderState
+      orderState[1L:14L] <- imsg$pop(14L) # "status" -> "commissionCurrency"
 
-      orderState[1L:15L] <- imsg$pop(15L)
+      if(ver >= MIN_SERVER_VER_FULL_ORDER_PREVIEW_FIELDS) {
+
+        orderState[15L:26L] <- imsg$pop(12L) # "marginCurrency" -> "rejectReason"
+
+        orderState$orderAllocations <- private$to_list(imsg, "OrderAllocation")
+      }
+
+      orderState$warningText <- imsg$pop()
 
       order[c("randomizeSize",
               "randomizePrice")] <- imsg$pop(2L)
@@ -384,16 +397,10 @@ Decoder <- R6Class("Decoder",
               "minCompeteSize",
               "competeAgainstBestOffset",
               "midOffsetAtWhole",
-              "midOffsetAtHalf")] <- imsg$pop(13L)
-
-      if(ver >= MIN_SERVER_VER_CUSTOMER_ACCOUNT)
-        order$customerAccount <- imsg$pop()
-
-      if(ver >= MIN_SERVER_VER_PROFESSIONAL_CUSTOMER)
-        order$professionalCustomer <- imsg$pop()
-
-      if(ver >= MIN_SERVER_VER_BOND_ACCRUED_INTEREST)
-        order$bondAccruedInterest <- imsg$pop()
+              "midOffsetAtHalf",
+              "customerAccount",
+              "professionalCustomer",
+              "bondAccruedInterest")] <- imsg$pop(16L)
 
       if(ver >= MIN_SERVER_VER_INCLUDE_OVERNIGHT)
         order$includeOvernight <- imsg$pop()
@@ -457,12 +464,7 @@ Decoder <- R6Class("Decoder",
 
       cd <- ContractDetails
 
-      cd$contract[2L:4L] <- imsg$pop(3L)
-
-      if(ver >= MIN_SERVER_VER_LAST_TRADE_DATE)
-        cd$contract$lastTradeDate <- imsg$pop()
-
-      cd$contract[c(5L, 6L, 8L, 10L, 11L)] <- imsg$pop(5L)
+      cd$contract[c(2L, 3L, 4L, 18L, 5L, 6L, 8L, 10L, 11L)] <- imsg$pop(9L)
 
       cd$marketName               <- imsg$pop()
       cd$contract$tradingClass    <- imsg$pop()
@@ -488,8 +490,7 @@ Decoder <- R6Class("Decoder",
            "sizeIncrement",
            "suggestedSizeIncrement")] <- imsg$pop(9L)
 
-      if(ver >= MIN_SERVER_VER_FUND_DATA_FIELDS &&
-         cd$contract$secType == "FUND") {
+      if(cd$contract$secType == "FUND") {
 
         cd[44L:58L] <- imsg$pop(15L)
 
@@ -497,8 +498,7 @@ Decoder <- R6Class("Decoder",
         cd$fundAssetType <- fundtype(imsg$pop())
       }
 
-      if(ver >= MIN_SERVER_VER_INELIGIBILITY_REASONS)
-        cd$ineligibilityReasonList <- private$to_list(imsg, "IneligibilityReason")
+      cd$ineligibilityReasonList <- private$to_list(imsg, "IneligibilityReason")
 
       private$validate("contractDetails", reqId=reqId, contractDetails=cd)
     },
@@ -572,10 +572,7 @@ Decoder <- R6Class("Decoder",
 
       contract[c(1L:8L, 10L:12L)] <- imsg$pop(11L)
 
-      execution[c(1L:9L, 11L:18L)] <- imsg$pop(17L)
-
-      if(ver >= MIN_SERVER_VER_PENDING_PRICE_REVISION)
-        execution$pendingPriceRevision <- imsg$pop()
+      execution[c(1L:9L, 11L:19L)] <- imsg$pop(18L)
 
       private$validate("execDetails", reqId=reqId, contract=contract, execution=execution)
     },
@@ -1179,19 +1176,15 @@ Decoder <- R6Class("Decoder",
               "goodAfterTime",
               "faGroup",
               "faMethod",
-              "faPercentage")] <- imsg$pop(9L)
-
-      if(ver < MIN_SERVER_VER_FA_PROFILE_DESUPPORT)
-        imsg$pop() # Deprecated faProfile
-
-      order[c("modelCode",
+              "faPercentage",
+              "modelCode",
               "goodTillDate",
               "rule80A",
               "percentOffset",
               "settlingFirm",
               "shortSaleSlot",
               "designatedLocation",
-              "exemptCode")] <- imsg$pop(8L)
+              "exemptCode")] <- imsg$pop(17L)
 
       order[43L:47L] <- imsg$pop(5L) # "startingPrice" -> "stockRangeUpper"
 
@@ -1315,13 +1308,9 @@ Decoder <- R6Class("Decoder",
               "minCompeteSize",
               "competeAgainstBestOffset",
               "midOffsetAtWhole",
-              "midOffsetAtHalf")] <- imsg$pop(5L)
-
-      if(ver >= MIN_SERVER_VER_CUSTOMER_ACCOUNT)
-        order$customerAccount <- imsg$pop()
-
-      if(ver >= MIN_SERVER_VER_PROFESSIONAL_CUSTOMER)
-        order$professionalCustomer <- imsg$pop()
+              "midOffsetAtHalf",
+              "customerAccount",
+              "professionalCustomer")] <- imsg$pop(7L)
 
       private$validate("completedOrder", contract=   contract,
                                          order=      order,

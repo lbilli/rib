@@ -147,7 +147,8 @@ generate_validator <- function()
              "ContractDescription",
              "ContractDetails",
              "Condition",
-             "IneligibilityReason"))
+             "IneligibilityReason",
+             "OrderAllocation"))
 
     ev[[paste0("v", s)]] <- (function() {
 

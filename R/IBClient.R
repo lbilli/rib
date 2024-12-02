@@ -270,12 +270,8 @@ IBClient <- R6Class("IBClient",
                            "goodTillDate",
                            "faGroup",
                            "faMethod",
-                           "faPercentage")],
-
-                   if(self$serVersion < MIN_SERVER_VER_FA_PROFILE_DESUPPORT)
-                     "", # Deprecated faProfile
-
-                   order[c("modelCode",
+                           "faPercentage",
+                           "modelCode",
                            "shortSaleSlot",
                            "designatedLocation",
                            "exemptCode",
@@ -405,14 +401,10 @@ IBClient <- R6Class("IBClient",
                      order[c("midOffsetAtWhole",
                              "midOffsetAtHalf")],
 
-                   if(self$serVersion >= MIN_SERVER_VER_CUSTOMER_ACCOUNT)
-                     order$customerAccount,
+                   order[c("customerAccount",
+                           "professionalCustomer")],
 
-                   if(self$serVersion >= MIN_SERVER_VER_PROFESSIONAL_CUSTOMER)
-                     order$professionalCustomer,
-
-                   if(self$serVersion >= MIN_SERVER_VER_RFQ_FIELDS &&
-                      self$serVersion < MIN_SERVER_VER_UNDO_RFQ_FIELDS)
+                   if(self$serVersion < MIN_SERVER_VER_UNDO_RFQ_FIELDS)
                      c("", NA_integer_),
 
                    if(self$serVersion >= MIN_SERVER_VER_INCLUDE_OVERNIGHT)
@@ -437,8 +429,7 @@ IBClient <- R6Class("IBClient",
                id,
                orderCancel$manualOrderCancelTime,
 
-               if(self$serVersion >= MIN_SERVER_VER_RFQ_FIELDS &&
-                  self$serVersion < MIN_SERVER_VER_UNDO_RFQ_FIELDS)
+               if(self$serVersion < MIN_SERVER_VER_UNDO_RFQ_FIELDS)
                  c("", "", ""),
 
                if(self$serVersion >= MIN_SERVER_VER_CME_TAGGING_FIELDS)
@@ -575,15 +566,9 @@ IBClient <- R6Class("IBClient",
                    exerciseQuantity,
                    account,
                    override,
-
-                   if(self$serVersion >= MIN_SERVER_VER_MANUAL_ORDER_TIME_EXERCISE_OPTIONS)
-                     manualOrderTime,
-
-                   if(self$serVersion >= MIN_SERVER_VER_CUSTOMER_ACCOUNT)
-                     customerAccount,
-
-                   if(self$serVersion >= MIN_SERVER_VER_PROFESSIONAL_CUSTOMER)
-                     professionalCustomer)
+                   manualOrderTime,
+                   customerAccount,
+                   professionalCustomer)
 
       msg <- c(msg, tickerId, private$sanitize(payload))
 

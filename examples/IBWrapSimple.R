@@ -79,8 +79,8 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     execDetailsEnd=     function(reqId)
                           cat("execDetailsEnd:", reqId, "\n"),
 
-    error=              function(id, errorCode, errorString, advancedOrderRejectJson)
-                          cat("error:", id, errorCode, errorString, advancedOrderRejectJson, "\n"),
+    error=              function(id, errorTime, errorCode, errorString, advancedOrderRejectJson)
+                          cat("error:", id, errorTime, errorCode, errorString, advancedOrderRejectJson, "\n"),
 
     updateMktDepth=     function(id, position, operation, side, price, size)
                           cat("mktDepth:", id, position, operation, side, price, size, "\n"),

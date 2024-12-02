@@ -47,7 +47,7 @@ IBWrap <- R6Class("IBWrap",
 
     execDetailsEnd= function(reqId) warning("default implementation"),
 
-    error= function(id, errorCode, errorString, advancedOrderRejectJson) warning("default implementation"),
+    error= function(id, errorTime, errorCode, errorString, advancedOrderRejectJson) warning("default implementation"),
 
     updateMktDepth= function(id, position, operation, side, price, size) warning("default implementation"),
 

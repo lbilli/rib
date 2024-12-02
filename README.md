@@ -3,7 +3,7 @@
 [![CRAN status](https://www.r-pkg.org/badges/version/rib?color=blue)](https://CRAN.R-project.org/package=rib)
 ![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/rib)
 
-**An R implementation of Interactive Brokers API**
+*An R implementation of Interactive Brokers API*
 
 Originally inspired by [`IBrokers`](https://CRAN.R-project.org/package=IBrokers),
 `rib` is a native [R](https://www.r-project.org/) client that implements
@@ -11,13 +11,13 @@ Originally inspired by [`IBrokers`](https://CRAN.R-project.org/package=IBrokers)
 with TWS or IBGateway.
 
 It aims to be feature complete, however it does not support legacy versions.
-Currently, only API versions `v176+` are supported.
+Currently, only API versions `v187+` are supported.
 
 The package design mirrors the official C++/Java
 [IB API](https://interactivebrokers.github.io/tws-api/),
 which is based on an asynchronous communication model over TCP.
 
-### Installation
+## Installation
 To install from [CRAN](https://CRAN.R-project.org/package=rib):
 ```R
 install.packages("rib")
@@ -30,7 +30,7 @@ To install the latest snapshot from GitHub, assuming
 remotes::install_github("lbilli/rib")
 ```
 
-### Usage
+## Usage
 The user interacts mainly with two classes, implemented as
 [`R6`](https://CRAN.R-project.org/package=R6) objects:
 - `IBClient`: responsible to establish a connection and send requests to the server
@@ -57,8 +57,8 @@ IBWrapCustom <- R6::R6Class("IBWrapCustom",
 
   public= list(
     # Customized methods go here
-    error=            function(id, errorCode, errorString, advancedOrderRejectJson)
-                        cat("Error:", id, errorCode, errorString, advancedOrderRejectJson, "\n"),
+    error=            function(id, errorTime, errorCode, errorString, advancedOrderRejectJson)
+                        cat("Error:", id, errorTime, errorCode, errorString, advancedOrderRejectJson, "\n"),
 
     nextValidId=      function(orderId)
                         cat("Next OrderId:", orderId, "\n"),
@@ -105,7 +105,7 @@ and processing the server responses.
 
 Two possible approaches, with or without a loop, are described:
 
-##### Straight Request-Response pattern. No loop.
+#### Straight Request-Response pattern. No loop.
 This is the simplest case. It's not suitable for data subscriptions or whenever a
 stream of messages is expected. It follows the pattern:
 - connect
@@ -138,7 +138,7 @@ wrap$context
 ic$disconnect()
 ```
 
-##### Request-Response loop
+#### Request-Response loop
 A more realistic application requires a loop around the previous example:
 - connect
 - repeat
@@ -176,9 +176,9 @@ repeat {
 ic$disconnect()
 ```
 
-### Implementation Details
+## Implementation Details
 
-##### [`IBClient`](R/IBClient.R)
+#### [`IBClient`](R/IBClient.R)
 This implements the IB `EClient` class functionality. Among its methods:
 - `new()`: create a new instance.
 - `connect(host, port, clientId, connectOptions)`: establish a connection.
@@ -192,7 +192,7 @@ This implements the IB `EClient` class functionality. Among its methods:
   Refer to the official IB `EClient` class documentation for further details and
   method signatures.
 
-##### [`IBWrap`](R/IBWrap.R)
+#### [`IBWrap`](R/IBWrap.R)
 Like the official IB `EWrapper` class, this holds the callbacks that are dispatched
 when responses are processed. `IBWrap` itself contains only stubs.
 Users need to derive from it and override the desired methods.
@@ -206,7 +206,7 @@ or store it within `IBWrapSimple$context` for later inspection.
 For more details about callback definitions and signatures,
 refer to the official IB `EWrapper` class documentation.
 
-### Notes
+## Notes
 Callbacks are generally invoked with arguments and types matching the signatures
 as described in the official documentation.
 However, there are few exceptions:
@@ -230,7 +230,7 @@ are **not** used in this package.
 `smartComponents()`, `newsProviders()`, `histogramData()`,
 `marketRule()` and the `historicalTicks*()` family.
 
-##### Missing Values
+#### Missing Values
 Occasionally, for numerical types, there is the need to represent
 the lack of a value.
 
@@ -244,7 +244,7 @@ for 64-bit floating point.
 This package makes an effort to use R built-in `NA`
 in all circumstances.
 
-##### Data Structures
+#### Data Structures
 Other classes that mainly hold data are also [replicated](R/structs.R).
 They are implemented as R lists, possibly nested, with names, types and default values
 matching the IB API counterparts: _e.g._
