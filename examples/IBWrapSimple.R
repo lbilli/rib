@@ -299,7 +299,10 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                           cat("historicalSchedule:", reqId, startDateTime, endDateTime, timeZone, "\n")
                         },
 
-    userInfo=        function(reqId, whiteBrandingId)
-                          cat("userInfo:", reqId, whiteBrandingId, "\n")
+    userInfo=           function(reqId, whiteBrandingId)
+                          cat("userInfo:", reqId, whiteBrandingId, "\n"),
+
+    historicalDataEnd=  function(reqId, startDateStr, endDateStr)
+                          cat("historicalDataEnd:", reqId, startDateStr, endDateStr, "\n")
   )
 )

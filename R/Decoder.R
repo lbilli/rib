@@ -614,7 +614,8 @@ Decoder <- R6Class("Decoder",
 
       reqId <- imsg$pop()
 
-      imsg$pop(2L) # Ignore startDate, endDate
+      if(ver < MIN_SERVER_VER_HISTORICAL_DATA_END)
+        imsg$pop(2L) # Ignore startDate, endDate
 
       bar <- private$to_matrix(imsg, "Bar")
 
@@ -1362,6 +1363,12 @@ Decoder <- R6Class("Decoder",
     "107"= function(imsg, ver) {
 
       private$validate("userInfo", imsg$pop(2L), no_names=TRUE)
+    },
+
+    # HISTORICAL_DATA_END
+    "108" = function(imsg, ver) {
+
+      private$validate("historicalDataEnd", imsg$pop(3L), no_names=TRUE)
     }
   )
 )

@@ -177,6 +177,8 @@ IBWrap <- R6Class("IBWrap",
 
     historicalSchedule= function(reqId, startDateTime, endDateTime, timeZone, sessions) warning("default implementation"),
 
-    userInfo= function(reqId, whiteBrandingId) warning("default implementation")
+    userInfo= function(reqId, whiteBrandingId) warning("default implementation"),
+
+    historicalDataEnd= function(reqId, startDateStr, endDateStr) warning("default implementation")
   )
 )

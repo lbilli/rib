@@ -83,3 +83,4 @@ wshMetaData             i,c                          reqId,dataJson
 wshEventData            i,c                          reqId,dataJson
 historicalSchedule      i,c,c,c,dHistoricalSession   reqId,startDateTime,endDateTime,timeZone,sessions
 userInfo                i,c                          reqId,whiteBrandingId
+historicalDataEnd       i,c,c                        reqId,startDateStr,endDateStr
