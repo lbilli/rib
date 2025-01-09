@@ -873,6 +873,8 @@ IBClient <- R6Class("IBClient",
 
     cancelWshEventData= function(reqId) private$req_simple("103", reqId), ### CANCEL_WSH_EVENT_DATA
 
-    reqUserInfo= function(reqId) private$req_simple("104", reqId) ### REQ_USER_INFO
+    reqUserInfo= function(reqId) private$req_simple("104", reqId), ### REQ_USER_INFO
+
+    reqCurrentTimeInMillis= function() private$req_simple("105") ### REQ_CURRENT_TIME_IN_MILLIS
   )
 )

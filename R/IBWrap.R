@@ -179,6 +179,8 @@ IBWrap <- R6Class("IBWrap",
 
     userInfo= function(reqId, whiteBrandingId) warning("default implementation"),
 
-    historicalDataEnd= function(reqId, startDateStr, endDateStr) warning("default implementation")
+    historicalDataEnd= function(reqId, startDateStr, endDateStr) warning("default implementation"),
+
+    currentTimeInMillis= function(timeInMillis) warning("default implementation")
   )
 )

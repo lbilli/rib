@@ -303,6 +303,9 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                           cat("userInfo:", reqId, whiteBrandingId, "\n"),
 
     historicalDataEnd=  function(reqId, startDateStr, endDateStr)
-                          cat("historicalDataEnd:", reqId, startDateStr, endDateStr, "\n")
+                          cat("historicalDataEnd:", reqId, startDateStr, endDateStr, "\n"),
+
+    currentTimeInMillis= function(timeInMillis)
+                           cat("currentTimeInMillis:", timeInMillis, "\n")
   )
 )

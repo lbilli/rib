@@ -1369,6 +1369,12 @@ Decoder <- R6Class("Decoder",
     "108" = function(imsg, ver) {
 
       private$validate("historicalDataEnd", imsg$pop(3L), no_names=TRUE)
+    },
+
+    # CURRENT_TIME_IN_MILLIS
+    "109" = function(imsg, ver) {
+
+      private$validate("currentTimeInMillis", imsg$pop(), no_names=TRUE)
     }
   )
 )
