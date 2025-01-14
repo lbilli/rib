@@ -26,7 +26,8 @@ Execution <- list(execId=        "",
                   evMultiplier=  0,
                   modelCode=     "",
                   lastLiquidity= 0L,
-                  pendingPriceRevision= FALSE)
+                  pendingPriceRevision= FALSE,
+                  submitter=     "")
 
 ExecutionFilter <- list(clientId= 0L,
                         acctCode= "",
@@ -313,7 +314,8 @@ Order <- list(orderId=                        0L,
               professionalCustomer=           FALSE,
               bondAccruedInterest=            "",
               includeOvernight=               FALSE,
-              manualOrderIndicator=           NA_integer_)
+              manualOrderIndicator=           NA_integer_,
+              submitter=                      "")
 
 OrderCancel <- list(manualOrderCancelTime= "",
                     extOperator=           "",

@@ -409,6 +409,9 @@ Decoder <- R6Class("Decoder",
         order[c("extOperator",
                 "manualOrderIndicator")] <- imsg$pop(2L)
 
+      if(ver >= MIN_SERVER_VER_SUBMITTER)
+        order$submitter <- imsg$pop()
+
       private$validate("openOrder", orderId=    order$orderId,
                                     contract=   contract,
                                     order=      order,
@@ -573,6 +576,9 @@ Decoder <- R6Class("Decoder",
       contract[c(1L:8L, 10L:12L)] <- imsg$pop(11L)
 
       execution[c(1L:9L, 11L:19L)] <- imsg$pop(18L)
+
+      if(ver >= MIN_SERVER_VER_SUBMITTER)
+        execution$submitter <- imsg$pop()
 
       private$validate("execDetails", reqId=reqId, contract=contract, execution=execution)
     },
@@ -1312,6 +1318,9 @@ Decoder <- R6Class("Decoder",
               "midOffsetAtHalf",
               "customerAccount",
               "professionalCustomer")] <- imsg$pop(7L)
+
+      if(ver >= MIN_SERVER_VER_SUBMITTER)
+        order$submitter <- imsg$pop()
 
       private$validate("completedOrder", contract=   contract,
                                          order=      order,
