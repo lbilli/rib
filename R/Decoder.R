@@ -412,6 +412,9 @@ Decoder <- R6Class("Decoder",
       if(ver >= MIN_SERVER_VER_SUBMITTER)
         order$submitter <- imsg$pop()
 
+      if(ver >= MIN_SERVER_VER_IMBALANCE_ONLY)
+        order$imbalanceOnly <- imsg$pop()
+
       private$validate("openOrder", orderId=    order$orderId,
                                     contract=   contract,
                                     order=      order,

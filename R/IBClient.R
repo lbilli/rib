@@ -411,7 +411,10 @@ IBClient <- R6Class("IBClient",
                      order$includeOvernight,
 
                    if(self$serVersion >= MIN_SERVER_VER_CME_TAGGING_FIELDS)
-                     order$manualOrderIndicator)
+                     order$manualOrderIndicator,
+
+                   if(self$serVersion >= MIN_SERVER_VER_IMBALANCE_ONLY)
+                     order$imbalanceOnly)
 
 
       msg <- c(msg, id, private$sanitize(payload))
