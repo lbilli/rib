@@ -1,4 +1,4 @@
-Decoder <- R6Class("Decoder",
+Decoder <- R6::R6Class("Decoder",
 
   class=      FALSE,
   cloneable=  FALSE,
@@ -1351,8 +1351,14 @@ Decoder <- R6Class("Decoder",
     # WSH_EVENT_DATA
     "105"= function(imsg, ver) {
 
-      private$validate("wshEventData", imsg$pop(2L), no_names=TRUE)
+      reqId    <- imsg$pop()
+      dataJson <- imsg$pop()
+
+      private$validate("wshEventData", reqId=reqId
+                                     , dataJson=dataJson)
+
     },
+
 
     # HISTORICAL_SCHEDULE
     "106"= function(imsg, ver) {

@@ -1,4 +1,4 @@
-IBClient <- R6Class("IBClient",
+IBClient <- R6::R6Class("IBClient",
 
   class=      FALSE,
   cloneable=  FALSE,
@@ -180,29 +180,33 @@ IBClient <- R6Class("IBClient",
     # If wrap is missing, messages are discarded
     # otherwise callbacks are dispatched
     #
-    checkMsg= function(wrap, timeout=0.2) {
-
+    checkMsg = function(wrap, timeout = 0.2, debug = FALSE) {
       count <- 0L
-
-      while(socketSelect(list(private$socket), write=FALSE, timeout=timeout)) {
-
+      while (socketSelect(list(private$socket), write = FALSE, timeout = timeout)) {
         count <- count + 1L
-
         msg <- private$readOneMsg()
-
-        if(!missing(wrap)) {
-
-          # Decode message
+        if (debug) {
+          cat("[DEBUG] Raw message:", paste(msg, collapse = " "), "\n")
+        }
+        if (!missing(wrap)) {
           res <- private$decoder$decode(msg, private$serverVersion)
-
-          # Dispatch callback
-          if(!is.null(res))
+          if (debug) {
+            if (is.null(res)) {
+              cat("[DEBUG] Decoded result: NULL\n")
+            } else {
+              cat("[DEBUG] Decoded result:\n",
+                  paste(capture.output(print(res)), collapse = "\n"), "\n")
+            }
+          }
+          if (!is.null(res)) {
             do.call(wrap[[res$fname]], res$fargs)
+          }
         }
       }
-
       count
     },
+
+
 
     # ########################################################################
     #
@@ -865,13 +869,51 @@ IBClient <- R6Class("IBClient",
 
     cancelWshMetaData= function(reqId) private$req_simple("101", reqId), ### CANCEL_WSH_META_DATA
 
-    reqWshEventData= function(reqId, wshEventData) {
+    reqWshEventData = function(reqId, wshEventData) {
+      # 1) The message code for REQ_WSH_EVENT_DATA is "102"
+      opcode <- "102"
 
-      msg <- c("102", ### REQ_WSH_EVENT_DATA
-               reqId,
-               private$sanitize(wshEventData))
+      # 2) Request ID as a string
+      reqId_str <- as.character(reqId)
 
-      private$encodeMsg(msg)
+      # 3) Use the sentinel value if a JSON filter is provided (conId must be 0)
+      conId_str <- if (wshEventData$conId == 0 && nzchar(wshEventData$filter))
+        "2147483647"
+      else
+        as.character(wshEventData$conId)
+
+      # 4) JSON filter or empty string
+      filter_str <- wshEventData$filter %||% ""
+
+      # 5) Fill booleans: "1" for TRUE, "0" for FALSE
+      fillW <- if (isTRUE(wshEventData$fillWatchlist)) "1" else "0"
+      fillP <- if (isTRUE(wshEventData$fillPortfolio))  "1" else "0"
+      fillC <- if (isTRUE(wshEventData$fillCompetitors)) "1" else "0"
+
+      # 6) startDate and endDate (or "0" if not provided)
+      startDate <- wshEventData$startDate %||% "0"
+      endDate   <- wshEventData$endDate   %||% "0"
+
+      # 7) totalLimit (or a sentinel value)
+      totalLimit <- wshEventData$totalLimit %||% "2147483647"
+
+      msg_fields <- c(
+        opcode,    # "102"
+        reqId_str, # request ID
+        conId_str, # conId or sentinel
+        filter_str, # JSON filter string
+        fillW,     # fillWatchlist
+        fillP,     # fillPortfolio
+        fillC,     # fillCompetitors
+        startDate, # startDate
+        endDate,   # endDate
+        totalLimit # totalLimit
+      )
+
+      # For debugging, print the assembled fields:
+      cat("[DEBUG] WSH msg to TWS (fields):\n", paste(msg_fields, collapse = "-"), "\n")
+
+      private$encodeMsg(msg_fields)
     },
 
     cancelWshEventData= function(reqId) private$req_simple("103", reqId), ### CANCEL_WSH_EVENT_DATA

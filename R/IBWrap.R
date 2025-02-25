@@ -1,4 +1,4 @@
-IBWrap <- R6Class("IBWrap",
+IBWrap <- R6::R6Class("IBWrap",
 
   class=      FALSE,
   cloneable=  FALSE,
