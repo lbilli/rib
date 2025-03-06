@@ -867,6 +867,9 @@ IBClient <- R6Class("IBClient",
 
     reqWshEventData= function(reqId, wshEventData) {
 
+      if(is.na(wshEventData$conId) && nzchar(wshEventData$filter, keepNA=TRUE))
+        wshEventData$conId <- 2147483647L
+
       msg <- c("102", ### REQ_WSH_EVENT_DATA
                reqId,
                private$sanitize(wshEventData))

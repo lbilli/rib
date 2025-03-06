@@ -288,11 +288,15 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     replaceFAEnd=       function(reqId, text)
                           cat("replaceFAEnd:", reqId, text, "\n"),
 
-    wshMetaData=        function(reqId, dataJson)
-                          cat("wshMetaData:", reqId, dataJson, "\n"),
+    wshMetaData=        function(reqId, dataJson) {
+                          self$context$wshmeta <- dataJson
+                          cat("wshMetaData:", reqId, "\n")
+                        },
 
-    wshEventData=       function(reqId, dataJson)
-                          cat("wshEventData:", reqId, dataJson, "\n"),
+    wshEventData=       function(reqId, dataJson) {
+                          self$context$wshevents <- dataJson
+                          cat("wshEventData:", reqId, "\n")
+                        },
 
     historicalSchedule= function(reqId, startDateTime, endDateTime, timeZone, sessions) {
                           self$context$schedule <- sessions
