@@ -133,3 +133,21 @@ fundtype <- function(v) switch(v,
                                "006" = "Guaranteed",
                                "007" = "Alternative",
                                        "None")
+
+
+optexercisetype <- function(v)
+{
+  if     (v ==  -1L) "None"
+  else if(v ==   1L) "Exercise"
+  else if(v ==   2L) "Lapse"
+  else if(v ==   3L) "DoNothing"
+  else if(v == 100L) "Assigned"
+  else if(v == 101L) "AutoexerciseClearing"
+  else if(v == 102L) "Expired"
+  else if(v == 103L) "Netting"
+  else if(v == 200L) "AutoexerciseTrading"
+  else {
+    warning("unknown type: ", v)
+    "None"
+  }
+}

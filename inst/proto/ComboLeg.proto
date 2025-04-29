@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package IBProto;
+
+message ComboLeg {
+    optional int32 conId = 1;
+    optional int32 ratio = 2;
+    optional string action = 3;
+    optional string exchange = 4;
+    optional int32 openClose = 5;
+    optional int32 shortSaleSlot = 6;
+    optional string designatedLocation = 7;
+    optional int32 exemptCode = 8;
+    optional double perLegPrice = 9;
+}

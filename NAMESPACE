@@ -11,7 +11,7 @@ export(fCondition)
 export(map_enum2int)
 export(map_int2enum)
 
-# Structures
+# Structs
 export(ComboLeg)
 export(Contract)
 export(DeltaNeutralContract)

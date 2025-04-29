@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package IBProto;
+
+import "ExecutionFilter.proto";
+
+message ExecutionRequest {
+    optional int32 reqId = 1;
+    optional ExecutionFilter executionFilter = 2;
+}

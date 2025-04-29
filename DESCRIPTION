@@ -1,6 +1,6 @@
 Package: rib
 Title: An Implementation of 'Interactive Brokers' API
-Version: 0.25.4
+Version: 0.26.0
 Authors@R: person("Luca", "Billi", email = "noreply.section+dev@gmail.com", role = c("aut", "cre"))
 Description: Allows interaction with 'Interactive Brokers' 'Trader Workstation'
     <https://interactivebrokers.github.io/tws-api/>.
@@ -10,7 +10,8 @@ Description: Allows interaction with 'Interactive Brokers' 'Trader Workstation'
 Depends:
     R (>= 3.4)
 Imports:
-    R6 (>= 2.4)
+    R6 (>= 2.4),
+    RProtoBuf
 License: GPL-3
 Encoding: UTF-8
 URL: https://github.com/lbilli/rib
