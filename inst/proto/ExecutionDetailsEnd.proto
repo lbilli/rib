@@ -1,7 +1,0 @@
-syntax = "proto3";
-
-package IBProto;
-
-message ExecutionDetailsEnd {
-    optional int32 reqId = 1;
-}

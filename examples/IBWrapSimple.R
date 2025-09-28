@@ -14,42 +14,42 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     initialize= function() self$context <- new.env(),
 
     # Override methods
-    tickPrice=          function(tickerId, field, price, size, attrib)
-                          cat("tickPrice:", tickerId, field, price, size, unlist(attrib), "\n"),
+    tickPrice=          function(reqId, tickType, price, size, attrib)
+                          cat("tickPrice:", reqId, tickType, price, size, unlist(attrib), "\n"),
 
-    tickSize=           function(tickerId, field, size)
-                          cat("tickSize:", tickerId, field, size, "\n"),
+    tickSize=           function(reqId, tickType, size)
+                          cat("tickSize:", reqId, tickType, size, "\n"),
 
-    tickOptionComputation= function(tickerId, tickType, tickAttrib, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice) {
+    tickOptionComputation= function(reqId, tickType, tickAttrib, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice) {
                              self$context$option <- list(tickType, tickAttrib, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice)
-                             cat("tickOption:", tickerId, tickType, "\n")
+                             cat("tickOption:", reqId, tickType, "\n")
                            },
 
-    tickGeneric=        function(tickerId, tickType, value)
-                          cat("tickGeneric:", tickerId, tickType, value, "\n"),
+    tickGeneric=        function(reqId, tickType, value)
+                          cat("tickGeneric:", reqId, tickType, value, "\n"),
 
-    tickString=         function(tickerId, tickType, value)
-                          cat("tickString:", tickerId, tickType, value, "\n"),
+    tickString=         function(reqId, tickType, value)
+                          cat("tickString:", reqId, tickType, value, "\n"),
 
     orderStatus=        function(orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice)
                           cat("orderStatus:", orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice, "\n"),
 
-    openOrder=          function(orderId, contract, order, orderstate) {
-                          self$context$order <- list(id=orderId, contract=contract, order=order, orderstate=orderstate)
+    openOrder=          function(orderId, contract, order, orderState) {
+                          self$context$order <- list(id=orderId, contract=contract, order=order, orderState=orderState)
                           cat("openOrder:", orderId, "\n")
                         },
 
     openOrderEnd=       function()
                           cat("openOrderEnd\n"),
 
-    updateAccountValue= function(key, val, currency, accountName)
-                          cat("accountValue:", key, val, currency, accountName, "\n"),
+    updateAccountValue= function(key, value, currency, accountName)
+                          cat("accountValue:", key, value, currency, accountName, "\n"),
 
     updatePortfolio=    function(contract, position, marketPrice, marketValue, averageCost, unrealizedPNL, realizedPNL, accountName)
                           cat("portfolio:", contract$symbol, position, marketPrice, marketValue, averageCost, unrealizedPNL, realizedPNL, accountName, "\n"),
 
-    updateAccountTime=  function(timeStamp)
-                          cat("accountTime:", timeStamp, "\n"),
+    updateAccountTime=  function(timestamp)
+                          cat("accountTime:", timestamp, "\n"),
 
     accountDownloadEnd= function(accountName)
                           cat("accountDownloadEnd:", accountName, "\n"),
@@ -82,11 +82,11 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     error=              function(id, errorTime, errorCode, errorString, advancedOrderRejectJson)
                           cat("error:", id, errorTime, errorCode, errorString, advancedOrderRejectJson, "\n"),
 
-    updateMktDepth=     function(id, position, operation, side, price, size)
-                          cat("mktDepth:", id, position, operation, side, price, size, "\n"),
+    updateMktDepth=     function(reqId, position, operation, side, price, size)
+                          cat("mktDepth:", reqId, position, operation, side, price, size, "\n"),
 
-    updateMktDepthL2=   function(id, position, marketMaker, operation, side, price, size, isSmartDepth)
-                          cat("mktDepthL2:", id, position, marketMaker, operation, side, price, size, isSmartDepth, "\n"),
+    updateMktDepthL2=   function(reqId, position, marketMaker, operation, side, price, size, isSmartDepth)
+                          cat("mktDepthL2:", reqId, position, marketMaker, operation, side, price, size, isSmartDepth, "\n"),
 
     updateNewsBulletin= function(msgId, msgType, newsMessage, originExch) {
                           self$context$news <- newsMessage
@@ -102,9 +102,9 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                           cat("receiveFA:", faDataType, "\n")
                         },
 
-    historicalData=     function(reqId, bar) {
-                          self$context$historical <- bar
-                          cat("historicalData:", reqId, "Rows:", nrow(bar), "\n")
+    historicalData=     function(reqId, bars) {
+                          self$context$historical <- bars
+                          cat("historicalData:", reqId, "Rows:", length(bars), "\n")
                         },
 
     scannerParameters=  function(xml) {
@@ -112,15 +112,9 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                           cat("scannerParameters: Received\n")
                         },
 
-    scannerData=        function(reqId, rank, contractDetails, distance, benchmark, projection, legsStr) {
-                          cat("scannerData:", reqId, length(rank), "\n")
-                          for(i in seq_along(rank))
-                            cat(" |", rank[i],
-                                      paste0(contractDetails[[i]]$contract[c(1:3, 8)], collapse=" "),
-                                      distance[i],
-                                      benchmark[i],
-                                      projection[i],
-                                      legsStr[i], "|\n")
+    scannerData=        function(reqId, data) {
+                          self$context$scanner <- data
+                          cat("scannerData:", reqId, length(data), "\n")
                         },
 
     realtimeBar=        function(reqId, time, open, high, low, close, volume, wap, count)
@@ -183,12 +177,12 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
 
     softDollarTiers=    function(reqId, tiers) {
                           self$context$softdollar <- tiers
-                          cat("softDollarTiers:", reqId, nrow(tiers), "\n")
+                          cat("softDollarTiers:", reqId, length(tiers), "\n")
                         },
 
     familyCodes=        function(familyCodes) {
                           self$context$familycodes <- familyCodes
-                          cat("familyCodes:", nrow(familyCodes), "\n")
+                          cat("familyCodes:", length(familyCodes), "\n")
                         },
 
     symbolSamples=      function(reqId, contractDescriptions) {
@@ -198,71 +192,77 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
 
     mktDepthExchanges=  function(depthMktDataDescriptions) {
                           self$context$mktDepthExchanges <- depthMktDataDescriptions
-                          cat("mktDepthExchanges:", nrow(depthMktDataDescriptions), "\n")
+                          cat("mktDepthExchanges:", length(depthMktDataDescriptions), "\n")
                         },
 
-    tickNews=           function(tickerId, timeStamp, providerCode, articleId, headline, extraData)
-                          cat("tickNews:", tickerId, timeStamp, providerCode, articleId, headline, extraData, "\n"),
+    tickNews=           function(reqId, timestamp, providerCode, articleId, headline, extraData)
+                          cat("tickNews:", reqId, timestamp, providerCode, articleId, headline, extraData, "\n"),
 
-    smartComponents=    function(reqId, theMap) {
-                          self$context$smartcomponents <- theMap
-                          cat("smartComponents:", reqId, nrow(theMap), "\n")
+    smartComponents=    function(reqId, map) {
+                          self$context$smartcomponents <- map
+                          cat("smartComponents:", reqId, length(map), "\n")
                         },
 
-    tickReqParams=      function(tickerId, minTick, bboExchange, snapshotPermissions)
-                          cat("tickReqParams:", tickerId, minTick, bboExchange, snapshotPermissions, "\n"),
+    tickReqParams=      function(reqId, minTick, bboExchange, snapshotPermissions)
+                          cat("tickReqParams:", reqId, minTick, bboExchange, snapshotPermissions, "\n"),
 
     newsProviders=      function(newsProviders) {
                           self$context$newsproviders <- newsProviders
-                          cat("newsProviders:", nrow(newsProviders), "\n")
+                          cat("newsProviders:", length(newsProviders), "\n")
                         },
 
-    newsArticle=        function(requestId, articleType, articleText) {
+    newsArticle=        function(reqId, articleType, articleText) {
                           self$context$newsarticle <- articleText
-                          cat("newsArticle:", requestId, articleType, "\n")
+                          cat("newsArticle:", reqId, articleType, "\n")
                         },
 
-    historicalNews=     function(requestId, time, providerCode, articleId, headline)
-                          cat("historicalNews:", requestId, time, providerCode, articleId, headline, "\n"),
+    historicalNews=     function(reqId, time, providerCode, articleId, headline)
+                          cat("historicalNews:", reqId, time, providerCode, articleId, headline, "\n"),
 
-    historicalNewsEnd=  function(requestId, hasMore)
-                          cat("historicalNewsEnd:", requestId, hasMore, "\n"),
+    historicalNewsEnd=  function(reqId, hasMore)
+                          cat("historicalNewsEnd:", reqId, hasMore, "\n"),
 
     headTimestamp=      function(reqId, headTimestamp)
                           cat("headTimestamp:", reqId, headTimestamp, "\n"),
 
     histogramData=      function(reqId, data) {
                           self$context$histogram <- data
-                          cat("histogramData:", reqId, nrow(data), "\n")
+                          cat("histogramData:", reqId, length(data), "\n")
                         },
 
     historicalDataUpdate= function(reqId, bar)
                             cat("historicalDataUpdate:", reqId, unlist(bar), "\n"),
 
+    rerouteMktDataReq=  function(reqId, conId, exchange)
+                          cat("rerouteMktDataReq:", reqId, conId, exchange, "\n"),
+
+    rerouteMktDepthReq= function(reqId, conId, exchange)
+                          cat("rerouteMktDepthReq:", reqId, conId, exchange, "\n"),
+
     marketRule=         function(marketRuleId, priceIncrements) {
                           self$context$marketrule <- priceIncrements
-                          cat("marketRule:", marketRuleId, nrow(priceIncrements), "\n")
+                          cat("marketRule:", marketRuleId, length(priceIncrements), "\n")
                         },
 
     pnl=                function(reqId, dailyPnL, unrealizedPnL, realizedPnL)
                           cat("pnl:", reqId, dailyPnL, unrealizedPnL, realizedPnL, "\n"),
 
-    pnlSingle=          function(reqId, pos, dailyPnL, unrealizedPnL, realizedPnL, value)
-                          cat("pnlSingle:", reqId, pos, dailyPnL, unrealizedPnL, realizedPnL, value, "\n"),
+    pnlSingle=          function(reqId, position, dailyPnL, unrealizedPnL, realizedPnL, value)
+                          cat("pnlSingle:", reqId, position, dailyPnL, unrealizedPnL, realizedPnL, value, "\n"),
 
     historicalTicks=    function(reqId, ticks, done) {
                           self$context$historicalTicks <- ticks
-                          cat("historicalTicks:", reqId, done, nrow(ticks), "\n")
+                          cat("historicalTicks:", reqId, done, length(ticks), "\n")
                         },
 
     historicalTicksBidAsk= function(reqId, ticks, done) {
                              self$context$historicalTicksBidAsk <- ticks
-                             cat("historicalTicksBidAsk:", reqId, done, nrow(ticks), "\n")
+                             cat("historicalTicksBidAsk:", reqId, done, length(ticks), "\n")
                            },
 
     historicalTicksLast= function(reqId, ticks, done) {
                            self$context$historicalTicksLast <- ticks
-                           cat("historicalTicksLast:", reqId, done, nrow(ticks), "\n")
+                           cat("historicalTicksLast:", reqId, done, length(ticks), "\n")
                          },
 
     tickByTickAllLast=  function(reqId, tickType, time, price, size, attribs, exchange, specialConditions)
@@ -271,30 +271,30 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     tickByTickBidAsk=   function(reqId, time, bidPrice, askPrice, bidSize, askSize, attribs)
                           cat("tickByTickBidAsk:", reqId, time, bidPrice, askPrice, bidSize, askSize, unlist(attribs), "\n"),
 
-    tickByTickMidPoint= function(reqId, time, midPoint)
-                          cat("tickByTickMidPoint:", reqId, time, midPoint, "\n"),
+    tickByTickMidPoint= function(reqId, time, price)
+                          cat("tickByTickMidPoint:", reqId, time, price, "\n"),
 
     orderBound=         function(permId, clientId, orderId)
                           cat("orderBound:", permId, clientId, orderId, "\n"),
 
     completedOrder=     function(contract, order, orderState) {
-                          self$context$completed <- list(contract=contract, order=order, orderstate=orderState)
+                          self$context$completed <- list(contract=contract, order=order, orderState=orderState)
                           cat("completedOrder:", contract$symbol, orderState$status, "\n")
                         },
 
     completedOrdersEnd= function()
                           cat("completedOrdersEnd\n"),
 
-    replaceFAEnd=       function(reqId, text)
-                          cat("replaceFAEnd:", reqId, text, "\n"),
+    replaceFAEnd=       function(reqId, data)
+                          cat("replaceFAEnd:", reqId, data, "\n"),
 
-    wshMetaData=        function(reqId, dataJson) {
-                          self$context$wshmeta <- dataJson
+    wshMetaData=        function(reqId, data) {
+                          self$context$wshmeta <- data
                           cat("wshMetaData:", reqId, "\n")
                         },
 
-    wshEventData=       function(reqId, dataJson) {
-                          self$context$wshevents <- dataJson
+    wshEventData=       function(reqId, data) {
+                          self$context$wshevents <- data
                           cat("wshEventData:", reqId, "\n")
                         },
 
@@ -306,10 +306,12 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     userInfo=           function(reqId, whiteBrandingId)
                           cat("userInfo:", reqId, whiteBrandingId, "\n"),
 
-    historicalDataEnd=  function(reqId, startDateStr, endDateStr)
-                          cat("historicalDataEnd:", reqId, startDateStr, endDateStr, "\n"),
+    historicalDataEnd=  function(reqId, startDate, endDate)
+                          cat("historicalDataEnd:", reqId, startDate, endDate, "\n"),
 
-    currentTimeInMillis= function(timeInMillis)
+    currentTimeInMillis= function(timeInMillis) {
+                           self$context$timemillis <- timeInMillis
                            cat("currentTimeInMillis:", timeInMillis, "\n")
+                         }
   )
 )

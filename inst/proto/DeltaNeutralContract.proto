@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-package IBProto;
-
-message DeltaNeutralContract {
-    optional int32 conId = 1;
-    optional double delta = 2;
-    optional double price = 3;
-}

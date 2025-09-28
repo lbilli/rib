@@ -11,7 +11,13 @@ Originally inspired by [`IBrokers`](https://CRAN.R-project.org/package=IBrokers)
 with TWS or IBGateway.
 
 It aims to be feature complete, however it does not support legacy versions.
-Currently, only API versions `v187+` are supported.
+
+It is noteworthy to mention that the official IB API has recently adopted
+Protocol Buffers as the underlying wire format, replacing the legacy custom protocol.
+This package followed suit and support for the latter has been dropped.
+
+Currently, only API versions `v213+` are supported, which translates to
+TWS version `10.40` or later.
 
 The package design mirrors the official C++/Java
 [IB API](https://interactivebrokers.github.io/tws-api/),
@@ -214,19 +220,17 @@ However, there are few exceptions:
   which is meaningful only when `TickType ∈ {BID, ASK, LAST}`.
   In these cases, the official IB API fires an extra `tickSize()` event instead.
 - `historicalData()` is invoked only once per request,
-  presenting all the historical data as a single `data.frame`,
-  whereas the official IB API invokes it row-by-row.
-- `scannerData()` is also invoked once per request and its arguments
-  are in fact vectors rather than single values.
+  presenting all the historical data as a list of rows,
+  whereas the official IB API invokes it on a row-by-row basis.
+- `scannerData()` is similarly invoked once per request with a list of rows
+  as argument. Consequently, `scannerDataEnd()` is redundant and
+  it is **not** used in this package.
 
 These modifications make it possible to establish the rule:
 _one callback per server response_.
 
-Consequently, ~~`historicalDataEnd()`~~
-(starting from `v196` it's sent in a separate message)
-and `scannerDataEnd()` are redundant and are **not** used in this package.
-
-`data.frame` are passed to several other callbacks, such as:
+Tabular data are generally structured as lists of rows.
+This applies to several callbacks, such as:
 `softDollarTiers()`, `familyCodes()`, `mktDepthExchanges()`,
 `smartComponents()`, `newsProviders()`, `histogramData()`,
 `marketRule()` and the `historicalTicks*()` family.

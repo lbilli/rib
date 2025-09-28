@@ -2,8 +2,25 @@ syntax = "proto3";
 
 package IBProto;
 
-import "ComboLeg.proto";
-import "DeltaNeutralContract.proto";
+import "ContractDetails.proto";
+
+message ComboLeg {
+    optional int32 conId = 1;
+    optional int32 ratio = 2;
+    optional string action = 3;
+    optional string exchange = 4;
+    optional int32 openClose = 5;
+    optional int32 shortSaleSlot = 6;
+    optional string designatedLocation = 7;
+    optional int32 exemptCode = 8;
+    optional double perLegPrice = 9;
+}
+
+message DeltaNeutralContract {
+    optional int32 conId = 1;
+    optional double delta = 2;
+    optional double price = 3;
+}
 
 message Contract {
     optional int32 conId = 1;
@@ -26,4 +43,16 @@ message Contract {
     optional bool includeExpired = 18;
     optional string comboLegsDescrip = 19;
     repeated ComboLeg comboLegs = 20;
+    optional string lastTradeDate = 21;
+}
+
+message ContractDataRequest {
+    optional int32 reqId = 1;
+    optional Contract contract = 2;
+}
+
+message ContractData {
+    optional int32 reqId = 1;
+    optional Contract contract = 2;
+    optional ContractDetails contractDetails = 3;
 }

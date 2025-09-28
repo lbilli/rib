@@ -28,13 +28,15 @@ IBOrder <- function(...) setfields(Order, ...)
 #
 fCondition <- function(type)
 {
+  stopifnot(is.character(type))
+
   res <- switch(type,
-                Price=         list(is_more= FALSE, value= 0, conId= 0L, exchange= "", triggerMethod= 0L),
-                Time=          list(is_more= FALSE, value= ""),
-                Margin=        list(is_more= FALSE, value= 0L),
+                Price=         list(isMore= FALSE, price= 0, conId= 0L, exchange= "", triggerMethod= 0L),
+                Time=          list(isMore= FALSE, time= ""),
+                Margin=        list(isMore= FALSE, percent= 0L),
                 Execution=     list(secType= "", exchange= "", symbol= ""),
-                Volume=        list(is_more= FALSE, value= 0L, conId= 0L, exchange= ""),
-                PercentChange= list(is_more= FALSE, value= NA_real_, conId= 0L, exchange= ""),
+                Volume=        list(isMore= FALSE, volume= 0L, conId= 0L, exchange= ""),
+                PercentChange= list(isMore= FALSE, changePercent= NA_real_, conId= 0L, exchange= ""),
                 stop("unknown Condition type"))
 
   c(type=type, conjunction="o", res)

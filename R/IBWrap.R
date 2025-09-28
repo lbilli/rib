@@ -7,31 +7,31 @@ IBWrap <- R6Class("IBWrap",
   public= list(
 
     # Callbacks
-    tickPrice= function(tickerId, field, price, size, attrib) warning("default implementation"),
+    tickPrice= function(reqId, tickType, price, size, attrib) warning("default implementation"),
 
-    tickSize= function(tickerId, field, size) warning("default implementation"),
+    tickSize= function(reqId, tickType, size) warning("default implementation"),
 
-    tickOptionComputation= function(tickerId, tickType, tickAttrib, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice) warning("default implementation"),
+    tickOptionComputation= function(reqId, tickType, tickAttrib, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice) warning("default implementation"),
 
-    tickGeneric= function(tickerId, tickType, value) warning("default implementation"),
+    tickGeneric= function(reqId, tickType, value) warning("default implementation"),
 
-    tickString= function(tickerId, tickType, value) warning("default implementation"),
+    tickString= function(reqId, tickType, value) warning("default implementation"),
 
-    tickEFP= function(tickerId, tickType, basisPoints, formattedBasisPoints, totalDividends, holdDays, futureLastTradeDate, dividendImpact, dividendsToLastTradeDate) warning("default implementation"),
+    tickEFP= function(reqId, tickType, basisPoints, formattedBasisPoints, totalDividends, holdDays, futureLastTradeDate, dividendImpact, dividendsToLastTradeDate) warning("default implementation"),
 
     orderStatus= function(orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice) warning("default implementation"),
 
-    openOrder= function(orderId, contract, order, orderstate) warning("default implementation"),
+    openOrder= function(orderId, contract, order, orderState) warning("default implementation"),
 
     openOrderEnd= function() warning("default implementation"),
 
 #    connectionClosed= function() warning("default implementation"),
 
-    updateAccountValue= function(key, val, currency, accountName) warning("default implementation"),
+    updateAccountValue= function(key, value, currency, accountName) warning("default implementation"),
 
     updatePortfolio= function(contract, position, marketPrice, marketValue, averageCost, unrealizedPNL, realizedPNL, accountName) warning("default implementation"),
 
-    updateAccountTime= function(timeStamp) warning("default implementation"),
+    updateAccountTime= function(timestamp) warning("default implementation"),
 
     accountDownloadEnd= function(accountName) warning("default implementation"),
 
@@ -49,9 +49,9 @@ IBWrap <- R6Class("IBWrap",
 
     error= function(id, errorTime, errorCode, errorString, advancedOrderRejectJson) warning("default implementation"),
 
-    updateMktDepth= function(id, position, operation, side, price, size) warning("default implementation"),
+    updateMktDepth= function(reqId, position, operation, side, price, size) warning("default implementation"),
 
-    updateMktDepthL2= function(id, position, marketMaker, operation, side, price, size, isSmartDepth) warning("default implementation"),
+    updateMktDepthL2= function(reqId, position, marketMaker, operation, side, price, size, isSmartDepth) warning("default implementation"),
 
     updateNewsBulletin= function(msgId, msgType, newsMessage, originExch) warning("default implementation"),
 
@@ -59,11 +59,11 @@ IBWrap <- R6Class("IBWrap",
 
     receiveFA= function(faDataType, xml) warning("default implementation"),
 
-    historicalData= function(reqId, bar) warning("default implementation"),
+    historicalData= function(reqId, bars) warning("default implementation"),
 
     scannerParameters= function(xml) warning("default implementation"),
 
-    scannerData= function(reqId, rank, contractDetails, distance, benchmark, projection, legsStr) warning("default implementation"),
+    scannerData= function(reqId, data) warning("default implementation"),
 
     realtimeBar= function(reqId, time, open, high, low, close, volume, wap, count) warning("default implementation"),
 
@@ -121,19 +121,19 @@ IBWrap <- R6Class("IBWrap",
 
     mktDepthExchanges= function(depthMktDataDescriptions) warning("default implementation"),
 
-    tickNews= function(tickerId, timeStamp, providerCode, articleId, headline, extraData) warning("default implementation"),
+    tickNews= function(reqId, timestamp, providerCode, articleId, headline, extraData) warning("default implementation"),
 
-    smartComponents= function(reqId, theMap) warning("default implementation"),
+    smartComponents= function(reqId, map) warning("default implementation"),
 
-    tickReqParams= function(tickerId, minTick, bboExchange, snapshotPermissions) warning("default implementation"),
+    tickReqParams= function(reqId, minTick, bboExchange, snapshotPermissions) warning("default implementation"),
 
     newsProviders= function(newsProviders) warning("default implementation"),
 
-    newsArticle= function(requestId, articleType, articleText) warning("default implementation"),
+    newsArticle= function(reqId, articleType, articleText) warning("default implementation"),
 
-    historicalNews= function(requestId, time, providerCode, articleId, headline) warning("default implementation"),
+    historicalNews= function(reqId, time, providerCode, articleId, headline) warning("default implementation"),
 
-    historicalNewsEnd= function(requestId, hasMore) warning("default implementation"),
+    historicalNewsEnd= function(reqId, hasMore) warning("default implementation"),
 
     headTimestamp= function(reqId, headTimestamp) warning("default implementation"),
 
@@ -141,15 +141,15 @@ IBWrap <- R6Class("IBWrap",
 
     historicalDataUpdate= function(reqId, bar) warning("default implementation"),
 
-    rerouteMktDataReq= function(reqId, conid, exchange) warning("default implementation"),
+    rerouteMktDataReq= function(reqId, conId, exchange) warning("default implementation"),
 
-    rerouteMktDepthReq= function(reqId, conid, exchange) warning("default implementation"),
+    rerouteMktDepthReq= function(reqId, conId, exchange) warning("default implementation"),
 
     marketRule= function(marketRuleId, priceIncrements) warning("default implementation"),
 
     pnl= function(reqId, dailyPnL, unrealizedPnL, realizedPnL) warning("default implementation"),
 
-    pnlSingle= function(reqId, pos, dailyPnL, unrealizedPnL, realizedPnL, value) warning("default implementation"),
+    pnlSingle= function(reqId, position, dailyPnL, unrealizedPnL, realizedPnL, value) warning("default implementation"),
 
     historicalTicks= function(reqId, ticks, done) warning("default implementation"),
 
@@ -161,7 +161,7 @@ IBWrap <- R6Class("IBWrap",
 
     tickByTickBidAsk= function(reqId, time, bidPrice, askPrice, bidSize, askSize, attribs) warning("default implementation"),
 
-    tickByTickMidPoint= function(reqId, time, midPoint) warning("default implementation"),
+    tickByTickMidPoint= function(reqId, time, price) warning("default implementation"),
 
     orderBound= function(permId, clientId, orderId) warning("default implementation"),
 
@@ -169,17 +169,17 @@ IBWrap <- R6Class("IBWrap",
 
     completedOrdersEnd= function() warning("default implementation"),
 
-    replaceFAEnd= function(reqId, text) warning("default implementation"),
+    replaceFAEnd= function(reqId, data) warning("default implementation"),
 
-    wshMetaData= function(reqId, dataJson) warning("default implementation"),
+    wshMetaData= function(reqId, data) warning("default implementation"),
 
-    wshEventData= function(reqId, dataJson) warning("default implementation"),
+    wshEventData= function(reqId, data) warning("default implementation"),
 
     historicalSchedule= function(reqId, startDateTime, endDateTime, timeZone, sessions) warning("default implementation"),
 
     userInfo= function(reqId, whiteBrandingId) warning("default implementation"),
 
-    historicalDataEnd= function(reqId, startDateStr, endDateStr) warning("default implementation"),
+    historicalDataEnd= function(reqId, startDate, endDate) warning("default implementation"),
 
     currentTimeInMillis= function(timeInMillis) warning("default implementation")
   )
