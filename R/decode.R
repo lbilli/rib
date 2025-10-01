@@ -146,7 +146,7 @@ process <- list2env(list(
 
     pb <- RProtoBuf::read(IBProto.PortfolioValue, msg)
 
-    args <- splat(pb)
+    args <- splat(pb, unrealizedPNL=0)
 
     args$position <- as.numeric(args$position)
 
