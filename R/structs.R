@@ -312,7 +312,11 @@ Order <- list(orderId=                        0L,
               bondAccruedInterest=            "",
               includeOvernight=               FALSE,
               manualOrderIndicator=           NA_integer_,
-              submitter=                      "")
+              submitter=                      "",
+              deactivate=                     FALSE,
+              postOnly=                       FALSE,
+              allowPreOpen=                   FALSE,
+              ignoreOpenAuction=              FALSE)
 
 OrderCancel <- list(manualOrderCancelTime= "",
                     extOperator=           "",

@@ -737,7 +737,7 @@ process <- list2env(list(
 
     pb <- RProtoBuf::read(IBProto.PnLSingle, msg)
 
-    args <- splat(pb, dailyPnL=NA_real_, realizedPnL=NA_real_)
+    args <- splat(pb, dailyPnL=NA_real_, unrealizedPnL=NA_real_, realizedPnL=NA_real_)
 
     args$position <- as.numeric(args$position)
 
