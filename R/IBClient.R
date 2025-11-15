@@ -265,31 +265,45 @@ IBClient <- R6Class("IBClient",
 
 
       o <- maptopb(order, IBProto.Order, c("orderId",
-                                            "rule80A",
-                                            "auctionStrategy",
-                                            "basisPoints",
-                                            "basisPointsType",
-                                            "orderComboLegs",
-                                            "mifid2DecisionMaker",
-                                            "mifid2DecisionAlgo",
-                                            "mifid2ExecutionTrader",
-                                            "mifid2ExecutionAlgo",
-                                            "autoCancelDate",
-                                            "filledQuantity",
-                                            "refFuturesConId",
-                                            "shareholder",
-                                            "routeMarketableToBbo",
-                                            "parentPermId",
+                                           "rule80A",
+                                           "auctionStrategy",
+                                           "basisPoints",
+                                           "basisPointsType",
+                                           "orderComboLegs",
+                                           "mifid2DecisionMaker",
+                                           "mifid2DecisionAlgo",
+                                           "mifid2ExecutionTrader",
+                                           "mifid2ExecutionAlgo",
+                                           "autoCancelDate",
+                                           "filledQuantity",
+                                           "refFuturesConId",
+                                           "shareholder",
+                                           "parentPermId",
 
-                                            # Require special handling
-                                            "totalQuantity"))      # Decimal
+                                           # Require separate handling
+                                           "totalQuantity",         # Decimal
+                                           "routeMarketableToBbo",  # Three-state boolean
+                                           "usePriceMgmtAlgo",      # Three-state boolean
+                                           "seekPriceImprovement")) # Three-state boolean
 
       o$totalQuantity <- as.character(order$totalQuantity)
 
+      for(n in c("routeMarketableToBbo", "usePriceMgmtAlgo", "seekPriceImprovement"))
+        if(!is.na(order[[n]]))
+          o[[n]] <- order[[n]]
+
+      if(self$serVersion < MIN_SERVER_VER_ADDITIONAL_ORDER_PARAMS_1)
+        for(n in c("deactivate", "postOnly", "allowPreOpen", "ignoreOpenAuction"))
+          if(o$has(n)) stop("Order parameter not supported: ", n)
+
+      if(self$serVersion < MIN_SERVER_VER_ADDITIONAL_ORDER_PARAMS_2)
+        for(n in c("routeMarketableToBbo", "seekPriceImprovement", "whatIfType"))
+          if(o$has(n)) stop("Order parameter not supported: ", n)
+
       msg <- RProtoBuf::new(IBProto.PlaceOrderRequest,
-                            orderId=  id,
-                            contract= c,
-                            order=    o)
+                            orderId=id,
+                            contract=c,
+                            order=o)
 
       private$encodeMsg(msgid, msg)
     },

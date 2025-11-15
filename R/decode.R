@@ -125,10 +125,15 @@ process <- list2env(list(
       args$orderState$orderAllocations[[i]][2L:6L] <-
         as.numeric(args$orderState$orderAllocations[[i]][2L:6L]) # position -> allowedAllocQty
 
-    if(args$order$usePriceMgmtAlgo %in% c(0L, 1L))
-      args$order$usePriceMgmtAlgo <- as.logical(args$order$usePriceMgmtAlgo)
-    else
-      warning("unexpected usePriceMgmtAlgo: ", args$order$usePriceMgmtAlgo)
+    for(n in c("routeMarketableToBbo", "usePriceMgmtAlgo", "seekPriceImprovement")) {
+
+      val <- args$order[[n]]
+
+      if(val %in% c(0L, 1L))
+        args$order[[n]] <- as.logical(val)
+      else if(!is.na(val))
+        warning("unexpected ", n, ": ", val)
+    }
 
     validatepb("openOrder", args)
   },
@@ -178,7 +183,7 @@ process <- list2env(list(
 
     args$contractDetails$contract <- args$contract
 
-    fields <- c("minTick", "minSize", "sizeIncrement", "suggestedSizeIncrement")
+    fields <- c("minTick", "minSize", "sizeIncrement", "suggestedSizeIncrement", "minAlgoSize")
     args$contractDetails[fields] <- as.numeric(args$contractDetails[fields])
 
     args$contractDetails$fundDistributionPolicyIndicator <- funddist(args$contractDetails$fundDistributionPolicyIndicator)
@@ -280,7 +285,7 @@ process <- list2env(list(
 
     args$contractDetails$contract <- args$contract
 
-    fields <- c("minTick", "minSize", "sizeIncrement", "suggestedSizeIncrement")
+    fields <- c("minTick", "minSize", "sizeIncrement", "suggestedSizeIncrement", "minAlgoSize")
     args$contractDetails[fields] <- as.numeric(args$contractDetails[fields])
 
     validatepb("bondContractDetails", args[c("reqId", "contractDetails")])
@@ -878,10 +883,15 @@ process <- list2env(list(
     args$order$totalQuantity <- as.numeric(args$order$totalQuantity)
     args$order$filledQuantity <- as.numeric(args$order$filledQuantity)
 
-    if(args$order$usePriceMgmtAlgo %in% c(0L, 1L))
-      args$order$usePriceMgmtAlgo <- as.logical(args$order$usePriceMgmtAlgo)
-    else
-      warning("unexpected usePriceMgmtAlgo: ", args$order$usePriceMgmtAlgo)
+    for(n in c("routeMarketableToBbo", "usePriceMgmtAlgo", "seekPriceImprovement")) {
+
+      val <- args$order[[n]]
+
+      if(val %in% c(0L, 1L))
+        args$order[[n]] <- as.logical(val)
+      else if(!is.na(val))
+        warning("unexpected ", n, ": ", val)
+    }
 
     validatepb("completedOrder", args)
   },
