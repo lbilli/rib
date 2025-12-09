@@ -263,6 +263,14 @@ IBClient <- R6Class("IBClient",
       for(i in seq_len(n))
         c$comboLegs[[i]]$perLegPrice <- order$orderComboLegs[i]
 
+      threestatebool <- c("routeMarketableToBbo",
+                          "usePriceMgmtAlgo",
+                          "seekPriceImprovement")
+
+      attachedorders <- c("slOrderId",
+                          "slOrderType",
+                          "ptOrderId",
+                          "ptOrderType")
 
       o <- maptopb(order, IBProto.Order, c("orderId",
                                            "rule80A",
@@ -281,14 +289,13 @@ IBClient <- R6Class("IBClient",
                                            "parentPermId",
 
                                            # Require separate handling
-                                           "totalQuantity",         # Decimal
-                                           "routeMarketableToBbo",  # Three-state boolean
-                                           "usePriceMgmtAlgo",      # Three-state boolean
-                                           "seekPriceImprovement")) # Three-state boolean
+                                           "totalQuantity", # Decimal
+                                           threestatebool,
+                                           attachedorders))
 
       o$totalQuantity <- as.character(order$totalQuantity)
 
-      for(n in c("routeMarketableToBbo", "usePriceMgmtAlgo", "seekPriceImprovement"))
+      for(n in threestatebool)
         if(!is.na(order[[n]]))
           o[[n]] <- order[[n]]
 
@@ -300,10 +307,25 @@ IBClient <- R6Class("IBClient",
         for(n in c("routeMarketableToBbo", "seekPriceImprovement", "whatIfType"))
           if(o$has(n)) stop("Order parameter not supported: ", n)
 
+      ao <- RProtoBuf::new(IBProto.AttachedOrders)
+
+      for(n in attachedorders) {
+        val <- order[[n]]
+
+        if(is.na(val) || !nzchar(val))
+          next
+
+        if(self$serVersion < MIN_SERVER_VER_ATTACHED_ORDERS)
+          stop("Attached order parameter not supported: ", n)
+        else
+          ao[[n]] <- val
+      }
+
       msg <- RProtoBuf::new(IBProto.PlaceOrderRequest,
                             orderId=id,
                             contract=c,
-                            order=o)
+                            order=o,
+                            attachedOrders=ao)
 
       private$encodeMsg(msgid, msg)
     },

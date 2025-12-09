@@ -319,7 +319,11 @@ Order <- list(orderId=                        0L,
               allowPreOpen=                   FALSE,
               ignoreOpenAuction=              FALSE,
               seekPriceImprovement=           NA,
-              whatIfType=                     NA_integer_)
+              whatIfType=                     NA_integer_,
+              slOrderId=                      NA_integer_,
+              slOrderType=                    "",
+              ptOrderId=                      NA_integer_,
+              ptOrderType=                    "")
 
 OrderCancel <- list(manualOrderCancelTime= "",
                     extOperator=           "",
