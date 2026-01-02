@@ -572,7 +572,9 @@ IBClient <- R6Class("IBClient",
 
     cancelContractData= function(reqId) private$req_int(106L, reqId), ### CANCEL_CONTRACT_DATA
 
-    cancelHistoricalTick= function(reqId) private$req_int(107L, reqId) ### CANCEL_HISTORICAL_TICKS
+    cancelHistoricalTick= function(reqId) private$req_int(107L, reqId), ### CANCEL_HISTORICAL_TICKS
+
+    reqConfig= function(reqId) private$req_int(108L, reqId) ### REQ_CONFIG
 
   )
 )

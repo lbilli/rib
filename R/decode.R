@@ -953,6 +953,14 @@ process <- list2env(list(
     pb <- RProtoBuf::read(IBProto.SingleInt64, msg)
 
     validatepb("currentTimeInMillis", list(timeInMillis=pb$value))
+  },
+
+  # CONFIG_RESPONSE
+  "310" = function(msg, ver) {
+
+    pb <- RProtoBuf::read(IBProto.ConfigResponse, msg)
+
+    validatepb("configResponseProtoBuf", list(configResponse=pb))
   }
 
 ))

@@ -181,6 +181,8 @@ IBWrap <- R6Class("IBWrap",
 
     historicalDataEnd= function(reqId, startDate, endDate) warning("default implementation"),
 
-    currentTimeInMillis= function(timeInMillis) warning("default implementation")
+    currentTimeInMillis= function(timeInMillis) warning("default implementation"),
+
+    configResponseProtoBuf= function(configResponse) warning("default implementation")
   )
 )

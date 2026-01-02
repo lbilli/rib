@@ -312,6 +312,11 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     currentTimeInMillis= function(timeInMillis) {
                            self$context$timemillis <- timeInMillis
                            cat("currentTimeInMillis:", timeInMillis, "\n")
-                         }
+                         },
+
+    configResponseProtoBuf= function(configResponse) {
+                              self$context$configpb <- configResponse
+                              cat("configResponse:", configResponse$reqId, "\n")
+                            }
   )
 )
