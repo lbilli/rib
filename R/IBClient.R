@@ -574,7 +574,9 @@ IBClient <- R6Class("IBClient",
 
     cancelHistoricalTick= function(reqId) private$req_int(107L, reqId), ### CANCEL_HISTORICAL_TICKS
 
-    reqConfig= function(reqId) private$req_int(108L, reqId) ### REQ_CONFIG
+    reqConfig= function(reqId) private$req_int(108L, reqId), ### REQ_CONFIG
+
+    updateConfig= function(updateConfigRequest) private$encodeMsg(109L, updateConfigRequest) ### UPDATE_CONFIG
 
   )
 )

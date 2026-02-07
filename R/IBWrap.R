@@ -183,6 +183,8 @@ IBWrap <- R6Class("IBWrap",
 
     currentTimeInMillis= function(timeInMillis) warning("default implementation"),
 
-    configResponseProtoBuf= function(configResponse) warning("default implementation")
+    configResponseProtoBuf= function(configResponse) warning("default implementation"),
+
+    updateConfigResponseProtoBuf= function(updateConfigResponse) warning("default implementation")
   )
 )

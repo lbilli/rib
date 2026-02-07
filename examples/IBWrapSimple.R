@@ -317,6 +317,11 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
     configResponseProtoBuf= function(configResponse) {
                               self$context$configpb <- configResponse
                               cat("configResponse:", configResponse$reqId, "\n")
-                            }
+                            },
+
+    updateConfigResponseProtoBuf= function(updateConfigResponse) {
+                                    self$context$updateconfigpb <- updateConfigResponse
+                                    cat("updateConfigResponse:", updateConfigResponse$reqId, "\n")
+                                  }
   )
 )

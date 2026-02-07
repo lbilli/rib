@@ -961,6 +961,14 @@ process <- list2env(list(
     pb <- RProtoBuf::read(IBProto.ConfigResponse, msg)
 
     validatepb("configResponseProtoBuf", list(configResponse=pb))
+  },
+
+  # UPDATE_CONFIG_RESPONSE
+  "311" = function(msg, ver) {
+
+    pb <- RProtoBuf::read(IBProto.UpdateConfigResponse, msg)
+
+    validatepb("updateConfigResponseProtoBuf", list(updateConfigResponse=pb))
   }
 
 ))
