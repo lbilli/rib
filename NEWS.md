@@ -1,3 +1,9 @@
+# rib 0.30.4
+
+* Update to API v221
+* Drop support for API < v213
+* Drop legacy communication protocol and adopt Protocol Buffers via RProtoBuf
+
 # rib 0.25.3
 
 * Update to API v199
