@@ -183,7 +183,8 @@ process <- list2env(list(
 
     args$contractDetails$contract <- args$contract
 
-    fields <- c("minTick", "minSize", "sizeIncrement", "suggestedSizeIncrement", "minAlgoSize")
+    fields <- c("minTick", "minSize", "sizeIncrement", "suggestedSizeIncrement",
+                "minAlgoSize", "lastPricePrecision", "lastSizePrecision")
     args$contractDetails[fields] <- as.numeric(args$contractDetails[fields])
 
     args$contractDetails$fundDistributionPolicyIndicator <- funddist(args$contractDetails$fundDistributionPolicyIndicator)
@@ -285,7 +286,8 @@ process <- list2env(list(
 
     args$contractDetails$contract <- args$contract
 
-    fields <- c("minTick", "minSize", "sizeIncrement", "suggestedSizeIncrement", "minAlgoSize")
+    fields <- c("minTick", "minSize", "sizeIncrement", "suggestedSizeIncrement",
+                "minAlgoSize", "lastPricePrecision", "lastSizePrecision")
     args$contractDetails[fields] <- as.numeric(args$contractDetails[fields])
 
     validatepb("bondContractDetails", args[c("reqId", "contractDetails")])
@@ -606,11 +608,14 @@ process <- list2env(list(
 
     pb <- RProtoBuf::read(IBProto.TickReqParams, msg)
 
-    args <- splat(pb, bboExchange="")
+    args <- splat(pb, bboExchange="", lastPricePrecision="", lastSizePrecision="")
 
     args$minTick <- as.numeric(args$minTick)
+    args$lastPricePrecision <- as.numeric(args$lastPricePrecision)
+    args$lastSizePrecision <- as.numeric(args$lastSizePrecision)
 
-    validatepb("tickReqParams", args)
+    # TODO: expose "lastPricePrecision" and "lastSizePrecision"
+    validatepb("tickReqParams", args[c("reqId", "minTick", "bboExchange", "snapshotPermissions")])
   },
 
   # SMART_COMPONENTS
