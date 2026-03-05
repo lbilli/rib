@@ -307,6 +307,9 @@ IBClient <- R6Class("IBClient",
         for(n in c("routeMarketableToBbo", "seekPriceImprovement", "whatIfType"))
           if(o$has(n)) stop("Order parameter not supported: ", n)
 
+      if(self$serVersion < MIN_SERVER_VER_HEDGE_MAX_SIZE && o$has("hedgeMaxSize"))
+        stop("Order parameter not supported: hedgeMaxSize")
+
       ao <- RProtoBuf::new(IBProto.AttachedOrders)
 
       for(n in attachedorders) {
