@@ -381,14 +381,6 @@ process <- list2env(list(
     validatepb("realtimeBar", args)
   },
 
-  # FUNDAMENTAL_DATA
-  "251"= function(msg, ver) {
-
-    pb <- RProtoBuf::read(IBProto.StringData, msg)
-
-    validatepb("fundamentalData", splat(pb))
-  },
-
   # CONTRACT_DATA_END
   "252"= function(msg, ver) {
 

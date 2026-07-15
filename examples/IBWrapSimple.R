@@ -125,11 +125,6 @@ IBWrapSimple <- R6::R6Class("IBWrapSimple",
                           cat("currentTime:", time, "\n")
                         },
 
-    fundamentalData=    function(reqId, data) {
-                          self$context$fundamentalData <- data
-                          cat("fundamentalData:", reqId, "\n")
-                        },
-
     tickSnapshotEnd=    function(reqId)
                           cat("tickSnapshotEnd:", reqId, "\n"),
 

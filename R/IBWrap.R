@@ -69,8 +69,6 @@ IBWrap <- R6Class("IBWrap",
 
     currentTime= function(time) warning("default implementation"),
 
-    fundamentalData= function(reqId, data) warning("default implementation"),
-
     deltaNeutralValidation= function(reqId, deltaNeutralContract) warning("default implementation"),
 
     tickSnapshotEnd= function(reqId) warning("default implementation"),

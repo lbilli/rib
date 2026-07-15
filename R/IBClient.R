@@ -299,17 +299,6 @@ IBClient <- R6Class("IBClient",
         if(!is.na(order[[n]]))
           o[[n]] <- order[[n]]
 
-      if(self$serVersion < MIN_SERVER_VER_ADDITIONAL_ORDER_PARAMS_1)
-        for(n in c("deactivate", "postOnly", "allowPreOpen", "ignoreOpenAuction"))
-          if(o$has(n)) stop("Order parameter not supported: ", n)
-
-      if(self$serVersion < MIN_SERVER_VER_ADDITIONAL_ORDER_PARAMS_2)
-        for(n in c("routeMarketableToBbo", "seekPriceImprovement", "whatIfType"))
-          if(o$has(n)) stop("Order parameter not supported: ", n)
-
-      if(self$serVersion < MIN_SERVER_VER_HEDGE_MAX_SIZE && o$has("hedgeMaxSize"))
-        stop("Order parameter not supported: hedgeMaxSize")
-
       ao <- RProtoBuf::new(IBProto.AttachedOrders)
 
       for(n in attachedorders) {
@@ -318,10 +307,7 @@ IBClient <- R6Class("IBClient",
         if(is.na(val) || !nzchar(val))
           next
 
-        if(self$serVersion < MIN_SERVER_VER_ATTACHED_ORDERS)
-          stop("Attached order parameter not supported: ", n)
-        else
-          ao[[n]] <- val
+        ao[[n]] <- val
       }
 
       msg <- RProtoBuf::new(IBProto.PlaceOrderRequest,
@@ -419,12 +405,6 @@ IBClient <- R6Class("IBClient",
       private$encodeargs(50L, IBProto.RealTimeBarsRequest), ### REQ_REAL_TIME_BARS
 
     cancelRealTimeBars= function(reqId) private$req_int(51L, reqId), ### CANCEL_REAL_TIME_BARS
-
-    reqFundamentalData= function(reqId, contract, reportType, fundamentalDataOptions=character())
-      private$encodeargs(52L, ### REQ_FUNDAMENTAL_DATA
-                         IBProto.FundamentalDataRequest),
-
-    cancelFundamentalData= function(reqId) private$req_int(53L, reqId), ### CANCEL_FUNDAMENTAL_DATA
 
     calculateImpliedVolatility= function(reqId, contract, optionPrice, underPrice, miscOptions=character())
       private$encodeargs(54L, ### REQ_CALC_IMPLIED_VOLAT

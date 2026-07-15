@@ -138,7 +138,8 @@ ContractDetails <- list(contract=           Contract,
                         ineligibilityReasonList=         list(),
                         eventContract1=                  "",
                         eventContractDescription1=       "",
-                        eventContractDescription2=       "")
+                        eventContractDescription2=       "",
+                        settlementMethod=                "")
 
 OrderState  <- list(status=               "",
                     initMarginBefore=     NA_real_,
