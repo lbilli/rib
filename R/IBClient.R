@@ -299,6 +299,9 @@ IBClient <- R6Class("IBClient",
         if(!is.na(order[[n]]))
           o[[n]] <- order[[n]]
 
+      if(self$serVersion < COND_ORDER_WITH_OVERNIGHT_PARAM && o$has("conditionsIncludeOvernight"))
+        stop("Order parameter not supported: conditionsIncludeOvernight")
+
       ao <- RProtoBuf::new(IBProto.AttachedOrders)
 
       for(n in attachedorders) {
