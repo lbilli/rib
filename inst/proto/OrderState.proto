@@ -46,4 +46,17 @@ message OrderState {
     optional string warningText = 28;
     optional string completedTime = 29;
     optional string completedStatus = 30;
+    optional double averagePrice = 31;
+    optional string submittedQuantity = 32;
+    optional double currentPrice = 33;
+    optional string brokerToClientAssignedNumber = 34;
+    optional string exchangeToFund = 35;
+    optional string recentSubmitModifyTime = 36;
+    optional string submitTime = 37;
+    optional string routingStrategy = 38;
+    optional string assignedTo = 39;
+    optional string trailingKey = 40;
+    optional string crossType = 41;
+    optional string ticketOwnerSession = 42;
+    optional int32 scaleProgress = 43;
 }

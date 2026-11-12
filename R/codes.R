@@ -120,7 +120,10 @@ map_ticktype <- c("BID_SIZE",                   #   0
                   "ODD_LOT_BID_SIZE",           # 107
                   "ODD_LOT_ASK_SIZE",           # 108
                   "ODD_LOT_BID_EXCH",           # 109
-                  "ODD_LOT_ASK_EXCH")           # 110
+                  "ODD_LOT_ASK_EXCH",           # 110
+                  NA_character_,
+                  "COMBO_IMPLIED_BID",          # 112
+                  "COMBO_IMPLIED_ASK")          # 113
 
 
 funddist <- function(v) switch(v,

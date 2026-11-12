@@ -120,6 +120,8 @@ process <- list2env(list(
     # Conversions
     args$order$totalQuantity <- as.numeric(args$order$totalQuantity)
     args$order$filledQuantity <- as.numeric(args$order$filledQuantity)
+    args$orderState$suggestedSize <- as.numeric(args$orderState$suggestedSize)
+    args$orderState$submittedQuantity <- as.numeric(args$orderState$submittedQuantity)
 
     for(i in seq_len(length(args$orderState$orderAllocations)))
       args$orderState$orderAllocations[[i]][2L:6L] <-
@@ -862,10 +864,6 @@ process <- list2env(list(
 
     args <- splat(pb)
 
-    # TODO:
-    # - Transfer comboleg price
-    # - Decimal Conversion
-
     # Transfer comboLeg prices
     for(i in seq_len(length(args$contract$comboLegs)))
       if(hasName(args$contract$comboLegs[[i]], "perLegPrice")) {
@@ -879,6 +877,8 @@ process <- list2env(list(
     # Conversions
     args$order$totalQuantity <- as.numeric(args$order$totalQuantity)
     args$order$filledQuantity <- as.numeric(args$order$filledQuantity)
+    #args$orderState$suggestedSize <- as.numeric(args$orderState$suggestedSize)
+    args$orderState$submittedQuantity <- as.numeric(args$orderState$submittedQuantity)
 
     for(n in c("routeMarketableToBbo", "usePriceMgmtAlgo", "seekPriceImprovement")) {
 

@@ -1,3 +1,8 @@
+# rib 0.32.0
+
+* Update to API v226
+* Drop support for API < v226
+
 # rib 0.30.4
 
 * Update to API v221
